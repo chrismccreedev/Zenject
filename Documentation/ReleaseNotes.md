@@ -1,6 +1,17 @@
 
 ## <a id="release-notes"></a>Release Notes
 
+###5.2.0 (April 30, 2017)
+
+Minor release with just a few fixes.
+
+- Fixed to compile again on WSA
+- Fixed to be backwards compatible with Unity 5.5
+- Removed MemoryPool DespawnAll() method because of its reliance on GetHashCode (issue #241)
+- Added support for late install in decorator contexts
+- Fixed to always trigger injection before the Awake event for MonoBehaviours attached to ProjectContext
+- Added new bind method FromScriptableObjectResource which doesn't instantiate the scriptable object (issue #218)
+
 ###5.1.0 (April 3, 2017)
 
 Notable
