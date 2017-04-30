@@ -702,6 +702,8 @@ Where:
 
     Note that unlike FromResource, the value returned from Resources.Load in this case will be cloned by calling ScriptableObject.Instantiate.  This is necessary to allow multiple instances of the same scriptable object resource.
 
+1. **FromNewScriptableObjectResource** - Same as FromScriptableObjectResource except it will instantiate a new copy of the given scriptable object resource.  This can be useful if you want to have multiple distinct instances of the given scriptable object resource, or if you want to ensure that the saved values for the scriptable object are not affected by changing at runtime.
+
 1. **FromResolve** - Get instance by doing another lookup on the container (in other words, calling `DiContainer.Resolve<ResultType>()`).  Note that for this to work, **ResultType** must be bound in a separate bind statement.  This construction method can be especially useful when you want to bind an interface to another interface, as shown in the below example
 
     ```csharp
