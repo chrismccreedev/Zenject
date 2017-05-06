@@ -2686,6 +2686,7 @@ Something else to note is that the rate at which the ITickable.Tick method gets 
     * [EcsRx](https://github.com/grofit/ecsrx) - A framework for Unity using the ECS pattern
     * [Karma](https://github.com/cgarciae/karma) - An MVC framework for Unity
     * [View Controller](http://blog.jamjardavies.co.uk/index.php/2016/04/12/view-controller-with-zenject/) - A view controller system
+    * [Alensia](https://github.com/mysticfall/Alensia) - High level framework to build RPG style games using Unity
 
     Tools
 
