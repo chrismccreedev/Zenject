@@ -892,6 +892,8 @@ Another way to do this is to use ScriptableObjectInstaller to store settings, wh
 
 ## <a id="object-graph-validation"></a>Object Graph Validation
 
+**Overview**
+
 The usual workflow when setting up bindings using a DI framework is something like this:
 
 * Add some number of bindings in code
@@ -906,9 +908,21 @@ You can do this in Zenject out-of-the-box by executing the menu item `Edit -> Ze
 
 Alternatively, you can execute the menu item `Edit -> Zenject -> Validate Then Run` or simply hitting CTRL+SHIFT+R.  This will validate the scenes you have open and then if validation succeeds, it will start play mode.  Validation is usually pretty fast so this can be a good alternative to always just hitting play, especially if your game has a costly startup time.
 
+**Under the hood**
+
+In object validation mode Zenject makes a "dry run" i.e. instead of all dependencies null values get injected.
+
+So there are a few things that are different from a regular run of game:
+
+- No actual logic code is executed, only install bindings is called.
+- For each Factory `Validate()` is called (see [Factory](https://github.com/modesttree/Zenject/blob/master/Documentation/Factories.md) docs).
+- **null** values are injected in all dependencies(regardles of what was binded)
+
+You might want to inject some classes even in validation mode. In that case mark them with `[ZenjectAllowDuringValidation]`.
+
 ## <a id="scene-bindings"></a>Scene Bindings
 
-In many cases, you have a number of MonoBehaviour's that have been added to the scene within the Unity editor (ie. at editor time not runtime) and you want to also have these MonoBehaviour's added to the Zenject Container so that they can be injected into other classes.
+In many cases, you have a number of MonoBehaviours that have been added to the scene within the Unity editor (ie. at editor time not runtime) and you want to also have these MonoBehaviours added to the Zenject Container so that they can be injected into other classes.
 
 The usual way this is done is to add public references to these objects within your installer like this:
 
