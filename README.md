@@ -1222,9 +1222,6 @@ The `ZenjectBinding` component has the following properties:
 * **Using multiple constructors**
     * Zenject does not support injecting into multiple constructors currently.  You can have multiple constructors however you must mark one of them with the [Inject] attribute so Zenject knows which one to use.
 
-* **Prefer [Inject] methods to Start/Awake methods for dynamically created MonoBehaviours**
-    * One issue that often arises when using Zenject is that a game object is instantiated dynamically, and then one of the MonoBehaviours on that game object attempts to use one of its injected field dependencies in its Start() or Awake() methods.  Often in these cases the dependency will still be null, as if it was never injected.  The issue here is that Zenject cannot fill in the dependencies until after the call to GameObject.Instantiate completes, and in most cases GameObject.Instantiate will call the Start() and Awake() methods.  The solution is to use neither Start() or Awake() and instead define a new method and mark it with a [Inject] attribute.  This will guarantee that all dependencies have been resolved before executing the method.
-
 * **Using Zenject outside of Unity**
     * Zenject is primarily designed to work within Unity3D.  However, it can also be used as a general purpose DI framework outside of Unity3D.  Zenject has been used within ASP.NET MVC and WPF projects successfully.  In order to do this, you can get the DLL from the Releases section of the GitHub page, or build the solution yourself at `NonUnityBuild/Zenject.sln`
 
