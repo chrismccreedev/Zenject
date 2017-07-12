@@ -163,8 +163,6 @@ The tests may also be helpful to show usage for each specific feature (which you
 
 What follows is a general overview of Dependency Injection from my perspective.  However, it is kept light, so I highly recommend seeking other resources for more information on the subject, as there are many other people (often with better writing ability) that have written about the theory behind it.
 
-Also see <a href="https://www.youtube.com/watch?v=8ZCkEXv3QsQ">here</a> for a video that serves as a nice introduction to the theory.
-
 When writing an individual class to achieve some functionality, it will likely need to interact with other classes in the system to achieve its goals.  One way to do this is to have the class itself create its dependencies, by calling concrete constructors:
 
 ```csharp
