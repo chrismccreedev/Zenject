@@ -51,7 +51,7 @@ class Runner:
         self._varMgr.set('PythonDir', '[BuildDir]/python')
         self._varMgr.set('TempDir', '[BuildDir]/Temp')
         self._varMgr.set('AssetsDir', '[RootDir]/UnityProject/Assets')
-        self._varMgr.set('ZenjectDir', '[AssetsDir]/Zenject')
+        self._varMgr.set('ZenjectDir', '[AssetsDir]/Plugins/Zenject')
         self._varMgr.set('DistDir', '[BuildDir]/Dist')
         self._varMgr.set('BinDir', '[RootDir]/NonUnityBuild/Bin')
 
@@ -105,7 +105,7 @@ class Runner:
         self._log.heading('Creating {0}'.format(os.path.basename(outputPath)))
 
         self._varMgr.set('PackageTempDir', '[TempDir]/Packager')
-        self._varMgr.set('ZenTempDir', '[PackageTempDir]/Assets/Zenject')
+        self._varMgr.set('ZenTempDir', '[PackageTempDir]/Assets/Plugins/Zenject')
 
         self._sys.createDirectory('[PackageTempDir]')
         self._sys.createDirectory('[PackageTempDir]/ProjectSettings')
@@ -149,7 +149,7 @@ def installBindings():
 
     config = {
         'PathVars': {
-            'UnityExePath': 'C:/Utils/Unity/PrimaryLink/Editor/Unity.exe',
+            'UnityExePath': 'C:/Utils/Unity/Unity2017.1.0f3/Editor/Unity.exe',
             'LogPath': os.path.join(BuildDir, 'Log.txt'),
             'MsBuildExePath': 'C:/Windows/Microsoft.NET/Framework/v4.0.30319/msbuild.exe'
         },
