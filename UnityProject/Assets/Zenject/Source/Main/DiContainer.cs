@@ -735,7 +735,7 @@ namespace Zenject
                 || type.DerivesFrom<Context>()
 #endif
 #if !(UNITY_WSA && ENABLE_DOTNET && !UNITY_EDITOR)
-                || type.HasAttribute<ZenjectAllowDuringValidationAttribute>()
+                || type.HasAttributeIncludingInterfaces<ZenjectAllowDuringValidationAttribute>()
 #endif
             ;
         }
