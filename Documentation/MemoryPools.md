@@ -139,7 +139,7 @@ public class Foo
 The full format of the binding is the following:
 
 <pre>
-Container.BindMemoryPool&lt;<b>ObjectType, MemoryPoolType</b>&gt;()
+Container.BindMemoryPool&lt;<b>ObjectType, MemoryPoolType, MemoryPoolContractType</b>&gt;()
     .With<b>(InitialSize|FixedSize)</b>()
     .ExpandBy<b>(OneAtATime|Doubling)</b>()
     .To&lt;<b>ResultType</b>&gt;()
@@ -152,6 +152,12 @@ Container.BindMemoryPool&lt;<b>ObjectType, MemoryPoolType</b>&gt;()
 </pre>
 
 Where:
+
+* **ObjectType** = The type of the class that is being instantiated by the memory pool
+
+* **MemoryPoolType** = The type of the MemoryPool derived class, which is often a nested class of `ObjectType`.
+
+* **MemoryPoolContractType** = Note:  This can be left unspecified most of the time (ie. only the first two generic parameters are required).  This is the contract type to match for injected members.  In other words, when zenject injects on an object, it will be looking for constructor parameters/inject fields that have this type before injecting the memory pool instance.  It must be equal to or a parent class/interface of the given `MemoryPoolType`.  This is only useful for cases where you want to inject your memory pool by an interface like `IMemoryPool<Foo>` or a custom interface.
 
 * **With** = Determines the number of instances that the pool is seeded with.  When not specified, the pool starts with zero instances.  The options are:
 
@@ -518,3 +524,4 @@ var settings = new MemoryPoolSettings()
 var pool = _container.Instantiate<MemoryPool<Bar>>(
     new object[] { settings, new MyBarFactory<Bar>() });
 ```
+

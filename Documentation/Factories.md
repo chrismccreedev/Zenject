@@ -419,3 +419,4 @@ public class CustomEnemyFactory : IFactory<IEnemy>, IValidatable
 ```
 
 This is done by implementing the interface `IValidatable` and then adding a `Validate()` method.  Then, to manually validate objects, you simply instantiate them.  Note that this will not actually instantiate these objects (these calls actually return null here).  The point is to do a "dry run" without actually instantiating anything, to prove out the full object graph.  For more details on validation see the validation section.
+
