@@ -420,3 +420,43 @@ public class CustomEnemyFactory : IFactory<IEnemy>, IValidatable
 
 This is done by implementing the interface `IValidatable` and then adding a `Validate()` method.  Then, to manually validate objects, you simply instantiate them.  Note that this will not actually instantiate these objects (these calls actually return null here).  The point is to do a "dry run" without actually instantiating anything, to prove out the full object graph.  For more details on validation see the validation section.
 
+## <a id="custom-interface"></a>Custom Factory Interface
+
+In some cases, you might want to avoid becoming directly coupled to the factory class, and would prefer to use a base class or an interface instead.  You can do that by using the `BindFactoryContract` method instead of `BindFactory` like this:
+
+```
+public interface IMyFooFactory : IFactory<Foo>
+{
+}
+
+public class Foo
+{
+    public class Factory : Factory<Foo>, IMyFooFactory
+    {
+    }
+}
+
+public class Runner : IInitializable
+{
+    readonly IMyFooFactory _fooFactory;
+
+    public Runner(IMyFooFactory fooFactory)
+    {
+        _fooFactory = fooFactory;
+    }
+
+    public void Initialize()
+    {
+        var foo = _fooFactory.Create();
+        // ...
+    }
+}
+
+public class FooInstaller : MonoInstaller<FooInstaller>
+{
+    public override void InstallBindings()
+    {
+        Container.BindFactoryContract<Foo, IMyFooFactory, Foo.Factory>();
+    }
+}
+```
