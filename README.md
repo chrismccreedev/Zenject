@@ -78,7 +78,7 @@ You can install Zenject using any of the following methods
 
 Unity is a fantastic game engine, however the approach that new developers are encouraged to take does not lend itself well to writing large, flexible, or scalable code bases.  In particular, the default way that Unity manages dependencies between different game components can often be awkward and error prone.
 
-This project was started after reading a <a href="http://blog.sebaslab.com/ioc-container-for-unity3d-part-1/">series of great articles</a> by Sebastiano Mandalà outlining the problem.  Sebastiano even wrote a proof of concept and open sourced it, which became the basis for this library.  Zenject also takes a lot of inspiration from Ninject (as implied by the name).
+This project was started because at the time there wasn't any DI frameworks for Unity and I had grown accustomed to writing code using DI while working in other environments outside Unity.  Google led me to a <a href="http://blog.sebaslab.com/ioc-container-for-unity3d-part-1/">series of articles</a> by Sebastiano Mandalà outlining some of these problems with Unity in particular.  Sebastiano even wrote a proof of concept DI framework and open sourced it, which became the basis for this library.  Zenject also takes a lot of inspiration from Ninject (as implied by the name).
 
 Finally, I will just say that if you don't have experience with DI frameworks, and are writing object oriented code, then trust me, you will thank me later!  Once you learn how to write properly loosely coupled code using DI, there is simply no going back.
 
