@@ -2692,6 +2692,7 @@ Something else to note is that the rate at which the ITickable.Tick method gets 
     * [Toy Clash](https://toyclash.com/) - ([GearVR](https://www.oculus.com/experiences/gear-vr/1407846952568081/))
     * [Bedtime Math App](http://bedtimemath.org/apps) - ([iOS](https://itunes.apple.com/us/app/bedtimemath/id637910701) and [Android](https://play.google.com/store/apps/details?id=com.twofours.bedtimemath))
     * [4 Pics 1 Word: John Einstein](https://play.google.com/store/apps/details?id=com.qantanstudio.impossiblequiz) (Android) - Puzzle game
+    * [EcsRx Roguelike 2D](https://github.com/grofit/ecsrx.roguelike2d) - An example of a Roguelike 2d game using EcsRx and Zenject
 
     Libraries
 
