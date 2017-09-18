@@ -2690,6 +2690,8 @@ Something else to note is that the rate at which the ITickable.Tick method gets 
 
     Zenject should also produce zero per-frame heap allocations.
 
+    If performance is really important, then we recommend that you use memory pools (and also specify an initial size) and also cache reflection by calling `Zenject.TypeAnalyzer.GetInfo`.  By doing this, you should be able to restrict all the costly operations to the initialization time and avoid any performance issues once your game starts.
+
 * **<a id="net-framework"></a>Can I use .NET framework 4.0 and above?**
 
     By default Unity uses .NET framework 3.5 and so Zenject assumes that this is what you want.  If you are compiling Zenject with a version greater than this, this is fine, but you'll have to either delete or comment out the contents of Func.cs.
