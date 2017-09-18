@@ -785,10 +785,60 @@ Where:
         }
         ```
 
+    1. **ByNewPrefabMethod** - Initialize subcontainer by instantiating a new prefab.  Note that unlike `ByNewPrefab`, this bind method does not require that there be a GameObjectContext attached to the prefab.  In this case the GameObjectContext is added dynamically and then run with the given installer method.
+
+        ```csharp
+        Container.Bind<Foo>().FromSubContainerResolve().ByNewPrefabMethod(MyPrefab, InstallFoo);
+
+        void InstallFoo(DiContainer subContainer)
+        {
+            subContainer.Bind<Foo>();
+        }
+        ```
+
+    1. **ByNewPrefabInstaller** - Initialize subcontainer by instantiating a new prefab.  Same as ByNewPrefabMethod, except it initializes the dynamically created GameObjectContext with the given installer rather than a method.
+
+        ```csharp
+        Container.Bind<Foo>().FromSubContainerResolve().ByNewPrefabInstaller<FooInstaller>(MyPrefab);
+
+        class FooInstaller : MonoInstaller
+        {
+            public override void InstallBindings()
+            {
+                Container.Bind<Foo>();
+            }
+        }
+        ```
+
     1. **ByNewPrefabResource** - Initialize subcontainer instantiating a new prefab obtained via `Resources.Load`.  Note that the prefab must contain a `GameObjectContext` component attached to the root game object.
 
         ```csharp
         Container.Bind<Foo>().FromSubContainerResolve().ByNewPrefabResource("Path/To/MyPrefab");
+        ```
+
+    1. **ByNewPrefabResourceMethod** - Initialize subcontainer instantiating a new prefab obtained via `Resources.Load`.  Note that unlike `ByNewPrefabResource`, this bind method does not require that there be a GameObjectContext attached to the prefab.  In this case the GameObjectContext is added dynamically and then run with the given installer method.
+
+        ```csharp
+        Container.Bind<Foo>().FromSubContainerResolve().ByNewPrefabResourceMethod("Path/To/MyPrefab", InstallFoo);
+
+        void InstallFoo(DiContainer subContainer)
+        {
+            subContainer.Bind<Foo>();
+        }
+        ```
+
+    1. **ByNewPrefabResourceInstaller** - Initialize subcontainer instantiating a new prefab obtained via `Resources.Load`.  Same as ByNewPrefabResourceMethod, except it initializes the dynamically created GameObjectContext with the given installer rather than a method.
+
+        ```csharp
+        Container.Bind<Foo>().FromSubContainerResolve().ByNewPrefabResourceInstaller<FooInstaller>("Path/To/MyPrefab");
+
+        class FooInstaller : MonoInstaller
+        {
+            public override void InstallBindings()
+            {
+                Container.Bind<Foo>();
+            }
+        }
         ```
 
 Note also that the "scope" here (eg. FromCached, FromSingle, or FromTransient) refers to the sub container itself and not the dependency in the subcontainer. For FromSingle, the 'singleton' subcontainer is identified by the method in the case of ByMethod, the installer type in the case of ByInstaller, and the prefab in the case of ByNewPrefab or ByNewPrefabResource.
