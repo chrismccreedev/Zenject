@@ -620,6 +620,22 @@ Where:
 
     **ResultType** must derive from UnityEngine.MonoBehaviour / UnityEngine.Component in this case
 
+1. **FromNewComponentOnNewPrefab** - Instantiate the given prefab as a new game object and also instantiate a new instance of the given component on the root of the new game object.  NOTE: It is not necessary that the prefab contains a copy of the given component.
+
+    ```csharp
+    Container.Bind<Foo>().FromNewComponentOnNewPrefab(somePrefab);
+    ```
+
+    **ResultType** must derive from UnityEngine.MonoBehaviour / UnityEngine.Component in this case
+
+1. **FromNewComponentOnNewPrefabResource** - Instantiate the given prefab (found at the given resource path) and also instantiate a new instance of the given component on the root of the new game object.  NOTE: It is not necessary that the prefab contains a copy of the given component.
+
+    ```csharp
+    Container.Bind<Foo>().FromNewComponentOnNewPrefabResource("Some/Path/Foo");
+    ```
+
+    **ResultType** must derive from UnityEngine.MonoBehaviour / UnityEngine.Component in this case
+
 1. **FromNewComponentOn** - Instantiate a new component of the given type on the given game object
 
     ```csharp
