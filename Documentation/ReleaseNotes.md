@@ -1,6 +1,39 @@
 
 ## <a id="release-notes"></a>Release Notes
 
+###5.3.0 (September 18, 2017)
+
+Some optimizations, bug fixes, and a few new bind methods
+
+Notable
+- Added optimizations to speed up startup time for scenes with many transforms.  In some cases it should be 5x faster to scan the initial scene hierarchy.
+- Added optimizations to minimize memory allocations
+- Added new bind methods FromNewComponentOnNewPrefab and FromNewComponentOnNewPrefabResource
+- Added new bind methods for FromSubContainerResolve() bindings: ByNewPrefabMethod, ByNewPrefabResourceMethod, ByNewPrefabInstaller, and ByNewPrefabResourceInstaller
+- Added support for having multiple "parent contract names" for the same scene
+- Fixed rare exception that was occurring sometimes with circular dependencies
+- Added better support for binding open generic types to open generic derived classes
+- Bug fix - FromNewComponentOnNewGameObject was causing [Inject] methods to be executed after awake
+- Added support for declaring collections of dependencies using IList<> instead of just List<>
+- Bug fix - validation wasn't working when using FromResolveGetter with identifiers
+- Changed to skip analyzing unity types (ie. those inside UnityEngine namespace) to minimize reflection costs
+- Fixed AutoMocking to work by upgrading to newer Moq dll
+
+Minor
+- Added back Container.Install method as an alternative to FooInstaller.Install
+- Added ability to lazily initialize GameObjectContext
+- Added Position and Rotation to GameObjectCreationParameters
+- Changed execution order extension methods to be proper methods to avoid namespace issues
+- Added non-generic DeclareSignal overload
+- Added BindFactoryContract and FromIFactoryResolve methods to make it easier to have custom factory interfaces
+- Added support for custom memory pool interfaces
+- Added UnbindInterfacesTo method
+- Added support for loading asset bundles with FromComponentInNewPrefab instead of prefabs
+- Added ability to pass 'late bindings' to next scene dynamically using  ZenjectSceneLoader
+- Added support for injecting into C# 4.6 get-only properties
+- Added more attributes to play more nicely with resharper
+- Changed to disable support for profiling Zenject methods by default (need to define ZEN_PROFILING_ENABLED)
+
 ###5.2.0 (April 30, 2017)
 
 Minor release with just a few fixes.
