@@ -293,7 +293,7 @@ Every zenject integration test is broken up into three phases:
 
 - Before PreInstall - Set up the initial scene how you want for your test. This could involve loading prefabs from the Resources directory, creating new GameObject's from scratch, etc.
 - After PreInstall - Install all the bindings to the Container that you need for your test
-- After PostInstall - At this point, all the non-lazy objects that we've bound to the container have been instantiated, all objects in the scene have been injected, and all IInitializable.Initialize methods have been called.  So we can now start adding Assert's to test the state and manipulating the runtime state of the objects.
+- After PostInstall - At this point, all the non-lazy objects that we've bound to the container have been instantiated, all objects in the scene have been injected, and all IInitializable.Initialize methods have been called.  So we can now start adding Assert's to test the state, manipulate the runtime state of the objects, etc.
 
 For a more real world example, let's add an integration test for one of the spaceship classes in the included sample project (SpaceFighter).  During the game, more and more enemies are spawned into the scene that the player has to defend themselves against.  Each enemy object contains a lot of moving parts within it, but does not have very many dependencies on other classes in the game.  Each enemy needs to know some state about the player but otherwise behaves more or less independently of the rest of the game, which means that it might be a good candidate for testing in isolation.
 
