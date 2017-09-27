@@ -39,7 +39,7 @@ public class Logger
 }
 ```
 
-Now, to test this class, create a new folder named Editor, then add a new file named TestLogger.cs and copy and paste the following:
+Now, to test this class, create a new folder named Editor, then right click on it inside the Project tab, and select Create -> Zenject -> Unit Test.  Name it TestLogger.cs.  This will create a basic template that we can fill in with our tests.  Copy and paste the following:
 
 ```csharp
 using System;
@@ -94,7 +94,7 @@ public class TestLogger : ZenjectUnitTestFixture
 
 ```
 
-To run the tests open up Unity's test runner by selecting `Window -> Test Runner`.  Then make sure the EditMode tab is selected, then click Run All or right click on the specific test you want to run.
+To run it, open up Unity's test runner by selecting `Window -> Test Runner`.  Then make sure the EditMode tab is selected, then click Run All or right click on the specific test you want to run.
 
 As you can see above, this approach is very basic and just involves inheriting from the `ZenjectUnitTestFixture` class.  All this helper class does is ensure that a new Container is re-created before each test method is called.   That's it.  This is the entire code for it:
 
@@ -173,71 +173,195 @@ public class TestLogger : ZenjectUnitTestFixture
 
 ### Integration Tests
 
-Integration tests, on the other hand, are executed in a similar environment to the scenes in your project.  Unlike ZenjectUnitTestFixture, a `SceneContext` and `ProjectContext` are created for each test, and any bindings to IInitializable, ITickable, and IDisposable will be executed just like when running your game normally.
+Integration tests, on the other hand, are executed in a similar environment to the scenes in your project.  Unlike unit tests, integration tests involve a `SceneContext` and `ProjectContext`, and any bindings to IInitializable, ITickable, and IDisposable will be executed just like when running your game normally.  It achieves this by using Unity's support for 'playmode tests'.
 
-Let's pull from the included sample project and test one of the classes there (AsteroidManager):
+As a very simple example, let's say we have the following class we want to test:
 
 ```csharp
-[TestFixture]
-public class TestAsteroidManager : ZenjectIntegrationTestFixture
+public class SpaceShip : MonoBehaviour
 {
-    [SetUp]
-    public void CommonInstall()
+    [InjectOptional]
+    public Vector3 Velocity
     {
-        GameSettingsInstaller.InstallFromResource(Container);
-        var gameSettings = Container.Resolve<GameInstaller.Settings>();
-        Container.Bind<AsteroidManager>().AsSingle();
-        Container.BindFactory<Asteroid, Asteroid.Factory>().FromComponentInNewPrefab(gameSettings.AsteroidPrefab);
-        Container.Bind<Camera>().WithId("Main").FromNewComponentOnNewGameObject().AsSingle();
-        Container.Bind<LevelHelper>().AsSingle();
-
-        Initialize();
+        get; set;
     }
 
-    [Inject]
-    AsteroidManager _asteroidManager;
-
-    [Inject]
-    AsteroidManager.Settings _asteroidManagerSettings;
-
-    [Test]
-    [ValidateOnly]
-    public void TestValidate()
+    public void Update()
     {
-    }
-
-    [Test]
-    public void TestInitialSpawns()
-    {
-        _asteroidManager.Start();
-
-        Assert.AreEqual(_asteroidManager.Asteroids.Count(), _asteroidManagerSettings.startingSpawns);
-    }
-
-    [Test]
-    public void TestSpawnNext()
-    {
-        _asteroidManager.Start();
-        _asteroidManager.SpawnNext();
-
-        Assert.AreEqual(_asteroidManager.Asteroids.Count(), _asteroidManagerSettings.startingSpawns + 1);
+        transform.position += Velocity * Time.deltaTime;
     }
 }
 ```
 
-Similar to unit tests, writing integration tests is similar to writing unit tests described above, except instead of having your test fixture inherit from `ZenjectUnitTestFixture`, you inherit from `ZenjectIntegrationTestFixture` instead.
+After adding this class to your project, you can add an integration test for it by right clicking somewhere in the Project tab and then selecting `Create -> Zenject -> Integration Test` and then naming it `SpaceShipTests.cs`.  This will create the following template code with everything you need to start writing your test:
 
-We want to test the AsteroidManager class here, but it has a few dependencies that it needs in order to run.  And some of those dependencies have their own dependencies.  So what we do here is we add the minimum number of bindings necessary to be able to create a new AsteroidManager so that we can run some basic sanity tests on it.
+```csharp
+public class SpaceShipTests : ZenjectIntegrationTestFixture
+{
+    [UnityTest]
+    public IEnumerator RunTest1()
+    {
+        // Setup initial state by creating game objects from scratch, loading prefabs/scenes, etc
 
-When you start running a test through Unity's EditorTestRunner window, Unity will open up a new empty scene and run the tests there, and then Unity will re-open your previously open scenes once the tests complete.  This is great because any new game objects you create will not affect any currently open scenes (more details <a href="https://docs.unity3d.com/550/Documentation/Manual/testing-editortestsrunner.html">here</a>.)
+        PreInstall();
 
-Before each one of your test methods are run, ZenjectIntegrationTestFixture will create a new SceneContext in this empty scene.  The Container that you reference in your tests refers to the container used by this new temporary SceneContext.  After you have finished installing all your bindings on the Container, either by using [SetUp] methods or from within your test method, you need to call ZenjectIntegrationTestFixture.Initialize().  This will resolve all the NonLazy bindings and also trigger IInitializable.Initialize for all classes that are bound to IInitializable.  If you have common fields on your test marked with [Inject] then these fields are also filled in at this time.  Alternatively, you can directly call `Container.Resolve<>` from within your test methods to get the classes you want to run tests on.
+        // Call Container.Bind methods
 
-You can also run zenject validation on your test by adding a `[ValidateOnly]` attribute above your test method (as shown in example above).  This will cause the test to not instantiate any of your bindings and instead just verify that the configuration of your Container is valid.  However, you could also just as easily rely on configuration errors to be caught when running normal tests too, so it probably has limited use for you.
+        PostInstall();
 
-Limitations:
-- The tests are executed in the editor without entering play mode.  This means that any game objects you create will not have their Awake() or Start() methods called unless you do so explicitly
-- Each test is executed in one frame of execution, so you can't test behaviour that occurs across frames
+        // Add test assertions for expected state
+        // Using Container.Resolve or [Inject] fields
+        yield break;
+    }
+}
+```
+
+Let's fill in some test code for our SpaceShip class:
+
+```csharp
+public class SpaceShipTests : ZenjectIntegrationTestFixture
+{
+    [UnityTest]
+    public IEnumerator TestVelocity()
+    {
+        PreInstall();
+
+        Container.Bind<SpaceShip>().FromNewComponentOnNewGameObject()
+            .AsSingle().WithArguments(new Vector3(1, 0, 0));
+
+        PostInstall();
+
+        var spaceShip = Container.Resolve<SpaceShip>();
+
+        Assert.IsEqual(spaceShip.transform.position, Vector3.zero);
+
+        yield return null;
+
+        // Should move in the direction of the velocity
+        Assert.That(spaceShip.transform.position.x > 0);
+    }
+}
+```
+
+All we're doing here is ensuring that the space ship moves in the same direction as its velocity.  If we had many tests to run on SpaceShip we could also change it to this:
+
+```csharp
+public class SpaceShipTests : ZenjectIntegrationTestFixture
+{
+    void CommonInstall()
+    {
+        PreInstall();
+
+        Container.Bind<SpaceShip>().FromNewComponentOnNewGameObject()
+            .AsSingle().WithArguments(new Vector3(1, 0, 0));
+
+        PostInstall();
+    }
+
+    [Inject]
+    SpaceShip _spaceship;
+
+    [UnityTest]
+    public IEnumerator TestInitialState()
+    {
+        CommonInstall();
+
+        Assert.IsEqual(_spaceship.transform.position, Vector3.zero);
+        Assert.IsEqual(_spaceship.Velocity, new Vector3(1, 0, 0));
+        yield break;
+    }
+
+    [UnityTest]
+    public IEnumerator TestVelocity()
+    {
+        CommonInstall();
+
+        // Wait one frame to allow update logic for SpaceShip to run
+        yield return null;
+
+        // Should move in the direction of the velocity
+        Assert.That(_spaceship.transform.position.x > 0);
+    }
+}
+```
+
+After PostInstall() is called, our integration test is injected, so we can define [Inject] fields on it like above if we don't want to call Container.Resolve for every test.
+
+Note that we can yield our coroutine to test behaviour across time.  If you are unfamiliar with how Unity's test runner works (and in particular how 'playmode test' work) please see the [unity documentation](https://docs.unity3d.com/Manual/testing-editortestsrunner.html).
+
+Every zenject integration test is broken up into three phases:
+
+- Before PreInstall - Set up the initial scene how you want for your test. This could involve loading prefabs from the Resources directory, creating new GameObject's from scratch, etc.
+- After PreInstall - Install all the bindings to the Container that you need for your test
+- After PostInstall - At this point, all the non-lazy objects that we've bound to the container have been instantiated, all objects in the scene have been injected, and all IInitializable.Initialize methods have been called.  So we can now start adding Assert's to test the state and manipulating the runtime state of the objects.
+
+For a more real world example, let's add an integration test for one of the spaceship classes in the included sample project (SpaceFighter).  During the game, more and more enemies are spawned into the scene that the player has to defend themselves against.  Each enemy object contains a lot of moving parts within it, but does not have very many dependencies on other classes in the game.  Each enemy needs to know some state about the player but otherwise behaves more or less independently of the rest of the game, which means that it might be a good candidate for testing in isolation.
+
+So what we can do is install only the bindings that we need to test one instance of the enemy class:
+
+```csharp
+public class EnemyTests : ZenjectIntegrationTestFixture
+{
+    void CommonInstall()
+    {
+        PreInstall();
+
+        var gameSettings = GameSettingsInstaller.InstallFromResource(
+            "SpaceFighter/GameSettings", Container);
+
+        Container.Bind<EnemyFacade>().FromSubContainerResolve()
+            .ByNewPrefab(gameSettings.GameInstaller.EnemyFacadePrefab);
+
+        Container.BindMemoryPool<Bullet, Bullet.Pool>()
+            .FromComponentInNewPrefab(gameSettings.GameInstaller.BulletPrefab);
+
+        Container.BindMemoryPool<Explosion, Explosion.Pool>()
+            .FromComponentInNewPrefab(gameSettings.GameInstaller.ExplosionPrefab);
+
+        GameSignalsInstaller.Install(Container);
+
+        // Don't care about these so just mock them out
+        Container.Bind<IPlayer>().FromMock().AsSingle();
+        Container.Bind<IAudioPlayer>().FromMock().AsSingle();
+
+        PostInstall();
+    }
+
+    [Inject]
+    EnemyFacade _enemy;
+
+    [UnityTest]
+    public IEnumerator TestEnemyStateChanges()
+    {
+        CommonInstall();
+
+        // Should always start by chasing the player
+        Assert.IsEqual(_enemy.State, EnemyStates.Follow);
+
+        // Wait a frame for AI logic to run
+        yield return null;
+
+        // Our player mock is always at position zero, so if we move the _enemy there then the _enemy
+        // should immediately go into attack mode
+        _enemy.Position = Vector3.zero;
+
+        // Wait a frame for AI logic to run
+        yield return null;
+
+        Assert.IsEqual(_enemy.State, EnemyStates.Attack);
+
+        _enemy.Position = new Vector3(100, 100, 0);
+
+        // Wait a frame for AI logic to run
+        yield return null;
+
+        // The enemy is very far away now, so it should return to searching for the player
+        Assert.IsEqual(_enemy.State, EnemyStates.Follow);
+    }
+}
+```
+
+As you can see, integration tests can be very powerful, because they can be run in a very similar way to how the production scenes are run.  In this case, we can ensure that the AI of the enemy class attacks the player when the player is nearby, and otherwise moves closer to the player.  Also, because this is all automated, we can run this code on a continuous integration server, and have it tested against every code change.  Then as soon as anything breaks in the AI system of the enemy class, we will get notified automatically.
 
 ### User Driven Test Beds
 
@@ -246,5 +370,4 @@ A third common approach to testing worth mentioning is User Driven Test Beds.  T
 This might also be necessary if the functionality you want to test is too complex for a unit test or an integration test.
 
 The only drawback with this approach is that it isn't automated, so you can't have these tests run as part of a continuous integration server
-
 
