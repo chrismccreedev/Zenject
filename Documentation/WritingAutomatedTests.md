@@ -3,7 +3,7 @@
 
 When writing properly loosely coupled code using dependency injection, it is much easier to isolate specific areas of your code base for the purposes of running tests on them without needing to fire up your entire project.  This can take the form of user-driven test-beds or fully automated tests using NUnit.  Automated tests are especially useful when used with a continuous integration server.  This allows you to automatically run the tests whenever new commits are pushed to source control.
 
-There are two very basic helper classes included with Zenject that can make it easier to write automated tests for your game.  One is for Unit tests and the other is for Integration tests.  Both approaches are run via Unity's built in Editor Test Runner (which also has a command line interface that you can hook up to a continuous integration server).  The main difference between the two is that Unit Tests are much smaller in scope and meant for testing a small subset of the classes in your application, whereas Integration Tests can be more expansive and can involve firing up many different systems.
+There are two very basic helper classes included with Zenject that can make it easier to write automated tests for your game.  One is for Unit tests and the other is for Integration tests.  Both approaches are run via Unity's built in Test Runner (which also has a command line interface that you can hook up to a continuous integration server).  The main difference between the two is that Unit Tests are much smaller in scope and meant for testing a small subset of the classes in your application, whereas Integration Tests can be more expansive and can involve firing up many different systems.
 
 This is best shown with some examples.
 
@@ -84,18 +84,17 @@ public class TestLogger : ZenjectUnitTestFixture
     }
 
     [Test]
-    [ExpectedException]
     public void TestNullValue()
     {
         var logger = Container.Resolve<Logger>();
 
-        logger.Write(null);
+        Assert.Throws(() => logger.Write(null));
     }
 }
 
 ```
 
-To run the tests open up Unity's test runner by selecting `Window -> Editor Tests Runner`.  Then click Run All or right click on the specific test you want to run.
+To run the tests open up Unity's test runner by selecting `Window -> Test Runner`.  Then make sure the EditMode tab is selected, then click Run All or right click on the specific test you want to run.
 
 As you can see above, this approach is very basic and just involves inheriting from the `ZenjectUnitTestFixture` class.  All this helper class does is ensure that a new Container is re-created before each test method is called.   That's it.  This is the entire code for it:
 
@@ -165,17 +164,16 @@ public class TestLogger : ZenjectUnitTestFixture
     }
 
     [Test]
-    [ExpectedException]
     public void TestNullValue()
     {
-        _logger.Write(null);
+        Assert.Throws(() => _logger.Write(null));
     }
 }
 ```
 
 ### Integration Tests
 
-Integration tests, on the other hand, are executed in a similar environment to the scenes in your project.  Unlike ZenjectUnitTestFixture, a `SceneContext` and `ProjectContext` are created for each test, so your code will run in similar way that it would normally.  For example, any bindings to IInitializable and IDisposable will be executed how you expect.
+Integration tests, on the other hand, are executed in a similar environment to the scenes in your project.  Unlike ZenjectUnitTestFixture, a `SceneContext` and `ProjectContext` are created for each test, and any bindings to IInitializable, ITickable, and IDisposable will be executed just like when running your game normally.
 
 Let's pull from the included sample project and test one of the classes there (AsteroidManager):
 
@@ -248,4 +246,5 @@ A third common approach to testing worth mentioning is User Driven Test Beds.  T
 This might also be necessary if the functionality you want to test is too complex for a unit test or an integration test.
 
 The only drawback with this approach is that it isn't automated, so you can't have these tests run as part of a continuous integration server
+
 
