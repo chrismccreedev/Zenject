@@ -173,7 +173,7 @@ public class TestLogger : ZenjectUnitTestFixture
 }
 ```
 
-### Integration Testss
+### Integration Tests
 
 Integration tests, on the other hand, are executed in a similar environment to the scenes in your project.  Unlike ZenjectUnitTestFixture, a `SceneContext` and `ProjectContext` are created for each test, so your code will run in similar way that it would normally.  For example, any bindings to IInitializable and IDisposable will be executed how you expect.
 
@@ -189,8 +189,8 @@ public class TestAsteroidManager : ZenjectIntegrationTestFixture
         GameSettingsInstaller.InstallFromResource(Container);
         var gameSettings = Container.Resolve<GameInstaller.Settings>();
         Container.Bind<AsteroidManager>().AsSingle();
-        Container.BindFactory<Asteroid, Asteroid.Factory>().FromPrefab(gameSettings.AsteroidPrefab);
-        Container.Bind<Camera>().WithId("Main").FromGameObject();
+        Container.BindFactory<Asteroid, Asteroid.Factory>().FromComponentInNewPrefab(gameSettings.AsteroidPrefab);
+        Container.Bind<Camera>().WithId("Main").FromNewComponentOnNewGameObject().AsSingle();
         Container.Bind<LevelHelper>().AsSingle();
 
         Initialize();

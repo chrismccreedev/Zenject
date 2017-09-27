@@ -1,15 +1,98 @@
 
 ## <a id="release-notes"></a>Release Notes
 
-###5.1 (February 15, 2017)
+###5.3.0 (September 18, 2017)
 
-- Fixed UniRx integration to work with the right version of Unirx
+Some optimizations, bug fixes, and a few new bind methods
+
+Notable
+- Added optimizations to speed up startup time for scenes with many transforms.  In some cases it should be 5x faster to scan the initial scene hierarchy.
+- Added optimizations to minimize memory allocations
+- Added new bind methods FromNewComponentOnNewPrefab and FromNewComponentOnNewPrefabResource
+- Added new bind methods for FromSubContainerResolve() bindings: ByNewPrefabMethod, ByNewPrefabResourceMethod, ByNewPrefabInstaller, and ByNewPrefabResourceInstaller
+- Added support for having multiple "parent contract names" for the same scene
+- Fixed rare exception that was occurring sometimes with circular dependencies
+- Added better support for binding open generic types to open generic derived classes
+- Bug fix - FromNewComponentOnNewGameObject was causing [Inject] methods to be executed after awake
+- Added support for declaring collections of dependencies using IList<> instead of just List<>
+- Bug fix - validation wasn't working when using FromResolveGetter with identifiers
+- Changed to skip analyzing unity types (ie. those inside UnityEngine namespace) to minimize reflection costs
+- Fixed AutoMocking to work by upgrading to newer Moq dll
+
+Minor
+- Added back Container.Install method as an alternative to FooInstaller.Install
+- Added ability to lazily initialize GameObjectContext
+- Added Position and Rotation to GameObjectCreationParameters
+- Changed execution order extension methods to be proper methods to avoid namespace issues
+- Added non-generic DeclareSignal overload
+- Added BindFactoryContract and FromIFactoryResolve methods to make it easier to have custom factory interfaces
+- Added support for custom memory pool interfaces
+- Added UnbindInterfacesTo method
+- Added support for loading asset bundles with FromComponentInNewPrefab instead of prefabs
+- Added ability to pass 'late bindings' to next scene dynamically using  ZenjectSceneLoader
+- Added support for injecting into C# 4.6 get-only properties
+- Added more attributes to play more nicely with resharper
+- Changed to disable support for profiling Zenject methods by default (need to define ZEN_PROFILING_ENABLED)
+
+###5.2.0 (April 30, 2017)
+
+Minor release with just a few fixes.
+
+- Fixed to compile again on WSA
+- Fixed to be backwards compatible with Unity 5.5
+- Removed MemoryPool DespawnAll() method because of its reliance on GetHashCode (issue #241)
+- Added support for late install in decorator contexts
+- Fixed to always trigger injection before the Awake event for MonoBehaviours attached to ProjectContext
+- Added new bind method FromScriptableObjectResource which doesn't instantiate the scriptable object (issue #218)
+
+###5.1.0 (April 3, 2017)
+
+Notable
+- Fixes related to upgrading to Unity 5.6
+- Moved Zenject folder to plugins directory
+- Changed to trigger injection before Awake / OnEnable / Start for dynamically instantaited prefabs. This is nice because you can treat [Inject] methods more like constructors, and then use Awake/Start for initialization logic, for both dynamically created objects and objects in the scene at the start
+- Marked the [Inject] attribute with MeansImplicitUseAttribute to improve integration with JetBrains Resharper
+- Fixed bug that was happening when using ZenjectSceneLoader with LoadSceneMode.Single (it was destroying ProjectContext)
+- Added support for declaring [Inject] methods with return type IEnumerator similar to Start
+- Changed UnderTransform bind method overload to accept InjectContext instead of just DiContainer to be consistent with the other action overloads
+- Added new bind method FromComponentOn that takes an Action<> instead of a specific game object
+- Changed to just always include SignalManager in the project context since this is where it should always be declared anyway
+- Changed to require that all signal parameters be reference types when on IL2CPP platforms.  See docs for why this is necessary.
+- Added new signal bind method that gets both parameters and a handler class (so you can perform an operation on the parameters before forwarding to the handler for example)
+
+Minor
+- Fixed bug where some fields marked as InjectOptional were still producing errors
+- Changed to allow doing Bind<Transform>().FromNewComponentOnNewGameObject()
+- [Memory pools] Minor change to allow specifying an explicit interface for the memory pool itself
+- [Memory pools] Fixed bug where validation was failing
+- [Memory pools] Added Listen and Unlisten methods to ISignal
+- Changed Pause/Resume methods on TickableManager to be inherited from parents
+- Added an option to exclude self (current object) in FromComponentInChildren and FromComponentInParents
+- Fixed minor issue when using FromSubContainerResolve with factories
+
+###5.0.2 (March 5, 2017)
+
+- Fixed to allow parameterized tests using double parameters in ZenjectIntegrationTestFixtures
+- Added another overload to BindMemoryPool to allow creating them directly without creating an empty subclass
+- Changed memory pools to take an IFactory<> instead of a provider so that they can be instantiated directly by anyone that wants to do some custom stuff with it without needing to use BindMemoryPool
+- Bug fix to validation for game object contexts
+- Fixed script execution order to ensure that tickables, initializables, etc. are executed before MonoBehaviours in the scene (this is how it was in older versions)
+- Changed to call IInitializable.Initialize immediately for GameObjextContext prefabs that are created dynamically. This is nice because otherwise, when you create a GameObjectContext via a factory, you can't use it immediately Unity waits until the end of the frame to call Start() to trigger Initialize
+- Changed to use a runtime check inside profiler blocks to allow creating unit tests outside unity
+- Fixed signals to validate properly
+- Renamed FromScriptableObjectResource to FromNewScriptableObjectResource for consistency.
+- Added a few missing factory bindings (FromComponentInHierarchy and FromNewScriptableObjectResource)
+- Fixed signal installer bindings to work properly with AsTransient and multi-bindings
+
+###5.0.1 (February 15, 2017)
+
+- Hotfix.  Signal UniRx integration was completely broken
 
 ###5.0 (February 13, 2017)
 
 Summary
 
-Notable parts of this release includes the long awaited support for Memory Pools and support for late resolve via Lazy<> construct.  It also includes some API breaking changes to make it easier for new users.  Some of the bind methods were renamed to better represent what they mean, and in some cases the scope is now required to be made explicit, to avoid accidentally using transient scope.  Finally, there was also some significant performance improvements for when using Zenject in scenes with many transforms.
+Notable parts of this release includes the long awaited support for Memory Pools, a re-design of Commands/Signals, and support for late resolve via Lazy<> construct.  It also includes some API breaking changes to make it easier for new users.  Some of the bind methods were renamed to better represent what they mean, and in some cases the scope is now required to be made explicit, to avoid accidentally using transient scope.  Finally, there was also some significant performance improvements for when using Zenject in scenes with many transforms.
 
 New Features
 - Significant changes to commands and signals.  The functionality of commands was merged into Signals, and some more features were added to it to support subcontainers (see docs)
@@ -34,6 +117,9 @@ Changes
 - Removed support for passing arguments to InjectGameObject and InstantiatePrefab methods (issue #125)
 - Removed UnityEventManager since it isn't core to keep things lightweight
 - Renamed the Resolve overload that included an ID to ResolveId to avoid the ambiguity with the non generic version of Resolve
+- Signals package received significant changes
+    - The order of generic arguments to the Signal<> base class was changed to have parameters first to be consistent with everything else
+    - The functionality of commands was merged into signals
 - Renamed the following construction methods.  This was motivated by the fact that with the new construction methods it's unclear which ones are "look ups" versus creating new instances
     - FromComponent => FromNewComponentOn
     - FromSiblingComponent => FromNewComponentSibling 

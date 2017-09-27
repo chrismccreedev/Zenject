@@ -139,7 +139,7 @@ public class Foo
 The full format of the binding is the following:
 
 <pre>
-Container.BindMemoryPool&lt;<b>Param1Type, Param2Type, etc..., ObjectType, MemoryPoolType</b>&gt;()
+Container.BindMemoryPool&lt;<b>ObjectType, MemoryPoolType, MemoryPoolContractType</b>&gt;()
     .With<b>(InitialSize|FixedSize)</b>()
     .ExpandBy<b>(OneAtATime|Doubling)</b>()
     .To&lt;<b>ResultType</b>&gt;()
@@ -152,6 +152,12 @@ Container.BindMemoryPool&lt;<b>Param1Type, Param2Type, etc..., ObjectType, Memor
 </pre>
 
 Where:
+
+* **ObjectType** = The type of the class that is being instantiated by the memory pool
+
+* **MemoryPoolType** = The type of the MemoryPool derived class, which is often a nested class of `ObjectType`.
+
+* **MemoryPoolContractType** = Note:  This can be left unspecified most of the time (ie. only the first two generic parameters are required).  This is the contract type to match for injected members.  In other words, when zenject injects on an object, it will be looking for constructor parameters/inject fields that have this type before injecting the memory pool instance.  It must be equal to or a parent class/interface of the given `MemoryPoolType`.  This is only useful for cases where you want to inject your memory pool by an interface like `IMemoryPool<Foo>` or a custom interface.
 
 * **With** = Determines the number of instances that the pool is seeded with.  When not specified, the pool starts with zero instances.  The options are:
 
@@ -493,4 +499,29 @@ public class TestInstaller : MonoInstaller<TestInstaller>
 ```
 
 We might also want to add a Reset() method to the IFoo interface as well here, and call that on Reinitialize()
+
+### <a id="instantiating-directory"></a>Instantiating Memory Pools Directly
+
+For complex scenarios involing custom factories, it might be desirable to directly instantiate memory pools.  In this case, you just have to make sure to provide an IFactory<> derived class to be used for creating new instances and all the settings information that would normally be provided via the bind statements.  For example:
+
+```csharp
+public class BarFactory : IFactory<Bar>
+{
+    public Bar Create()
+    {
+        ...
+        [Custom creation logic]
+        ...
+    }
+}
+
+var settings = new MemoryPoolSettings()
+{
+    InitialSize = 1,
+    ExpandMethod = PoolExpandMethods.Double,
+};
+
+var pool = _container.Instantiate<MemoryPool<Bar>>(
+    new object[] { settings, new MyBarFactory<Bar>() });
+```
 

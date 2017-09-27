@@ -51,7 +51,7 @@ class Runner:
         self._varMgr.set('PythonDir', '[BuildDir]/python')
         self._varMgr.set('TempDir', '[BuildDir]/Temp')
         self._varMgr.set('AssetsDir', '[RootDir]/UnityProject/Assets')
-        self._varMgr.set('ZenjectDir', '[AssetsDir]/Zenject')
+        self._varMgr.set('ZenjectDir', '[AssetsDir]/Plugins/Zenject')
         self._varMgr.set('DistDir', '[BuildDir]/Dist')
         self._varMgr.set('BinDir', '[RootDir]/NonUnityBuild/Bin')
 
@@ -97,7 +97,6 @@ class Runner:
 
         self._log.info('Copying Zenject dlls')
         self._sys.copyFile('{0}/Zenject.dll'.format(binDir), '{0}/Zenject.dll'.format(tempDir))
-        self._sys.copyFile('{0}/Zenject.Signals.dll'.format(binDir), '{0}/Zenject.Signals.dll'.format(tempDir))
 
         self._zipHelper.createZipFile(tempDir, zipPath)
 
@@ -106,7 +105,7 @@ class Runner:
         self._log.heading('Creating {0}'.format(os.path.basename(outputPath)))
 
         self._varMgr.set('PackageTempDir', '[TempDir]/Packager')
-        self._varMgr.set('ZenTempDir', '[PackageTempDir]/Assets/Zenject')
+        self._varMgr.set('ZenTempDir', '[PackageTempDir]/Assets/Plugins/Zenject')
 
         self._sys.createDirectory('[PackageTempDir]')
         self._sys.createDirectory('[PackageTempDir]/ProjectSettings')
@@ -124,12 +123,7 @@ class Runner:
             self._sys.deleteDirectory('[ZenTempDir]/OptionalExtras/IntegrationTests')
             self._sys.removeFile('[ZenTempDir]/OptionalExtras/IntegrationTests.meta')
 
-            self._zipHelper.createZipFile('[ZenTempDir]/OptionalExtras/AutoMocking', '[ZenTempDir]/OptionalExtras/AutoMocking.zip')
-            self._sys.deleteDirectory('[ZenTempDir]/OptionalExtras/AutoMocking')
-            self._sys.removeFile('[ZenTempDir]/OptionalExtras/AutoMocking.meta')
-
             self._sys.removeFile('[ZenTempDir]/Source/Zenject.csproj')
-            self._sys.removeFile('[ZenTempDir]/OptionalExtras/Signals/Zenject.Signals.csproj')
 
             if not includeSample:
                 self._sys.deleteDirectory('[ZenTempDir]/OptionalExtras/SampleGame1 (Beginner)')
@@ -151,7 +145,7 @@ def installBindings():
 
     config = {
         'PathVars': {
-            'UnityExePath': 'C:/Utils/Unity/PrimaryLink/Editor/Unity.exe',
+            'UnityExePath': 'C:/Utils/Unity/Unity2017.1.1f1/Editor/Unity.exe',
             'LogPath': os.path.join(BuildDir, 'Log.txt'),
             'MsBuildExePath': 'C:/Windows/Microsoft.NET/Framework/v4.0.30319/msbuild.exe'
         },

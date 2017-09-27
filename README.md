@@ -1,5 +1,5 @@
 
-<img src="UnityProject/Assets/Zenject/Documentation/ZenjectLogo.png?raw=true" alt="Zenject" width="600px" height="134px"/>
+<img src="UnityProject/Assets/Plugins/Zenject/Documentation/ZenjectLogo.png?raw=true" alt="Zenject" width="600px" height="134px"/>
 
 ## Dependency Injection Framework for Unity3D
 
@@ -30,7 +30,9 @@ IL2CPP is supported, however there are some gotchas - see <a href="#aot-support"
 
 This project is open source.  You can find the official repository [here](https://github.com/modesttree/Zenject).
 
-For general troubleshooting / support, please use the [zenject subreddit](http://www.reddit.com/r/zenject) or the [zenject google group](https://groups.google.com/forum/#!forum/zenject/).  If you have found a bug, you are also welcome to create an issue on the [github page](https://github.com/modesttree/Zenject), or a pull request if you have a fix / extension.  There is also a [gitter chat](https://gitter.im/Zenject/Lobby) that you can join for real time discussion.  You can also follow [@Zenject](https://twitter.com/Zenject) on twitter for updates.  Finally, you can also email me directly at sfvermeulen@gmail.com
+For general troubleshooting / support, please post to [stack overflow](https://stackoverflow.com/questions/ask) using the tag 'zenject', or post in the [zenject google group](https://groups.google.com/forum/#!forum/zenject/)
+
+Or, if you have found a bug, you are also welcome to create an issue on the [github page](https://github.com/modesttree/Zenject), or a pull request if you have a fix / extension.  There is also a [gitter chat](https://gitter.im/Zenject/Lobby) that you can join for real time discussion.  You can also follow [@Zenject](https://twitter.com/Zenject) on twitter for updates.  Finally, you can also email me directly at sfvermeulen@gmail.com
 
 ## <a id="features"></a>Features
 
@@ -70,13 +72,13 @@ You can install Zenject using any of the following methods
 
 1. From Source
 
-    * You can also just clone this repo and copy the `UnityProject/Assets/Zenject` directory to your own Unity3D project.  In this case, make note of the folders underneath "OptionalExtras" and choose only the ones you want.
+    * You can also just clone this repo and copy the `UnityProject/Assets/Plugins/Zenject` directory to your own Unity3D project.  In this case, make note of the folders underneath "OptionalExtras" and choose only the ones you want.
 
 ## <a id="history"></a>History
 
 Unity is a fantastic game engine, however the approach that new developers are encouraged to take does not lend itself well to writing large, flexible, or scalable code bases.  In particular, the default way that Unity manages dependencies between different game components can often be awkward and error prone.
 
-This project was started after reading a <a href="http://blog.sebaslab.com/ioc-container-for-unity3d-part-1/">series of great articles</a> by Sebastiano Mandalà outlining the problem.  Sebastiano even wrote a proof of concept and open sourced it, which became the basis for this library.  Zenject also takes a lot of inspiration from Ninject (as implied by the name).
+This project was started because at the time there wasn't any DI frameworks for Unity, and having used DI frameworks outside of Unity and seeing the benefits, I felt it was important to remedy that.  The only thing google produced at the time was a <a href="http://blog.sebaslab.com/ioc-container-for-unity3d-part-1/">series of articles</a> by Sebastiano Mandalà explaining the problem.  Sebastiano even wrote a proof of concept DI framework and open sourced it, which became the basis for this library.  Zenject also takes a lot of inspiration from Ninject (as implied by the name).
 
 Finally, I will just say that if you don't have experience with DI frameworks, and are writing object oriented code, then trust me, you will thank me later!  Once you learn how to write properly loosely coupled code using DI, there is simply no going back.
 
@@ -162,8 +164,6 @@ The tests may also be helpful to show usage for each specific feature (which you
 ## <a id="theory"></a>Theory
 
 What follows is a general overview of Dependency Injection from my perspective.  However, it is kept light, so I highly recommend seeking other resources for more information on the subject, as there are many other people (often with better writing ability) that have written about the theory behind it.
-
-Also see <a href="https://www.youtube.com/watch?v=8ZCkEXv3QsQ">here</a> for a video that serves as a nice introduction to the theory.
 
 When writing an individual class to achieve some functionality, it will likely need to interact with other classes in the system to achieve its goals.  One way to do this is to have the class itself create its dependencies, by calling concrete constructors:
 
@@ -285,7 +285,7 @@ public class TestInstaller : MonoInstaller
     public override void InstallBindings()
     {
         Container.Bind<string>().FromInstance("Hello World!");
-        Container.Bind<Greeter>().NonLazy();
+        Container.Bind<Greeter>().AsSingle().NonLazy();
     }
 }
 
@@ -385,6 +385,10 @@ Note that there can be any number of inject methods.  In this case, they are cal
 Note that the dependencies that you receive via inject methods should themselves have already been injected (the only exception to this is in the case where you have circular dependencies).  This can be important if you use inject methods to perform some basic initialization, since you may need the given dependencies to themselves be initialized via their Inject methods.
 
 Using [Inject] methods to inject dependencies is the recommended approach for MonoBehaviours, since MonoBehaviours cannot have constructors.
+
+Also note that you can define your inject methods to have return type IEnumerator.  In this case, they will be started as a coroutine.  In the case where the object is a MonoBehaviour, it will be started as a coroutine on itself, and otherwise it will use the "Context" MonoBehaviour that the object is in (that is, either ProjectContext, SceneContext or GameObjectContext)
+
+Note however that we would recommend minimizing the initialization logic in [Inject] methods however.  You can use Start() or Awake() to have initialization logic instead (this should work for both dynamically instantiated prefabs and objects added to the scene during edit time).
 
 **Recommendations**
 
@@ -616,6 +620,22 @@ Where:
 
     **ResultType** must derive from UnityEngine.MonoBehaviour / UnityEngine.Component in this case
 
+1. **FromNewComponentOnNewPrefab** - Instantiate the given prefab as a new game object and also instantiate a new instance of the given component on the root of the new game object.  NOTE: It is not necessary that the prefab contains a copy of the given component.
+
+    ```csharp
+    Container.Bind<Foo>().FromNewComponentOnNewPrefab(somePrefab);
+    ```
+
+    **ResultType** must derive from UnityEngine.MonoBehaviour / UnityEngine.Component in this case
+
+1. **FromNewComponentOnNewPrefabResource** - Instantiate the given prefab (found at the given resource path) and also instantiate a new instance of the given component on the root of the new game object.  NOTE: It is not necessary that the prefab contains a copy of the given component.
+
+    ```csharp
+    Container.Bind<Foo>().FromNewComponentOnNewPrefabResource("Some/Path/Foo");
+    ```
+
+    **ResultType** must derive from UnityEngine.MonoBehaviour / UnityEngine.Component in this case
+
 1. **FromNewComponentOn** - Instantiate a new component of the given type on the given game object
 
     ```csharp
@@ -698,6 +718,8 @@ Where:
 
     Note that unlike FromResource, the value returned from Resources.Load in this case will be cloned by calling ScriptableObject.Instantiate.  This is necessary to allow multiple instances of the same scriptable object resource.
 
+1. **FromNewScriptableObjectResource** - Same as FromScriptableObjectResource except it will instantiate a new copy of the given scriptable object resource.  This can be useful if you want to have multiple distinct instances of the given scriptable object resource, or if you want to ensure that the saved values for the scriptable object are not affected by changing at runtime.
+
 1. **FromResolve** - Get instance by doing another lookup on the container (in other words, calling `DiContainer.Resolve<ResultType>()`).  Note that for this to work, **ResultType** must be bound in a separate bind statement.  This construction method can be especially useful when you want to bind an interface to another interface, as shown in the below example
 
     ```csharp
@@ -779,11 +801,63 @@ Where:
         }
         ```
 
+    1. **ByNewPrefabMethod** - Initialize subcontainer by instantiating a new prefab.  Note that unlike `ByNewPrefab`, this bind method does not require that there be a GameObjectContext attached to the prefab.  In this case the GameObjectContext is added dynamically and then run with the given installer method.
+
+        ```csharp
+        Container.Bind<Foo>().FromSubContainerResolve().ByNewPrefabMethod(MyPrefab, InstallFoo);
+
+        void InstallFoo(DiContainer subContainer)
+        {
+            subContainer.Bind<Foo>();
+        }
+        ```
+
+    1. **ByNewPrefabInstaller** - Initialize subcontainer by instantiating a new prefab.  Same as ByNewPrefabMethod, except it initializes the dynamically created GameObjectContext with the given installer rather than a method.
+
+        ```csharp
+        Container.Bind<Foo>().FromSubContainerResolve().ByNewPrefabInstaller<FooInstaller>(MyPrefab);
+
+        class FooInstaller : MonoInstaller
+        {
+            public override void InstallBindings()
+            {
+                Container.Bind<Foo>();
+            }
+        }
+        ```
+
     1. **ByNewPrefabResource** - Initialize subcontainer instantiating a new prefab obtained via `Resources.Load`.  Note that the prefab must contain a `GameObjectContext` component attached to the root game object.
 
         ```csharp
         Container.Bind<Foo>().FromSubContainerResolve().ByNewPrefabResource("Path/To/MyPrefab");
         ```
+
+    1. **ByNewPrefabResourceMethod** - Initialize subcontainer instantiating a new prefab obtained via `Resources.Load`.  Note that unlike `ByNewPrefabResource`, this bind method does not require that there be a GameObjectContext attached to the prefab.  In this case the GameObjectContext is added dynamically and then run with the given installer method.
+
+        ```csharp
+        Container.Bind<Foo>().FromSubContainerResolve().ByNewPrefabResourceMethod("Path/To/MyPrefab", InstallFoo);
+
+        void InstallFoo(DiContainer subContainer)
+        {
+            subContainer.Bind<Foo>();
+        }
+        ```
+
+    1. **ByNewPrefabResourceInstaller** - Initialize subcontainer instantiating a new prefab obtained via `Resources.Load`.  Same as ByNewPrefabResourceMethod, except it initializes the dynamically created GameObjectContext with the given installer rather than a method.
+
+        ```csharp
+        Container.Bind<Foo>().FromSubContainerResolve().ByNewPrefabResourceInstaller<FooInstaller>("Path/To/MyPrefab");
+
+        class FooInstaller : MonoInstaller
+        {
+            public override void InstallBindings()
+            {
+                Container.Bind<Foo>();
+            }
+        }
+        ```
+
+Note also that the "scope" here (eg. FromCached, FromSingle, or FromTransient) refers to the sub container itself and not the dependency in the subcontainer. For FromSingle, the 'singleton' subcontainer is identified by the method in the case of ByMethod, the installer type in the case of ByInstaller, and the prefab in the case of ByNewPrefab or ByNewPrefabResource.
 
 ## <a id="installers"></a>Installers
 
@@ -803,7 +877,7 @@ public class FooInstaller : MonoInstaller
 
 You add bindings by overriding the InstallBindings method, which is called by whatever `Context` the installer has been added to (usually this is `SceneContext`).  MonoInstaller is a MonoBehaviour so you can add FooInstaller by attaching it to a GameObject.  Since it is a GameObject you can also add public members to it to configure your installer from the Unity inspector.  This allows you to add references within the scene, references to assets, or simply tuning data (see <a href="#using-the-unity-inspector-to-configure-settings">here</a> for more information on tuning data).
 
-Note that in order for your installer to be triggered it must be attached to the Installers property of the `SceneContext` object.  The installers are executed in the order given to `SceneContext` however this order should not usually matter (since nothing should be instantiated during the install process)
+Note that in order for your installer to be triggered it must be attached to the Installers property of the `SceneContext` object.  Installers in the order given to `SceneContext` (with scriptable object installers first, then mono installers, then prefab installers) however this order should not usually matter (since nothing should be instantiated during the install process).
 
 In many cases you want to have your installer derive from MonoInstaller, so that you can have inspector settings.  There is also another base class called simply `Installer` which you can use in cases where you do not need it to be a MonoBehaviour.
 
@@ -1074,6 +1148,8 @@ Another (arguably better) way to do this is to use ScriptableObjectInstaller ins
 
 ## <a id="object-graph-validation"></a>Object Graph Validation
 
+**Overview**
+
 The usual workflow when setting up bindings using a DI framework is something like this:
 
 * Add some number of bindings in code
@@ -1088,9 +1164,21 @@ You can do this in Zenject out-of-the-box by executing the menu item `Edit -> Ze
 
 Alternatively, you can execute the menu item `Edit -> Zenject -> Validate Then Run` or simply hitting CTRL+SHIFT+R.  This will validate the scenes you have open and then if validation succeeds, it will start play mode.  Validation is usually pretty fast so this can be a good alternative to always just hitting play, especially if your game has a costly startup time.
 
+**Under the hood**
+
+In object validation mode Zenject makes a "dry run" i.e. instead of all dependencies null values get injected.
+
+So there are a few things that are different from a regular run of game:
+
+- No actual logic code is executed, only install bindings is called.
+- For each Factory `Validate()` is called (see [Factory](https://github.com/modesttree/Zenject/blob/master/Documentation/Factories.md) docs).
+- **null** values are injected in all dependencies(regardles of what was binded)
+
+You might want to inject some classes even in validation mode. In that case mark them with `[ZenjectAllowDuringValidation]`.
+
 ## <a id="scene-bindings"></a>Scene Bindings
 
-In many cases, you have a number of MonoBehaviour's that have been added to the scene within the Unity editor (ie. at editor time not runtime) and you want to also have these MonoBehaviour's added to the Zenject Container so that they can be injected into other classes.
+In many cases, you have a number of MonoBehaviours that have been added to the scene within the Unity editor (ie. at editor time not runtime) and you want to also have these MonoBehaviours added to the Zenject Container so that they can be injected into other classes.
 
 The usual way this is done is to add public references to these objects within your installer like this:
 
@@ -1130,7 +1218,7 @@ So another way to do this is to use the `ZenjectBinding` component.  You can do 
 
 For example, if I have a MonoBehaviour of type `Foo` in my scene, I can just add `ZenjectBinding` alongside it, and then drag the Foo component into the Component property of the ZenjectBinding component.
 
-<img src="UnityProject/Assets/Zenject/Documentation/AutoBind1.png?raw=true" alt="ZenjectBinding"/>
+<img src="UnityProject/Assets/Plugins/Zenject/Documentation/AutoBind1.png?raw=true" alt="ZenjectBinding"/>
 
 Then our installer becomes:
 
@@ -1214,9 +1302,6 @@ The `ZenjectBinding` component has the following properties:
 * **Using multiple constructors**
     * Zenject does not support injecting into multiple constructors currently.  You can have multiple constructors however you must mark one of them with the [Inject] attribute so Zenject knows which one to use.
 
-* **Prefer [Inject] methods to Start/Awake methods for dynamically created MonoBehaviours**
-    * One issue that often arises when using Zenject is that a game object is instantiated dynamically, and then one of the MonoBehaviours on that game object attempts to use one of its injected field dependencies in its Start() or Awake() methods.  Often in these cases the dependency will still be null, as if it was never injected.  The issue here is that Zenject cannot fill in the dependencies until after the call to GameObject.Instantiate completes, and in most cases GameObject.Instantiate will call the Start() and Awake() methods.  The solution is to use neither Start() or Awake() and instead define a new method and mark it with a [Inject] attribute.  This will guarantee that all dependencies have been resolved before executing the method.
-
 * **Using Zenject outside of Unity**
     * Zenject is primarily designed to work within Unity3D.  However, it can also be used as a general purpose DI framework outside of Unity3D.  Zenject has been used within ASP.NET MVC and WPF projects successfully.  In order to do this, you can get the DLL from the Releases section of the GitHub page, or build the solution yourself at `NonUnityBuild/Zenject.sln`
 
@@ -1237,7 +1322,7 @@ Please feel free to submit any other sources of confusion to sfvermeulen@gmail.c
 
 ## <a id="game-object-bind-methods"></a>Game Object Bind Methods
 
-For bindings that create new game objects (eg. FromComponentInNewPrefab or FromGameObject) there are also two extra bind methods.
+For bindings that create new game objects (eg. FromComponentInNewPrefab or FromNewComponentOnNewGameObject) there are also two extra bind methods.
 
 * **WithGameObjectName** = The name to give the new Game Object associated with this binding.
 
@@ -1579,7 +1664,7 @@ public class MainInstaller : MonoInstaller
 ScriptableObjectInstaller works the same as MonoInstaller in this regard.
 
 ## <a id="signals"></a>Signals
-AsObservableee <a href="Documentation/Signals.md">here</a>.
+See <a href="Documentation/Signals.md">here</a>.
 
 ## <a id="creating-objects-dynamically"></a>Creating Objects Dynamically Using Factories
 
@@ -2553,7 +2638,45 @@ Something else to note is that the rate at which the ITickable.Tick method gets 
 
 * **<a id="aot-support"></a>Does this work on AOT platforms such as iOS and WebGL?**
 
-    Yes.  However, there are a few things that you should be aware.  One of the things that Unity's IL2CPP compiler does is strip out any code that is not used.  It calculates what code is used by statically analyzing the code to find usage.  This is great, except that this will miss any methods/types that are not used explicitly.  In particular, any classes that are created solely through Zenject will have their constructors ignored by the IL2CPP compiler.  In order to address this, the [Inject] attribute that is sometimes applied to constructors also serves to automatically mark the constructor to IL2CPP to not strip out.   In other words, to fix this issue all you have to do is mark every constructor that you create through Zenject with an [Inject] attribute when compiling for WebGL / iOS.
+    Yes.  However, there are a few things that you should be aware of.  One of the things that Unity's IL2CPP compiler does is strip out any code that is not used.  It calculates what code is used by statically analyzing the code to find usage.  This is great, except that this will miss any methods/types that are not used explicitly.  In particular, any classes that are created solely through Zenject will have their constructors ignored by the IL2CPP compiler.  In order to address this, the [Inject] attribute that is sometimes applied to constructors also serves to automatically mark the constructor to IL2CPP to not strip out.   In other words, to fix this issue all you have to do is mark every constructor that you create through Zenject with an [Inject] attribute when compiling for WebGL / iOS.
+
+    Sometimes, an exception to this rule is classes that have generic arguments and which are instantiated with a "value type" generic argument (eg. int, float, enums, anything deriving from struct, etc.).  In this case, compiling with AOT will sometimes strip out the constructor, so Zenject will not be able to create the class and you will get a runtime error.  For example:
+
+    ```csharp
+        public class Foo<T1>
+        {
+            public Foo()
+            {
+                Debug.Log("Successfully created Foo!");
+            }
+        }
+
+        public class Runner2 : MonoBehaviour
+        {
+            public void OnGUI()
+            {
+                if (GUI.Button(new Rect(100, 100, 500, 100), "Attempt to Create Foo"))
+                {
+                    var container = new DiContainer();
+
+                    // This will throw exceptions on AOT platforms because the constructor for Foo<int> is stripped out of the build
+                    container.Instantiate<Foo<int>>();
+
+                    // This will run fine however, because string is not value type
+                    //container.Instantiate<Foo<string>>();
+                }
+            }
+
+            static void _AotWorkaround()
+            {
+                // As a workaround, we can explicitly reference the constructor here to force the AOT
+                // compiler to leave it in the build
+                // new Foo<int>();
+            }
+        }
+    ```
+
+    Normally, in a case like above where a constructor is being stripped out, we can force-include it by adding the `[Inject]` attribute on the Foo constructor, however this does not work for classes with generic types that include a value type.  Therefore, the recommended workarounds here are to either explicitly reference the constructor similar to what you see in the _AotWorkaround, or avoid using value type generic arguments.  One easy way to avoid using value types is to wrap it in a reference type (for example, by using something like <a href="https://gist.github.com/svermeulen/a6929e6e26f2de2cc697d24f108c5f85">this</a>)
 
 * **<a id="faq-performance"></a>How is performance?**
 
@@ -2566,6 +2689,8 @@ Something else to note is that the rate at which the ITickable.Tick method gets 
     For some benchmarks on Zenject versus other DI frameworks, see [here](https://github.com/svermeulen/IocPerformance/tree/Zenject).
 
     Zenject should also produce zero per-frame heap allocations.
+
+    If performance is really important, then we recommend that you use memory pools (and also specify an initial size) and also cache reflection by calling `Zenject.TypeAnalyzer.GetInfo`.  By doing this, you should be able to restrict all the costly operations to the initialization time and avoid any performance issues once your game starts.
 
 * **<a id="net-framework"></a>Can I use .NET framework 4.0 and above?**
 
@@ -2609,7 +2734,7 @@ Something else to note is that the rate at which the ITickable.Tick method gets 
             public override void InstallBindings()
             {
                 Container.Bind<IInitializable>().To<Foo>().AsSingle();
-                Container.Bind<AsyncProcessor>().FromGameObject().AsSingle();
+                Container.Bind<AsyncProcessor>().FromNewComponentOnNewGameObject().AsSingle();
             }
         }
 
@@ -2633,12 +2758,16 @@ Something else to note is that the rate at which the ITickable.Tick method gets 
     * Stick Soccer 2 ([iOS](https://itunes.apple.com/gb/app/stick-soccer-2/id1104214157?mt=8) and [Android](https://play.google.com/store/apps/details?id=com.sticksports.soccer2&hl=en_GB))
     * [Untethered](https://play.google.com/store/apps/details?id=com.numinousgames.Untethered&hl=en) (Google VR)
     * [Toy Clash](https://toyclash.com/) - ([GearVR](https://www.oculus.com/experiences/gear-vr/1407846952568081/))
+    * [Bedtime Math App](http://bedtimemath.org/apps) - ([iOS](https://itunes.apple.com/us/app/bedtimemath/id637910701) and [Android](https://play.google.com/store/apps/details?id=com.twofours.bedtimemath))
+    * [4 Pics 1 Word: John Einstein](https://play.google.com/store/apps/details?id=com.qantanstudio.impossiblequiz) (Android) - Puzzle game
+    * [EcsRx Roguelike 2D](https://github.com/grofit/ecsrx.roguelike2d) - An example of a Roguelike 2d game using EcsRx and Zenject
 
     Libraries
 
     * [EcsRx](https://github.com/grofit/ecsrx) - A framework for Unity using the ECS pattern
     * [Karma](https://github.com/cgarciae/karma) - An MVC framework for Unity
     * [View Controller](http://blog.jamjardavies.co.uk/index.php/2016/04/12/view-controller-with-zenject/) - A view controller system
+    * [Alensia](https://github.com/mysticfall/Alensia) - High level framework to build RPG style games using Unity
 
     Tools
 
