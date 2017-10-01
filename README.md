@@ -2638,9 +2638,11 @@ Something else to note is that the rate at which the ITickable.Tick method gets 
 
 * **<a id="aot-support"></a>Does this work on AOT platforms such as iOS and WebGL?**
 
-    Yes.  However, there are a few things that you should be aware of.  One of the things that Unity's IL2CPP compiler does is strip out any code that is not used.  It calculates what code is used by statically analyzing the code to find usage.  This is great, except that this will miss any methods/types that are not used explicitly.  In particular, any classes that are created solely through Zenject will have their constructors ignored by the IL2CPP compiler.  In order to address this, the [Inject] attribute that is sometimes applied to constructors also serves to automatically mark the constructor to IL2CPP to not strip out.   In other words, to fix this issue all you have to do is mark every constructor that you create through Zenject with an [Inject] attribute when compiling for WebGL / iOS.
+    Yes.  However, there are a few things that you should be aware of.  One of the things that Unity's IL2CPP compiler does is strip out any code that is not used.  It calculates what code is used by statically analyzing the code to find usage.  This is great, except that this will sometimes strip out methods/types that we don't refer to explicitly (and instead access via reflection instead).
 
-    Sometimes, an exception to this rule is classes that have generic arguments and which are instantiated with a "value type" generic argument (eg. int, float, enums, anything deriving from struct, etc.).  In this case, compiling with AOT will sometimes strip out the constructor, so Zenject will not be able to create the class and you will get a runtime error.  For example:
+    In previous versions of Unity, when used with Zenject, IL2CPP would often strip out the constructors of classes because of this reason.  The recommended fix in these cases was to add an [Inject] attribute above the constructor.  Adding this attribute signals to IL2CPP to not strip out this method.  The convention was to use this attribute on all constructors.  However, in newer versions of IL2CPP this attribute is no longer necessary, because it seems that IL2CPP preserves constructors by default.
+
+    Sometimes, another issue that can occur is with classes that have generic arguments and which are instantiated with a "value type" generic argument (eg. int, float, enums, anything deriving from struct, etc.).  In this case, compiling on AOT platforms will sometimes strip out the constructor, so Zenject will not be able to create the class and you will get a runtime error.  For example:
 
     ```csharp
         public class Foo<T1>
