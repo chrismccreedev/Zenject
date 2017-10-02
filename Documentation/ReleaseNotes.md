@@ -1,6 +1,15 @@
 
 ## <a id="release-notes"></a>Release Notes
 
+###5.4.0 (October 2, 2017)
+
+Big change to the way integration tests work, and some better error output.
+
+- Completely changed how ZenjectIntegrationTestFixture works, to use Unity's support for playmode tests
+- Improved validation error output.  Now outputs multiple errors at once, and also is more readable.
+- Fixed signals that have value-type parameters to work properly with IL2CPP without a need for a reference wrapper class or anything
+- Added back .NET 3.5 Moq dll as an alternative to the newer Moq dll
+
 ###5.3.0 (September 18, 2017)
 
 Some optimizations, bug fixes, and a few new bind methods
