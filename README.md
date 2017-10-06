@@ -817,7 +817,7 @@ Where:
         ```csharp
         Container.Bind<Foo>().FromSubContainerResolve().ByNewPrefabInstaller<FooInstaller>(MyPrefab);
 
-        class FooInstaller : MonoInstaller
+        class FooInstaller : Installer
         {
             public override void InstallBindings()
             {
