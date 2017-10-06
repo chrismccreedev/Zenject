@@ -424,7 +424,7 @@ This is done by implementing the interface `IValidatable` and then adding a `Val
 
 In some cases, you might want to avoid becoming directly coupled to the factory class, and would prefer to use a base class or an interface instead.  You can do that by using the `BindFactoryContract` method instead of `BindFactory` like this:
 
-```
+```csharp
 public interface IMyFooFactory : IFactory<Foo>
 {
 }
