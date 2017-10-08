@@ -19,7 +19,7 @@ Note also that while the result will be more loosely coupled, this isn't always 
 If you just want to get up and running immediately, see the following example which shows basic usage:
 
 ```csharp
-public class UserJoinedSignal : Signal<string, UserJoinedSignal>
+public class UserJoinedSignal : Signal<UserJoinedSignal, string>
 {
 }
 
@@ -123,7 +123,7 @@ Classes that derive from Signal should always be left empty - their only purpose
 Any parameters passed along with the signal need to be included as more generic arguments:
 
 ```csharp
-public class DoSomethingSignal : Signal<string, int, DoSomethingSignal>
+public class DoSomethingSignal : Signal<DoSomethingSignal, string, int>
 {
 }
 ```
