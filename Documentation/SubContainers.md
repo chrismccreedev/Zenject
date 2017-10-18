@@ -216,6 +216,8 @@ public class GameRunner : ITickable
 ```
 
 ```csharp
+using Zenject;
+
 public class GameInstaller : MonoInstaller
 {
     public override void InstallBindings()
@@ -331,6 +333,8 @@ public class GameRunner : ITickable
 ```
 
 ```csharp
+using Zenject;
+
 public class GameInstaller : MonoInstaller
 {
     [SerializeField]
@@ -380,6 +384,8 @@ public class GameRunner : ITickable
 ```
 
 ```csharp
+using Zenject;
+
 public class GameInstaller : MonoInstaller
 {
     [SerializeField]
