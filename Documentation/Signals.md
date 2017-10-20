@@ -437,11 +437,3 @@ public class Qux
     }
 }
 ```
-
-### IL2CPP / AOT considerations
-
-If you are targeting a platform that uses IL2CPP (eg. iOS, WSA, PS4, XBox, etc.), you might discover that Zenject disallows using value types such as int, bool, enums, etc. directly as Signal parameters.  This is due to a limitation of AOT with the current version of Mono that Unity is using (for details see the discussion <a href="https://github.com/modesttree/Zenject/issues/219">here</a>).
-
-The suggested workaround in these cases is to either use a Parameter Object (in which case you wrap all your value type parameters in a custom class) or wrap all the individual value type parameters in a reference type wrapper (for example, by using something like <a href="https://gist.github.com/svermeulen/a6929e6e26f2de2cc697d24f108c5f85">this</a>)
-
-
