@@ -92,6 +92,8 @@ You may also find the <a href="#cheatsheet">cheatsheet</a> at the bottom of this
 
 The tests may also be helpful to show usage for each specific feature (which you can find at `Zenject/OptionalExtras/UnitTests` and `Zenject/OptionalExtras/IntegrationTests`)
 
+Also, if you prefer video documentation, see the [youtube series on zenject](https://www.youtube.com/user/charlesamat/videos) created by Infallible Code.
+
 ## Table Of Contents
 
 * Introduction
