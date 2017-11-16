@@ -2346,7 +2346,7 @@ It is possible to remove or replace bindings that were added in a previous bind 
     }
     ```
 
-1.  **DiContainer.GetDependencyContracts** - Returns a list of all the types that the given type depends on.  This might be useful, for exmaple, if you wanted to do some static analysis of your project, or if you wanted to automatically generate a dependency diagram, etc.
+1.  **DiContainer.GetDependencyContracts** - Returns a list of all the types that the given type depends on.  This might be useful, for example, if you wanted to do some static analysis of your project, or if you wanted to automatically generate a dependency diagram, etc.
 
 ## <a id="non-generic-bindings"></a>Non Generic bindings
 
