@@ -150,6 +150,7 @@ Also, if you prefer video documentation, see the [youtube series on zenject](htt
     * <a href="#signals">Signals</a>
     * <a href="#auto-mocking-using-moq">Auto-Mocking using Moq</a>
     * <a href="#editor-windows">Creating Unity EditorWindow's with Zenject</a>
+    * <a href="#optimization_notes">Optimization Notes</a>
 * <a href="#questions">Frequently Asked Questions</a>
     * <a href="#isthisoverkill">Isn't this overkill?  I mean, is using statically accessible singletons really that bad?</a>
     * <a href="#aot-support">Does this work on AOT platforms such as iOS and WebGL?</a>
@@ -2624,6 +2625,22 @@ Note that every time your code is compiled again within Unity, your editor windo
 
 Something else to note is that the rate at which the ITickable.Tick method gets fired can change depending on what you have on focus.  If you run our timer window, then select another window other than Unity, you can see what I mean.  (Tick Count increments much more slowly)
 
+## <a id="optimization_notes"></a>Optimization Notes
+
+    DI can affect start-up time when it builds the initial object graph. However it can also affect performance any time you instantiate new objects at run time.
+
+    Zenject uses C# reflection which is typically slow, but in Zenject this work is cached so any performance hits only occur once for each class type.  In other words, Zenject avoids costly reflection operations by making a trade-off between performance and memory to ensure good performance.
+
+    You can also force Zenject to populate this cache by calling `Zenject.TypeAnalyzer.GetInfo` for each type you want Zenject to cache the reflection information for.
+
+    For some benchmarks on Zenject versus other DI frameworks, see [here](https://github.com/svermeulen/IocPerformance/tree/Zenject).
+
+    Zenject should also produce zero per-frame heap allocations.
+
+    If performance is really important, then we recommend that you use memory pools (and also specify an initial size) and also cache reflection by calling `Zenject.TypeAnalyzer.GetInfo`.  By doing this, you should be able to restrict all the costly operations to the initialization time and avoid any performance issues once your game starts.
+
+    You can also get minor gains in speed and minor reductions in memory allocations by defining `ZEN_STRIP_ASSERTS_IN_BUILDS` in build settings.  This will cause all asserts to be stripped out of builds.  However, note that debugging any zenject related errors within builds will be made significantly more difficult by doing this.
+
 ## <a id="questions"></a>Frequently Asked Questions
 
 * **<a id="isthisoverkill"></a>Isn't this overkill?  I mean, is using statically accessible singletons really that bad?**
@@ -2684,17 +2701,7 @@ Something else to note is that the rate at which the ITickable.Tick method gets 
 
 * **<a id="faq-performance"></a>How is performance?**
 
-    DI can affect start-up time when it builds the initial object graph. However it can also affect performance any time you instantiate new objects at run time.
-
-    Zenject uses C# reflection which is typically slow, but in Zenject this work is cached so any performance hits only occur once for each class type.  In other words, Zenject avoids costly reflection operations by making a trade-off between performance and memory to ensure good performance.
-
-    You can also force Zenject to populate this cache by calling `Zenject.TypeAnalyzer.GetInfo` for each type you want Zenject to cache the reflection information for.
-
-    For some benchmarks on Zenject versus other DI frameworks, see [here](https://github.com/svermeulen/IocPerformance/tree/Zenject).
-
-    Zenject should also produce zero per-frame heap allocations.
-
-    If performance is really important, then we recommend that you use memory pools (and also specify an initial size) and also cache reflection by calling `Zenject.TypeAnalyzer.GetInfo`.  By doing this, you should be able to restrict all the costly operations to the initialization time and avoid any performance issues once your game starts.
+    See <a href="#optimization_notes">here</a>
 
 * **<a id="net-framework"></a>Can I use .NET framework 4.0 and above?**
 
