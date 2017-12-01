@@ -2627,19 +2627,19 @@ Something else to note is that the rate at which the ITickable.Tick method gets 
 
 ## <a id="optimization_notes"></a>Optimization Notes
 
-    DI can affect start-up time when it builds the initial object graph. However it can also affect performance any time you instantiate new objects at run time.
+DI can affect start-up time when it builds the initial object graph. However it can also affect performance any time you instantiate new objects at run time.
 
-    Zenject uses C# reflection which is typically slow, but in Zenject this work is cached so any performance hits only occur once for each class type.  In other words, Zenject avoids costly reflection operations by making a trade-off between performance and memory to ensure good performance.
+Zenject uses C# reflection which is typically slow, but in Zenject this work is cached so any performance hits only occur once for each class type.  In other words, Zenject avoids costly reflection operations by making a trade-off between performance and memory to ensure good performance.
 
-    You can also force Zenject to populate this cache by calling `Zenject.TypeAnalyzer.GetInfo` for each type you want Zenject to cache the reflection information for.
+You can also force Zenject to populate this cache by calling `Zenject.TypeAnalyzer.GetInfo` for each type you want Zenject to cache the reflection information for.
 
-    For some benchmarks on Zenject versus other DI frameworks, see [here](https://github.com/svermeulen/IocPerformance/tree/Zenject).
+For some benchmarks on Zenject versus other DI frameworks, see [here](https://github.com/svermeulen/IocPerformance/tree/Zenject).
 
-    Zenject should also produce zero per-frame heap allocations.
+Zenject should also produce zero per-frame heap allocations.
 
-    If performance is really important, then we recommend that you use memory pools (and also specify an initial size) and also cache reflection by calling `Zenject.TypeAnalyzer.GetInfo`.  By doing this, you should be able to restrict all the costly operations to the initialization time and avoid any performance issues once your game starts.
+If performance is really important, then we recommend that you use memory pools (and also specify an initial size) and also cache reflection by calling `Zenject.TypeAnalyzer.GetInfo`.  By doing this, you should be able to restrict all the costly operations to the initialization time and avoid any performance issues once your game starts.
 
-    You can also get minor gains in speed and minor reductions in memory allocations by defining `ZEN_STRIP_ASSERTS_IN_BUILDS` in build settings.  This will cause all asserts to be stripped out of builds.  However, note that debugging any zenject related errors within builds will be made significantly more difficult by doing this.
+You can also get minor gains in speed and minor reductions in memory allocations by defining `ZEN_STRIP_ASSERTS_IN_BUILDS` in build settings.  This will cause all asserts to be stripped out of builds.  However, note that debugging any zenject related errors within builds will be made significantly more difficult by doing this.
 
 ## <a id="questions"></a>Frequently Asked Questions
 
