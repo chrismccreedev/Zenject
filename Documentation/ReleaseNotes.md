@@ -3,6 +3,8 @@
 
 ###5.5.0 (March 7, 2017)
 
+Minor release, mostly bug fixes
+
 Bug fixes
 - Fixed some bugs with NonLazy bind method
 - Changed validation to output only the errors relevant to the user

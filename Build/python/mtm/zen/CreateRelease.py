@@ -119,6 +119,10 @@ class Runner:
             self._sys.deleteDirectory('[ZenTempDir]/OptionalExtras/UnitTests')
             self._sys.removeFile('[ZenTempDir]/OptionalExtras/UnitTests.meta')
 
+            self._zipHelper.createZipFile('[ZenTempDir]/OptionalExtras/ZenjectIntegrationTest', '[ZenTempDir]/OptionalExtras/ZenjectIntegrationTest.zip')
+            self._sys.deleteDirectory('[ZenTempDir]/OptionalExtras/ZenjectIntegrationTest')
+            self._sys.removeFile('[ZenTempDir]/OptionalExtras/ZenjectIntegrationTest.meta')
+
             self._zipHelper.createZipFile('[ZenTempDir]/OptionalExtras/IntegrationTests', '[ZenTempDir]/OptionalExtras/IntegrationTests.zip')
             self._sys.deleteDirectory('[ZenTempDir]/OptionalExtras/IntegrationTests')
             self._sys.removeFile('[ZenTempDir]/OptionalExtras/IntegrationTests.meta')
@@ -145,7 +149,7 @@ def installBindings():
 
     config = {
         'PathVars': {
-            'UnityExePath': 'C:/Utils/Unity/Unity2017.1.1f1/Editor/Unity.exe',
+            'UnityExePath': 'D:/Utils/Unity/Unity2017.2.0f3/Editor/Unity.exe',
             'LogPath': os.path.join(BuildDir, 'Log.txt'),
             'MsBuildExePath': 'C:/Windows/Microsoft.NET/Framework/v4.0.30319/msbuild.exe'
         },
