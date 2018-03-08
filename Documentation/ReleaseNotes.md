@@ -1,6 +1,26 @@
 
 ## <a id="release-notes"></a>Release Notes
 
+###5.5.0 (March 7, 2017)
+
+Minor release, mostly bug fixes
+
+Bug fixes
+- Fixed some bugs with NonLazy bind method
+- Changed validation to output only the errors relevant to the user
+- Changed to automatically instantiate new game objects in the correct scene rather than the active scene
+- Minor optimizations to memory allocations
+- Fixed to have [inject] attribute inherited from abstract or virtual properties
+- Fixed errors related to Unity 2018
+
+New features
+- Added ZenAutoInjector MonoBehaviour for cases where prefabs are instantiated from outside zenject
+- Added LazyInject method for rare cases where you need to ensure something is injected before using it
+- Added optional build define ZEN_STRIP_ASSERTS_IN_BUILDS as a trade off of error messages for speed
+
+API changes
+- Removed support for TickableManager.IsPaused
+
 ###5.4.0 (October 2, 2017)
 
 Big change to the way integration tests work, and some better error output.
