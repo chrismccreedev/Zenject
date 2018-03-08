@@ -436,14 +436,14 @@ The full format for the bind command is the following.  Note that in most cases 
 
 <pre>
 Container.Bind&lt;<b>ContractType</b>&gt;()
-    .To&lt;<b>ResultType</b>&gt;()
     .WithId(<b>Identifier</b>)
+    .When(<b>Condition</b>)
+    .NonLazy();
+    .To&lt;<b>ResultType</b>&gt;()
     .From<b>ConstructionMethod</b>()
     .As<b>Scope</b>()
     .WithArguments(<b>Arguments</b>)
-    .When(<b>Condition</b>)
     .CopyIntoAllSubContainers()
-    .NonLazy();
 </pre>
 
 Where:
