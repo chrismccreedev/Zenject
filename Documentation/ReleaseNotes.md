@@ -1,7 +1,11 @@
 
 ## <a id="release-notes"></a>Release Notes
 
-###5.5.0 (March 7, 2017)
+###5.5.1 (March 12, 2018)
+
+Fixed compatibility issue with UniRx + the different scripting runtimes
+
+###5.5.0 (March 7, 2018)
 
 Minor release, mostly bug fixes
 
