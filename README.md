@@ -309,7 +309,7 @@ You can run this example by doing the following:
 * Add your TestInstaller script to the scene (as its own GameObject or on the same GameObject as the SceneContext, it doesn't matter)
 * Add a reference to your TestInstaller to the properties of the SceneContext by adding a new row in the inspector of the "Installers" property (press the + button) and then dragging the TestInstaller GameObject to it
 * Open up TestInstaller and paste the above code into it
-* Validate your scene by either selecting Edit -> Zenject -> Validate Current Scene or hitting CTRL+SHIFT+V.  (note that this step isn't necessary but good practice to get into)
+* Validate your scene by either selecting Edit -> Zenject -> Validate Current Scene or hitting CTRL+ALT+V.  (note that this step isn't necessary but good practice to get into)
 * Run
 * Note also, that you can use the shortcut CTRL+SHIFT+R to "validate then run".  Validation is usually fast enough that this does not add a noticeable overhead to running your game, and when it does detect errors it is much faster to iterate on since you avoid the startup time.
 * Observe unity console for output
