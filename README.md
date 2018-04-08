@@ -2773,6 +2773,7 @@ You can also get minor gains in speed and minor reductions in memory allocations
     * [Bedtime Math App](http://bedtimemath.org/apps) - ([iOS](https://itunes.apple.com/us/app/bedtimemath/id637910701) and [Android](https://play.google.com/store/apps/details?id=com.twofours.bedtimemath))
     * [4 Pics 1 Word: John Einstein](https://play.google.com/store/apps/details?id=com.qantanstudio.impossiblequiz) (Android) - Puzzle game
     * [EcsRx Roguelike 2D](https://github.com/grofit/ecsrx.roguelike2d) - An example of a Roguelike 2d game using EcsRx and Zenject
+    * [Golfriends](https://www.airconsole.com/#!play=com.octopusgames.golfriends) (WebGL) - Mini golf game using a combination of WebGL and mobile
 
     Libraries
 
