@@ -709,7 +709,7 @@ Where:
     Container.Bind<Texture>().WithId("Glass").FromResource("Some/Path/Glass");
     ```
 
-1. **FromScriptableObjectResource** - Create a new ScriptableObject class by cloning a previously created instance saved to the resources folder.
+1. **FromScriptableObjectResource** - Bind directly to the scriptable object instance at the given resource path.  NOTE:  Changes to this value while inside unity editor will be saved persistently.  If this is undesirable, use FromNewScriptableObjectResource.
 
     ```csharp
     public class Foo : ScriptableObject
@@ -718,8 +718,6 @@ Where:
 
     Container.Bind<Foo>().FromScriptableObjectResource("Some/Path/Foo");
     ```
-
-    Note that unlike FromResource, the value returned from Resources.Load in this case will be cloned by calling ScriptableObject.Instantiate.  This is necessary to allow multiple instances of the same scriptable object resource.
 
 1. **FromNewScriptableObjectResource** - Same as FromScriptableObjectResource except it will instantiate a new copy of the given scriptable object resource.  This can be useful if you want to have multiple distinct instances of the given scriptable object resource, or if you want to ensure that the saved values for the scriptable object are not affected by changing at runtime.
 
