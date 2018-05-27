@@ -30,7 +30,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
-    <OutputPath>..\UnityProject\Assets\Plugins\Zenject\Source\Usage\</OutputPath>
+    <OutputPath>..\..\UnityProject\Assets\Plugins\Zenject\Source\Usage\</OutputPath>
     <IntermediateOutputPath>..\..\..\..\Temp\obj\Release\Zenject-usage\</IntermediateOutputPath>
     <BaseIntermediateOutputPath>..\..\..\..\Temp\obj\Release\Zenject-usage\</BaseIntermediateOutputPath>
     <Optimize>true</Optimize>
