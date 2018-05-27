@@ -23,6 +23,18 @@ namespace Zenject.Internal
             BuildInternal(true);
         }
 
+        static void EnableNet46()
+        {
+            PlayerSettings.scriptingRuntimeVersion = ScriptingRuntimeVersion.Latest;
+            EditorApplication.Exit(0);
+        }
+
+        static void EnableNet35()
+        {
+            PlayerSettings.scriptingRuntimeVersion = ScriptingRuntimeVersion.Legacy;
+            EditorApplication.Exit(0);
+        }
+
         static void BuildInternal(bool isRelease)
         {
             var scenePaths = UnityEditor.EditorBuildSettings.scenes

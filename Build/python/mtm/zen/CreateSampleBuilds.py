@@ -41,8 +41,20 @@ class Runner:
             sys.exit(1)
 
     def _runInternal(self):
-        self._log.heading("Running Build")
-        self._unityHelper.runEditorFunction('[UnityProjectPath]', 'Zenject.Internal.SampleBuilder.BuildRelease', self._args.platform)
+
+        if self._args.csharp35:
+            self._unityHelper.runEditorFunction('[UnityProjectPath]', 'Zenject.Internal.SampleBuilder.EnableNet35', Platforms.Windows)
+
+        elif self._args.csharp46:
+            self._unityHelper.runEditorFunction('[UnityProjectPath]', 'Zenject.Internal.SampleBuilder.EnableNet46', Platforms.Windows)
+
+        if self._args.build:
+            self._log.heading("Running Build")
+            self._unityHelper.runEditorFunction('[UnityProjectPath]', 'Zenject.Internal.SampleBuilder.BuildRelease', self._args.platform)
+
+        elif self._args.openUnity:
+            self._log.heading("Opening Unity")
+            self._unityHelper.openUnity('[UnityProjectPath]', self._args.platform)
 
 def installBindings():
 
@@ -81,7 +93,10 @@ if __name__ == '__main__':
         sys.exit(2)
 
     parser = argparse.ArgumentParser(description='Create Sample')
-    parser.add_argument('-ncs', '--newCSharp', action='store_true', help='')
+    parser.add_argument('-b', '--build', action='store_true', help='')
+    parser.add_argument('-ou', '--openUnity', action='store_true', help='')
+    parser.add_argument('-cs35', '--csharp35', action='store_true', help='')
+    parser.add_argument('-cs46', '--csharp46', action='store_true', help='')
     parser.add_argument('-pl', '--platform', type=str, default='Windows', choices=[x for x in Platforms.All], help='The platform to use.  If unspecified, windows is assumed.')
     args = parser.parse_args(sys.argv[1:])
 

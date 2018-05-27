@@ -42,6 +42,9 @@ class UnityHelper:
     def onUnityLog(self, logStr):
         self._log.debug(logStr)
 
+    def openUnity(self, projectPath, platform):
+        self._sys.executeNoWait('"[UnityExePath]" -buildTarget {0} -projectPath "{1}"'.format(self._getBuildTargetArg(platform), projectPath))
+
     def runEditorFunction(self, projectPath, editorCommand, platform = Platforms.Windows, batchMode = True, quitAfter = True, extraExtraArgs = ''):
         extraArgs = ''
 
