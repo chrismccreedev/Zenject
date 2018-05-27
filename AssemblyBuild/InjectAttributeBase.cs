@@ -1,8 +1,6 @@
-using ModestTree.Util;
-
 namespace Zenject
 {
-    public abstract class InjectAttributeBase : PreserveAttribute
+    public abstract class InjectAttributeBase : Zenject.Internal.PreserveAttribute
     {
         public bool Optional
         {
