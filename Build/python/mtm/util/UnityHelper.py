@@ -78,7 +78,7 @@ class UnityHelper:
         if platform == Platforms.Ios:
             return 'ios'
 
-        assertThat(False)
+        assertThat(False, "Unhandled platform {0}".format(platform))
 
     def runEditorFunctionRaw(self, projectPath, editorCommand, platform, extraArgs):
 
