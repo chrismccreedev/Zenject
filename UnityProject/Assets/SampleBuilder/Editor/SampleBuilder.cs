@@ -4,8 +4,11 @@ using System.IO;
 using System.Linq;
 using ModestTree;
 using UnityEditor;
-using UnityEditor.Build.Reporting;
 using UnityEngine;
+
+#if UNITY_2018_OR_NEWER
+using UnityEditor.Build.Reporting;
+#endif
 
 namespace Zenject.Internal
 {
@@ -73,9 +76,13 @@ namespace Zenject.Internal
                 options |= BuildOptions.Development;
             }
 
-            var report = BuildPipeline.BuildPlayer(scenePaths.ToArray(), path, EditorUserBuildSettings.activeBuildTarget, options);
+            var buildResult = BuildPipeline.BuildPlayer(scenePaths.ToArray(), path, EditorUserBuildSettings.activeBuildTarget, options);
 
-            bool succeeded = (report.summary.result == BuildResult.Succeeded);
+#if UNITY_2018_OR_NEWER
+            bool succeeded = (buildResult.summary.result == BuildResult.Succeeded);
+#else
+            bool succeeded = (buildResult.Length == 0);
+#endif
 
             if (succeeded)
             {
