@@ -75,7 +75,9 @@ class Runner:
 
     def _runBuild(self, platform):
         self._unityHelper.runEditorFunction('[UnityProjectPath]', 'Zenject.Internal.SampleBuilder.BuildRelease', platform)
-        self._sys.copyFile('[WebGlTemplate]', '[OutputRootDir]/WebGl/web.config')
+
+        if platform == Platforms.WebGl:
+            self._sys.copyFile('[WebGlTemplate]', '[OutputRootDir]/WebGl/web.config')
 
     def _changeToNetRuntime46(self):
         self._unityHelper.runEditorFunction('[UnityProjectPath]', 'Zenject.Internal.SampleBuilder.EnableNet46', Platforms.Windows)
