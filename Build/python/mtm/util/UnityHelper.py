@@ -23,7 +23,8 @@ class Platforms:
     OsX = 'OSX'
     Linux = 'Linux'
     Ios = 'iOS'
-    All = [Windows, WebPlayer, Android, WebGl, OsX, Linux, Ios]
+    WindowsStoreApp = 'WindowsStoreApp'
+    All = [Windows, WebPlayer, Android, WebGl, OsX, Linux, Ios, WindowsStoreApp]
 
 class UnityReturnedErrorCodeException(Exception):
     pass
@@ -80,6 +81,9 @@ class UnityHelper:
 
         if platform == Platforms.Ios:
             return 'ios'
+
+        if platform == Platforms.WindowsStoreApp:
+            return 'wsa'
 
         assertThat(False, "Unhandled platform {0}".format(platform))
 

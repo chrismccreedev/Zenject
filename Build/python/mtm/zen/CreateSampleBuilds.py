@@ -32,6 +32,7 @@ class Runner:
     _scriptRunner = Inject('ScriptRunner')
     _unityHelper = Inject('UnityHelper')
     _log = Inject('Logger')
+    _sys = Inject('SystemHelper')
 
     def run(self, args):
         self._args = args
@@ -42,19 +43,45 @@ class Runner:
 
     def _runInternal(self):
 
-        if self._args.csharp35:
-            self._unityHelper.runEditorFunction('[UnityProjectPath]', 'Zenject.Internal.SampleBuilder.EnableNet35', Platforms.Windows)
+        if self._args.all:
+            self._log.heading("Building windows 3.5")
+            self._changeToNetRuntime35()
+            self._runBuild(Platforms.Windows)
+            self._log.heading("Building windows 4.6")
+            self._changeToNetRuntime46()
+            self._runBuild(Platforms.Windows)
+            self._log.heading("Building WindowsStoreApp")
+            self._runBuild(Platforms.WindowsStoreApp)
+            self._log.heading("Building WebGl")
+            self._runBuild(Platforms.WebGl)
+            self._log.heading("Building Ios")
+            self._runBuild(Platforms.Ios)
+            self._log.heading("Building Android")
+            self._runBuild(Platforms.Android)
+        else:
+            if self._args.csharp35:
+                self._changeToNetRuntime35()
 
-        elif self._args.csharp46:
-            self._unityHelper.runEditorFunction('[UnityProjectPath]', 'Zenject.Internal.SampleBuilder.EnableNet46', Platforms.Windows)
+            elif self._args.csharp46:
+                self._changeToNetRuntime46()
 
-        if self._args.build:
-            self._log.heading("Running Build")
-            self._unityHelper.runEditorFunction('[UnityProjectPath]', 'Zenject.Internal.SampleBuilder.BuildRelease', self._args.platform)
+            if self._args.build:
+                self._log.heading("Running Build")
+                self._runBuild(self._args.platform)
 
-        elif self._args.openUnity:
-            self._log.heading("Opening Unity")
-            self._unityHelper.openUnity('[UnityProjectPath]', self._args.platform)
+            elif self._args.openUnity:
+                self._log.heading("Opening Unity")
+                self._unityHelper.openUnity('[UnityProjectPath]', self._args.platform)
+
+    def _runBuild(self, platform):
+        self._unityHelper.runEditorFunction('[UnityProjectPath]', 'Zenject.Internal.SampleBuilder.BuildRelease', platform)
+        self._sys.copyFile('[WebGlTemplate]', '[OutputRootDir]/WebGl/web.config')
+
+    def _changeToNetRuntime46(self):
+        self._unityHelper.runEditorFunction('[UnityProjectPath]', 'Zenject.Internal.SampleBuilder.EnableNet46', Platforms.Windows)
+
+    def _changeToNetRuntime35(self):
+        self._unityHelper.runEditorFunction('[UnityProjectPath]', 'Zenject.Internal.SampleBuilder.EnableNet35', Platforms.Windows)
 
 def installBindings():
 
@@ -63,6 +90,8 @@ def installBindings():
             'ScriptDir': ScriptDir,
             'RootDir': RootDir,
             'BuildDir': '[RootDir]/Build',
+            'WebGlTemplate': '[ScriptDir]/web_config_template.xml',
+            'OutputRootDir': '[RootDir]/SampleBuilds',
             'UnityExePath': 'D:/Utils/Unity/Unity2017.4.0f1/Editor/Unity.exe',
             'LogPath': '[BuildDir]/Log.txt',
             'UnityProjectPath': '[RootDir]/UnityProject',
@@ -98,6 +127,7 @@ if __name__ == '__main__':
     parser.add_argument('-cs35', '--csharp35', action='store_true', help='')
     parser.add_argument('-cs46', '--csharp46', action='store_true', help='')
     parser.add_argument('-pl', '--platform', type=str, default='Windows', choices=[x for x in Platforms.All], help='The platform to use.  If unspecified, windows is assumed.')
+    parser.add_argument('-a', '--all', action='store_true', help='')
     args = parser.parse_args(sys.argv[1:])
 
     installBindings()

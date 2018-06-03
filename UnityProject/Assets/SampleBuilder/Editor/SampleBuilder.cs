@@ -26,12 +26,14 @@ namespace Zenject.Internal
             BuildInternal(true);
         }
 
+        //[MenuItem("ZenjectSamples/Enable Net 46")]
         static void EnableNet46()
         {
             PlayerSettings.scriptingRuntimeVersion = ScriptingRuntimeVersion.Latest;
             EditorApplication.Exit(0);
         }
 
+        //[MenuItem("ZenjectSamples/Enable Net 35")]
         static void EnableNet35()
         {
             PlayerSettings.scriptingRuntimeVersion = ScriptingRuntimeVersion.Legacy;
@@ -48,10 +50,39 @@ namespace Zenject.Internal
                 case BuildTarget.StandaloneWindows64:
                 case BuildTarget.StandaloneWindows:
                 {
-                    string path = Path.Combine(
-                        Application.dataPath, "../../SampleBuilds/Windows/ZenjectSamples.exe");
+                    string scriptingRuntimeDir;
 
-                    BuildGeneric(path, scenePaths, isRelease);
+                    if (PlayerSettings.scriptingRuntimeVersion == ScriptingRuntimeVersion.Latest)
+                    {
+                        scriptingRuntimeDir = "Net46";
+                    }
+                    else
+                    {
+                        scriptingRuntimeDir = "Net35";
+                    }
+
+                    BuildGeneric(
+                        "Windows/{0}/ZenjectSamples.exe".Fmt(scriptingRuntimeDir), scenePaths, isRelease);
+                    break;
+                }
+                case BuildTarget.WebGL:
+                {
+                    BuildGeneric("WebGl", scenePaths, isRelease);
+                    break;
+                }
+                case BuildTarget.Android:
+                {
+                    BuildGeneric("Android/ZenjectSamples.apk", scenePaths, isRelease);
+                    break;
+                }
+                case BuildTarget.iOS:
+                {
+                    BuildGeneric("iOS", scenePaths, isRelease);
+                    break;
+                }
+                case BuildTarget.WSAPlayer:
+                {
+                    BuildGeneric("WSA", scenePaths, isRelease);
                     break;
                 }
                 default:
@@ -63,9 +94,11 @@ namespace Zenject.Internal
         }
 
         static bool BuildGeneric(
-            string path, List<string> scenePaths, bool isRelease)
+            string relativePath, List<string> scenePaths, bool isRelease)
         {
             var options = BuildOptions.None;
+
+            var path = Path.Combine(Path.Combine(Application.dataPath, "../../SampleBuilds"), relativePath);
 
             // Create the directory if it doesn't exist
             // Otherwise the build fails
