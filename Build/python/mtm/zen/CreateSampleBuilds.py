@@ -63,7 +63,7 @@ def installBindings():
             'ScriptDir': ScriptDir,
             'RootDir': RootDir,
             'BuildDir': '[RootDir]/Build',
-            'UnityExePath': 'D:/Utils/Unity/Unity2018.1.1f1/Editor/Unity.exe',
+            'UnityExePath': 'D:/Utils/Unity/Unity2017.4.0f1/Editor/Unity.exe',
             'LogPath': '[BuildDir]/Log.txt',
             'UnityProjectPath': '[RootDir]/UnityProject',
             'MsBuildExePath': 'C:/Windows/Microsoft.NET/Framework/v4.0.30319/msbuild.exe'
