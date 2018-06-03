@@ -119,9 +119,9 @@ class Runner:
             self._sys.deleteDirectory('[ZenTempDir]/OptionalExtras/UnitTests')
             self._sys.removeFile('[ZenTempDir]/OptionalExtras/UnitTests.meta')
 
-            self._zipHelper.createZipFile('[ZenTempDir]/OptionalExtras/ZenjectIntegrationTest', '[ZenTempDir]/OptionalExtras/ZenjectIntegrationTest.zip')
-            self._sys.deleteDirectory('[ZenTempDir]/OptionalExtras/ZenjectIntegrationTest')
-            self._sys.removeFile('[ZenTempDir]/OptionalExtras/ZenjectIntegrationTest.meta')
+            self._zipHelper.createZipFile('[ZenTempDir]/OptionalExtras/ZenjectIntegrationTestFixture', '[ZenTempDir]/OptionalExtras/ZenjectIntegrationTestFixture.zip')
+            self._sys.deleteDirectory('[ZenTempDir]/OptionalExtras/ZenjectIntegrationTestFixture')
+            self._sys.removeFile('[ZenTempDir]/OptionalExtras/ZenjectIntegrationTestFixture.meta')
 
             self._zipHelper.createZipFile('[ZenTempDir]/OptionalExtras/IntegrationTests', '[ZenTempDir]/OptionalExtras/IntegrationTests.zip')
             self._sys.deleteDirectory('[ZenTempDir]/OptionalExtras/IntegrationTests')

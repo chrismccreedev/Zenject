@@ -1,6 +1,39 @@
 
 ## <a id="release-notes"></a>Release Notes
 
+###6.0 (June 4, 2018)
+
+Large release with lots of new features, bug fixes, and performance improvements.  Some minor API changes to be aware of (see 6.0 upgrade guide for details).
+
+This will also be the beginning of a Zenject LTS stream that will follow Unity LTS
+
+Notable:
+- Performance improvements - in some cases doubling the startup speed.  Also allocates a lot less garbage now by using memory pools internally
+- Replaced the signals system with a very different 'event bus' like approach.  Also fully decoupled signals from zenject core so it can be unchecked from OptionalExtras when importing
+- Added support for automatically loading parent scene contracts and decorated scenes by including a config file in resources that specifies default scenes for certain contract names
+- Removed ability to use AsSingle with the same type across multiple bind statements.  If you want to map multiple contracts to the same AsSingle, you need to include multiple types in the Bind(..) or use FromResolve
+- Added support for much more complex custom factory configuration using FromIFactory in addition to just FromFactory
+- Added new type of Test Fixture called SceneTestFixture to run tests on a given production scene
+- Added ability to use [Inject], IInitializable, etc. from within custom user DLLs by referencing Zenject-Usage.dll
+- Added ability to add user supplied validation logic by deriving from IValidatable
+- Also added a way to set global zenject settings to control things like validation behaviour, error output, etc.
+- Changed to use System.Lazy instead of Zenject.Lazy if building with .NET 4.6+
+- Fixed to automatically inject StateMachineBehaviour derived classes attached to Animator components
+- Renamed Factory<> to PlaceholderFactory<>
+- Added debugging window to monitor all active memory pools
+- Misc. bug fixes
+
+Minor:
+- Added events on SceneContext to hook into post-install / pre-install events
+- Added methods to expand and shrink memory pools.  Also added optional OnDestroy user method to handle shrink operations
+- Changed validate keyboard shortcut from CTRL+SHIFT+V to CTRL+ALT+V to avoid conflict with Vuforia
+- Standardized the naming of the bind methods for custom interfaces for factories and memory pools.  BindFactoryContract was renamed to BindFactoryInterface and the overload of BindMemoryPool taking a custom interface was renamed BindMemoryPoolInterface
+- Added FromResolveAll, FromResolveAllGetter, and FromSubContainerResolveAll bind methods to make it explicit when you intend to match multiple dependencies (without the All it's assumed to just be one)
+- Added optional InjectSources argument for FromResolve and FromResolveGetter bind methods
+- Changed ZenjectEditorWindow to handle failures better
+- Added DisposeBlock class to make it easier to avoid unnecessary per frame memory allocations
+- Added StaticMemoryPool class for cases where you want to store a pool statically instead of inside a container
+
 ###5.5.1 (March 12, 2017)
 
 Fixed compatibility issue with UniRx + the different scripting runtimes

@@ -87,13 +87,14 @@ class Runner:
         self._platform = Platforms.WebGl
         self._createBuild()
 
-        self._log.heading("Building Ios")
-        self._platform = Platforms.Ios
-        self._createBuild()
+        # TODO
+        #self._log.heading("Building Ios")
+        #self._platform = Platforms.Ios
+        #self._createBuild()
 
-        self._log.heading("Building Android")
-        self._platform = Platforms.Android
-        self._createBuild()
+        #self._log.heading("Building Android")
+        #self._platform = Platforms.Android
+        #self._createBuild()
 
     def _runTests(self):
         self._runUnityTests('editmode')
