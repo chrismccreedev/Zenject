@@ -16,14 +16,14 @@ UnityLogFileLocation = os.getenv('localappdata') + '\\Unity\\Editor\\Editor.log'
 #UnityLogFileLocation = '{Modest3dDir}/Modest3DLog.txt'
 
 class Platforms:
-    Windows = 'Windows'
-    WebPlayer = 'WebPlayer'
-    Android = 'Android'
-    WebGl = 'WebGL'
-    OsX = 'OSX'
-    Linux = 'Linux'
-    Ios = 'iOS'
-    WindowsStoreApp = 'WindowsStoreApp'
+    Windows = 'windows'
+    WebPlayer = 'webplayer'
+    Android = 'android'
+    WebGl = 'webgl'
+    OsX = 'osx'
+    Linux = 'linux'
+    Ios = 'ios'
+    WindowsStoreApp = 'wsa'
     All = [Windows, WebPlayer, Android, WebGl, OsX, Linux, Ios, WindowsStoreApp]
 
 class UnityReturnedErrorCodeException(Exception):

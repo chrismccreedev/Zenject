@@ -33,6 +33,10 @@ class Runner:
     _unityHelper = Inject('UnityHelper')
     _log = Inject('Logger')
     _sys = Inject('SystemHelper')
+    _varManager = Inject('VarManager')
+
+    def __init__(self):
+        self._platform = Platforms.Windows
 
     def run(self, args):
         self._args = args
@@ -41,49 +45,129 @@ class Runner:
         if not success:
             sys.exit(1)
 
+    def _runBuilds(self):
+        self._log.heading("Clearing output directory")
+        self._sys.clearDirectoryContents('[OutputRootDir]')
+
+        self._log.heading("Building windows 3.5")
+        self._platform = Platforms.Windows
+        self._enableNet35()
+        self._createBuild()
+
+        self._log.heading("Building windows 4.6")
+        self._platform = Platforms.Windows
+        self._enableNet46()
+        self._createBuild()
+
+        self._log.heading("Building WindowsStoreApp 3.5 .net")
+        self._platform = Platforms.WindowsStoreApp
+        self._enableNet35()
+        self._enableNetBackend()
+        self._createBuild()
+
+        self._log.heading("Building WindowsStoreApp 4.6 .net")
+        self._platform = Platforms.WindowsStoreApp
+        self._enableNet46()
+        self._enableNetBackend()
+        self._createBuild()
+
+        self._log.heading("Building WindowsStoreApp 4.6 il2cpp")
+        self._platform = Platforms.WindowsStoreApp
+        self._enableNet46()
+        self._enableIl2cpp()
+        self._createBuild()
+
+        self._log.heading("Building WindowsStoreApp 3.5 il2cpp")
+        self._platform = Platforms.WindowsStoreApp
+        self._enableNet35()
+        self._enableIl2cpp()
+        self._createBuild()
+
+        self._log.heading("Building WebGl")
+        self._platform = Platforms.WebGl
+        self._createBuild()
+
+        self._log.heading("Building Ios")
+        self._platform = Platforms.Ios
+        self._createBuild()
+
+        self._log.heading("Building Android")
+        self._platform = Platforms.Android
+        self._createBuild()
+
+    def _runTests(self):
+        self._runUnityTests('editmode')
+        self._runUnityTests('playmode')
+
+    def _runUnityTests(self, testPlatform):
+
+        self._log.heading('Running unity {0} unit tests'.format(testPlatform))
+
+        resultPath = self._varManager.expandPath('[TempDir]/UnityUnitTestsResults.xml').replace('\\', '/')
+        self._sys.removeFileIfExists(resultPath)
+
+        try:
+            self._unityHelper.runEditorFunctionRaw('[UnityProjectPath]', None, self._platform, '-runTests -batchmode -nographics -testResults "{0}" -testPlatform {1}'.format(resultPath, testPlatform))
+
+        except UnityReturnedErrorCodeException as e:
+
+            if self._sys.fileExists(resultPath):
+                # Print out the test error info
+                outRoot = ET.parse(resultPath)
+                for item in outRoot.findall('.//failure/..'):
+                    name = item.get('name')
+                    self._log.error("Unit test failed for '{0}'.", name)
+
+                    failure = item.find('./failure')
+                    self._log.error("Message: {0}", failure.find('./message').text.strip())
+
+                    stackTrace = failure.find('./stack-trace')
+
+                    if stackTrace is not None:
+                        self._log.error("Stack Trace: {0}", stackTrace.text.strip())
+            raise
+
+        outRoot = ET.parse(resultPath)
+        total = outRoot.getroot().get('total')
+        self._log.info("Processed {0} {1} tests without errors", total, testPlatform)
+
     def _runInternal(self):
 
-        if self._args.all:
-            self._log.heading("Building windows 3.5")
-            self._changeToNetRuntime35()
-            self._runBuild(Platforms.Windows)
-            self._log.heading("Building windows 4.6")
-            self._changeToNetRuntime46()
-            self._runBuild(Platforms.Windows)
-            self._log.heading("Building WindowsStoreApp")
-            self._runBuild(Platforms.WindowsStoreApp)
-            self._log.heading("Building WebGl")
-            self._runBuild(Platforms.WebGl)
-            self._log.heading("Building Ios")
-            self._runBuild(Platforms.Ios)
-            self._log.heading("Building Android")
-            self._runBuild(Platforms.Android)
-        else:
-            if self._args.csharp35:
-                self._changeToNetRuntime35()
+        if self._args.runTests:
+            self._runTests()
 
-            elif self._args.csharp46:
-                self._changeToNetRuntime46()
+        if self._args.runBuilds:
+            self._runBuilds()
 
-            if self._args.build:
-                self._log.heading("Running Build")
-                self._runBuild(self._args.platform)
+        if self._args.openUnity:
+            self._openUnity()
 
-            elif self._args.openUnity:
-                self._log.heading("Opening Unity")
-                self._unityHelper.openUnity('[UnityProjectPath]', self._args.platform)
+    def _createBuild(self):
+        self._log.info("Creating build")
+        self._runEditorFunction('BuildRelease')
 
-    def _runBuild(self, platform):
-        self._unityHelper.runEditorFunction('[UnityProjectPath]', 'Zenject.Internal.SampleBuilder.BuildRelease', platform)
+    def _enableNet46(self):
+        self._log.info("Changing runtime to .net 4.6")
+        self._runEditorFunction('EnableNet46')
 
-        if platform == Platforms.WebGl:
-            self._sys.copyFile('[WebGlTemplate]', '[OutputRootDir]/WebGl/web.config')
+    def _enableNet35(self):
+        self._log.info("Changing runtime to .net 3.5")
+        self._runEditorFunction('EnableNet35')
 
-    def _changeToNetRuntime46(self):
-        self._unityHelper.runEditorFunction('[UnityProjectPath]', 'Zenject.Internal.SampleBuilder.EnableNet46', Platforms.Windows)
+    def _enableNetBackend(self):
+        self._log.info("Changing backend to .net")
+        self._runEditorFunction('EnableBackendNet')
 
-    def _changeToNetRuntime35(self):
-        self._unityHelper.runEditorFunction('[UnityProjectPath]', 'Zenject.Internal.SampleBuilder.EnableNet35', Platforms.Windows)
+    def _enableIl2cpp(self):
+        self._log.info("Enabling il2cpp")
+        self._runEditorFunction('EnableBackendIl2cpp')
+
+    def _openUnity(self):
+        self._unityHelper.openUnity('[UnityProjectPath]', self._platform)
+
+    def _runEditorFunction(self, functionName):
+        self._log.info("Calling SampleBuilder." + functionName)
+        self._unityHelper.runEditorFunction('[UnityProjectPath]', 'Zenject.Internal.SampleBuilder.' + functionName, self._platform)
 
 def installBindings():
 
@@ -92,6 +176,7 @@ def installBindings():
             'ScriptDir': ScriptDir,
             'RootDir': RootDir,
             'BuildDir': '[RootDir]/Build',
+            'TempDir': '[RootDir]/Temp',
             'WebGlTemplate': '[ScriptDir]/web_config_template.xml',
             'OutputRootDir': '[RootDir]/SampleBuilds',
             'UnityExePath': 'D:/Utils/Unity/Unity2017.4.0f1/Editor/Unity.exe',
@@ -124,12 +209,9 @@ if __name__ == '__main__':
         sys.exit(2)
 
     parser = argparse.ArgumentParser(description='Create Sample')
-    parser.add_argument('-b', '--build', action='store_true', help='')
     parser.add_argument('-ou', '--openUnity', action='store_true', help='')
-    parser.add_argument('-cs35', '--csharp35', action='store_true', help='')
-    parser.add_argument('-cs46', '--csharp46', action='store_true', help='')
-    parser.add_argument('-pl', '--platform', type=str, default='Windows', choices=[x for x in Platforms.All], help='The platform to use.  If unspecified, windows is assumed.')
-    parser.add_argument('-a', '--all', action='store_true', help='')
+    parser.add_argument('-rt', '--runTests', action='store_true', help='')
+    parser.add_argument('-rb', '--runBuilds', action='store_true', help='')
     args = parser.parse_args(sys.argv[1:])
 
     installBindings()

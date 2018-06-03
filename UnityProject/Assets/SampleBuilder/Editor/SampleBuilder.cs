@@ -30,6 +30,7 @@ namespace Zenject.Internal
         static void EnableNet46()
         {
             PlayerSettings.scriptingRuntimeVersion = ScriptingRuntimeVersion.Latest;
+            PlayerSettings.SetApiCompatibilityLevel(EditorUserBuildSettings.selectedBuildTargetGroup, ApiCompatibilityLevel.NET_4_6);
             EditorApplication.Exit(0);
         }
 
@@ -37,6 +38,19 @@ namespace Zenject.Internal
         static void EnableNet35()
         {
             PlayerSettings.scriptingRuntimeVersion = ScriptingRuntimeVersion.Legacy;
+            PlayerSettings.SetApiCompatibilityLevel(EditorUserBuildSettings.selectedBuildTargetGroup, ApiCompatibilityLevel.NET_2_0_Subset);
+            EditorApplication.Exit(0);
+        }
+
+        static void EnableBackendIl2cpp()
+        {
+            PlayerSettings.SetScriptingBackend(EditorUserBuildSettings.selectedBuildTargetGroup, ScriptingImplementation.IL2CPP);
+            EditorApplication.Exit(0);
+        }
+
+        static void EnableBackendNet()
+        {
+            PlayerSettings.SetScriptingBackend(EditorUserBuildSettings.selectedBuildTargetGroup, ScriptingImplementation.WinRTDotNET);
             EditorApplication.Exit(0);
         }
 
@@ -50,19 +64,8 @@ namespace Zenject.Internal
                 case BuildTarget.StandaloneWindows64:
                 case BuildTarget.StandaloneWindows:
                 {
-                    string scriptingRuntimeDir;
-
-                    if (PlayerSettings.scriptingRuntimeVersion == ScriptingRuntimeVersion.Latest)
-                    {
-                        scriptingRuntimeDir = "Net46";
-                    }
-                    else
-                    {
-                        scriptingRuntimeDir = "Net35";
-                    }
-
                     BuildGeneric(
-                        "Windows/{0}/ZenjectSamples.exe".Fmt(scriptingRuntimeDir), scenePaths, isRelease);
+                        "Windows/{0}/ZenjectSamples.exe".Fmt(GetScriptingRuntimeString()), scenePaths, isRelease);
                     break;
                 }
                 case BuildTarget.WebGL:
@@ -82,7 +85,7 @@ namespace Zenject.Internal
                 }
                 case BuildTarget.WSAPlayer:
                 {
-                    BuildGeneric("WSA", scenePaths, isRelease);
+                    BuildGeneric("WSA/{0}/{1}".Fmt(GetScriptingRuntimeString(), GetScriptingBackendString()), scenePaths, isRelease);
                     break;
                 }
                 default:
@@ -91,6 +94,29 @@ namespace Zenject.Internal
                         "Cannot build on platform '{0}'".Fmt(EditorUserBuildSettings.activeBuildTarget));
                 }
             }
+        }
+
+        static string GetScriptingBackendString()
+        {
+            var scriptingBackend = PlayerSettings.GetScriptingBackend(EditorUserBuildSettings.selectedBuildTargetGroup);
+
+            if (scriptingBackend == ScriptingImplementation.IL2CPP)
+            {
+                return "Il2cpp";
+            }
+
+            Assert.IsEqual(scriptingBackend, ScriptingImplementation.WinRTDotNET);
+            return ".NET";
+        }
+
+        static string GetScriptingRuntimeString()
+        {
+            if (PlayerSettings.scriptingRuntimeVersion == ScriptingRuntimeVersion.Latest)
+            {
+                return "Net46";
+            }
+
+            return "Net35";
         }
 
         static bool BuildGeneric(
