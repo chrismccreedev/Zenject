@@ -11,6 +11,7 @@ Notable:
 - Performance improvements - in some cases doubling the startup speed.  Also allocates a lot less garbage now by using memory pools internally
 - Replaced the signals system with a very different 'event bus' like approach.  Also fully decoupled signals from zenject core so it can be unchecked from OptionalExtras when importing
 - Added support for automatically loading parent scene contracts and decorated scenes by including a config file in resources that specifies default scenes for certain contract names
+- Added support for "decorator" bindings by calling Container.Decorate (see docs for usage)
 - Removed ability to use AsSingle with the same type across multiple bind statements.  If you want to map multiple contracts to the same AsSingle, you need to include multiple types in the Bind(..) or use FromResolve
 - Added support for much more complex custom factory configuration using FromIFactory in addition to just FromFactory
 - Added new type of Test Fixture called SceneTestFixture to run tests on a given production scene
@@ -22,9 +23,13 @@ Notable:
 - Renamed Factory<> to PlaceholderFactory<>
 - Added debugging window to monitor all active memory pools
 - Misc. bug fixes
+- Changed the default value for includeInactive parameter to FromComponentX methods to be true, since this is very important when instantiating prefabs and therefore makes more sense as a default
+- Fixed some issues related to binding open generic types
 
 Minor:
-- Added events on SceneContext to hook into post-install / pre-install events
+- Added missing bind methods to Container.Bind such as ByNewPrefabMethod, ByNewPrefabInstaller, ByNewPrefaResourceInstaller, and ByNewPrefabResourceMethod
+- Added FromComponentsInChildren bind method in addition to FromComponentInChildren (note the plural) and similarly for FromComponentInParents, FromComponentSibling, FromComponentInNewPrefab, and FromResource
+- Added events on SceneContext, GameObjectContext, and ProjectContext to hook into post-install / pre-install events
 - Added methods to expand and shrink memory pools.  Also added optional OnDestroy user method to handle shrink operations
 - Changed validate keyboard shortcut from CTRL+SHIFT+V to CTRL+ALT+V to avoid conflict with Vuforia
 - Standardized the naming of the bind methods for custom interfaces for factories and memory pools.  BindFactoryContract was renamed to BindFactoryInterface and the overload of BindMemoryPool taking a custom interface was renamed BindMemoryPoolInterface
@@ -33,6 +38,7 @@ Minor:
 - Changed ZenjectEditorWindow to handle failures better
 - Added DisposeBlock class to make it easier to avoid unnecessary per frame memory allocations
 - Added StaticMemoryPool class for cases where you want to store a pool statically instead of inside a container
+- Added MonoMemoryPoolEx class to automatically reparent the game object on despawn
 
 ###5.5.1 (March 12, 2017)
 
