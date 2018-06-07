@@ -145,8 +145,10 @@ Also, if you prefer video documentation, see the [youtube series on zenject](htt
         * <a href="#dicontainer-methods-rebind">DiContainer Unbind / Rebind</a>
         * <a href="#dicontainer-methods-other">Other DiContainer methods</a>
     * <a href="#scenes-decorator">Scene Decorators</a>
+    * <a href="#zenautoinjector">ZenAutoInjector</a>
     * <a href="#sub-containers-and-facades">Sub-Containers And Facades</a>
     * <a href="#writing-tests">Writing Automated Unit Tests / Integration Tests</a>
+    * <a href="#using-outside-unity">Using Zenject Outside Unity Or For DLLs</a>
     * <a href="#signals">Signals</a>
     * <a href="#auto-mocking-using-moq">Auto-Mocking using Moq</a>
     * <a href="#editor-windows">Creating Unity EditorWindow's with Zenject</a>
@@ -155,9 +157,7 @@ Also, if you prefer video documentation, see the [youtube series on zenject](htt
     * <a href="#isthisoverkill">Isn't this overkill?  I mean, is using statically accessible singletons really that bad?</a>
     * <a href="#aot-support">Does this work on AOT platforms such as iOS and WebGL?</a>
     * <a href="#faq-performance">How is Performance?</a>
-    * <a href="#net-framework">Can I use .NET framework 4.0 and above?</a>
     * <a href="#howtousecoroutines">How do I use Unity style Coroutines in normal C# classes?</a>
-    * <a href="#memorypools">How do I use Zenject with pools to minimize memory allocations?</a>
     * <a href="#what-games-are-using-zenject">What games/tools/libraries are using Zenject</a>
 * <a href="#cheatsheet">Cheat Sheet</a>
 * <a href="#further-help">Further Help</a>
@@ -1319,8 +1319,6 @@ The `ZenjectBinding` component has the following properties:
 
     * The above binding is almost certainly not what you want to do, because it will create an instance of Foo for every interface that Foo has.  Instead, you almost certainly want to use either `AsCached` or `AsSingle` in this case
 
-Please feel free to submit any other sources of confusion to sfvermeulen@gmail.com and I will add it here.
-
 ## <a id="game-object-bind-methods"></a>Game Object Bind Methods
 
 For bindings that create new game objects (eg. FromComponentInNewPrefab or FromNewComponentOnNewGameObject) there are also two extra bind methods.
@@ -1664,7 +1662,14 @@ public class MainInstaller : MonoInstaller
 
 ScriptableObjectInstaller works the same as MonoInstaller in this regard.
 
+## <a id="using-outside-unity"></a>Using Zenject Outside Unity
+
+If you are building some code as DLLs and then including them in Unity, you can still add bindings for those classes inside your installers, with the only limitation being that you have to use constructor injection.  If you want to use the other inject approaches such as member injection or method injection, then you can do that too, however in that case you will need to add a reference for your project to `Zenject-Usage.dll` which can be found in the `Zenject\Source\Usage` directory.  This DLL also includes the standard interfaces such as ITickable, IInitializable, etc. so you can use those as well.
+
+You can also use Zenject for non-unity projects by downloading `Zenject-NonUnity.zip` from the [releases section](https://github.com/modesttree/Zenject/releases)
+
 ## <a id="signals"></a>Signals
+
 See <a href="Documentation/Signals.md">here</a>.
 
 ## <a id="creating-objects-dynamically"></a>Creating Objects Dynamically Using Factories
@@ -1905,6 +1910,9 @@ Also note that the Validate command can be used to quickly verify the different 
 
 Also, I should mention that Unity currently doesn't have a built-in way to save and restore multi-scene setups.  We use a simple editor script for this that you can find <a href="https://gist.github.com/svermeulen/8927b29b2bfab4e84c950b6788b0c677">here</a> if interested.
 
+## <a id="zenautoinjector"></a>ZenAutoInjector
+
+
 ## <a id="scenes-decorator"></a>Scene Decorators
 
 Scene Decorators offer another approach to using multiple scenes together with zenject in addition to <a href="#scene-parenting">scene parenting</a> described above.  The difference is that with scene decorators, the multiple scenes in question will all share the same Container and therefore all scenes can access bindings in all other scenes (unlike with scene parenting where only the child can access the parent bindings and not vice versa).
@@ -2119,7 +2127,6 @@ When instantiating objects directly, you can either use DiContainer or you can u
     var foo = Container.InstantiateScriptableObjectResource<Foo>("path/to/fooscriptableobject")
     var foo = Container.InstantiateScriptableObjectResource<Foo>("path/to/fooscriptableobject", new object[] { "asdf", 6.0f })
     ```
-
 ### DiContainer.Bind
 
 See <a href="#binding">here</a>
@@ -2299,7 +2306,7 @@ This is also precisely how the initial MonoBehaviour's in the scene are injected
 
 ### <a id="dicontainer-methods-rebind"></a>DiContainer Unbind / Rebind
 
-It is possible to remove or replace bindings that were added in a previous bind statement.
+It is possible to remove or replace bindings that were added in a previous bind statement.  Note however that using methods are often a sign of bad practice.
 
 1. **Unbind** - Remove all bindings matching the given type/id from container.
 
@@ -2700,10 +2707,6 @@ You can also get minor gains in speed and minor reductions in memory allocations
 * **<a id="faq-performance"></a>How is performance?**
 
     See <a href="#optimization_notes">here</a>
-
-* **<a id="net-framework"></a>Can I use .NET framework 4.0 and above?**
-
-    By default Unity uses .NET framework 3.5 and so Zenject assumes that this is what you want.  If you are compiling Zenject with a version greater than this, this is fine, but you'll have to either delete or comment out the contents of Func.cs.
 
 * **<a id="howtousecoroutines"></a>How do I use Unity style Coroutines in normal C# classes?**
 
