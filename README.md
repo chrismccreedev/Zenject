@@ -72,7 +72,8 @@ You can install Zenject using any of the following methods
 
 1. From Source
 
-    * You can also just clone this repo and copy the `UnityProject/Assets/Plugins/Zenject` directory to your own Unity3D project.  In this case, make note of the folders underneath "OptionalExtras" and choose only the ones you want.
+    * After syncing the git repo, note that you will have to build the `Zenject-Usage.dll` by building the solution at `AssemblyBuild\Zenject-usage\Zenject-usage.sln`.  Or, if you prefer you can get `Zenject-Usage.dll` from Releases section instead
+    * Then you can copy the `UnityProject/Assets/Plugins/Zenject` directory to your own Unity3D project.  In this case, make note of the folders underneath "OptionalExtras" and choose only the ones you want.
 
 ## <a id="history"></a>History
 
@@ -145,7 +146,7 @@ Also, if you prefer video documentation, see the [youtube series on zenject](htt
         * <a href="#dicontainer-methods-rebind">DiContainer Unbind / Rebind</a>
         * <a href="#dicontainer-methods-other">Other DiContainer methods</a>
     * <a href="#scenes-decorator">Scene Decorators</a>
-    * <a href="#zenautoinjector">ZenAutoInjector</a>
+    * <a href="#zenautoinjector">ZenAutoInjecter</a>
     * <a href="#sub-containers-and-facades">Sub-Containers And Facades</a>
     * <a href="#writing-tests">Writing Automated Unit Tests / Integration Tests</a>
     * <a href="#using-outside-unity">Using Zenject Outside Unity Or For DLLs</a>
@@ -1910,8 +1911,21 @@ Also note that the Validate command can be used to quickly verify the different 
 
 Also, I should mention that Unity currently doesn't have a built-in way to save and restore multi-scene setups.  We use a simple editor script for this that you can find <a href="https://gist.github.com/svermeulen/8927b29b2bfab4e84c950b6788b0c677">here</a> if interested.
 
-## <a id="zenautoinjector"></a>ZenAutoInjector
+## <a id="zenautoinjector"></a>ZenAutoInjecter
 
+As explained in the <a href="#creating-objects-dynamically">section on factories</a>, any object that you create dynamically needs to be created through zenject in order for it to be injected.  You cannot simply execute `GameObject.Instantiate(prefab)`, or call `new Foo()`.
+
+However, this is sometimes problematic especially when using other third party libraries.  For example, some networking libraries work by automatically instantiating prefabs to sync state across multiple clients.  And it is still desirable in these cases to execute zenject injection.
+
+So to solve these cases, we've added a helper MonoBehaviour that you can add to these kinds of objects called ZenAutoInjecter.  If you add this MonoBehaviour to your prefab, then you should be able to call `GameObject.Instantiate` and injection should happen automatically.
+
+After adding this component you might notice that there is a field on it called 'Container Source'.  This value will determine how it calculates which container to use for the injection and has the following options:
+
+1. SearchInHiearchy - This will find the container to use by searching the scene hierarchy where the prefab is instantiated.  So if the prefab is instantiated underneath a GameObjectContext, it will use the container associated with the GameObjectContext.  If it is instantiated underneath a DontDestroyOnLoad object, then it will use the ProjectContext container.  And otherwise will use the SceneContext container for whatever scene it is instantiated in.
+
+1. SceneContext - Don't bother searching the hierarchy and instead just always use the current SceneContext container.
+
+1. ProjectContext - Don't bother searching the hierarchy and instead just always use the ProjectContext container.
 
 ## <a id="scenes-decorator"></a>Scene Decorators
 
