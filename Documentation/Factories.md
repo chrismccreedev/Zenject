@@ -1,4 +1,6 @@
 
+## Creating Objects Dynamically Using Factories
+
 One of the things that often confuses people new to dependency injection is the question of how to create new objects dynamically, after the app/game has fully started up.  For example, if you are writing a game in which you are spawning new enemies throughout the game, then you will want to construct a new object for the 'enemy' class, and you will want to ensure that this object gets injected with dependencies just like all the objects that are part of the initial object graph.  How to do this?  The answer: Factories.
 
 Similar to the main documentation, I recommend at least reading the Introduction section and then skipping around in Advanced if necessary

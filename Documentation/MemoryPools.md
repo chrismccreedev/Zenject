@@ -1,9 +1,16 @@
 
 ## <a id="memory-pools"></a>Memory Pools
 
-### <a id="introduction"></a>Introduction
+## Table Of Contents
 
-Before understanding memory pools it would be helpful to understand factories, so please read the <a href="Factories.md">docs on factories</a> first.
+* Introduction
+    * <a href="#example">Example</a>
+    * <a href="#binding-syntax">Binding Syntax</a>
+    * <a href="#resetting">Resetting Items In Pool</a>
+
+### <a id="example"></a>Example
+
+Before understanding memory pools it would be helpful to understand factories, so please read <a href="Factories.md">the introduction to factories</a> first.
 
 It doesn't take long when developing games in Unity before you realize that proper memory management is very important if you want your game to run smoothly (especially on mobile).  Depending on the constraints of the platform and the type of game you are working on, it might be very important to avoid unnecessary heap allocations as much as possible.  One very effective way to do this is to use memory pools.
 
@@ -112,7 +119,7 @@ public class TestInstaller : MonoInstaller<TestInstaller>
 
 When we use WithInitialSize like this in the Bind statement for our pool, 10 instances of Foo will be created immediately on startup to seed the pool.
 
-## <a id="syntax"></a>Syntax
+## <a id="binding-syntax"></a>Binding Syntax
 
 The syntax for memory pools are almost identical to factories.  The recommended convention is to use a public nested class named Pool (though this is just a convention).
 
@@ -139,7 +146,7 @@ public class Foo
 The full format of the binding is the following:
 
 <pre>
-Container.BindMemoryPool&lt;<b>ObjectType, MemoryPoolType, MemoryPoolContractType</b>&gt;()
+Container.BindMemoryPool&lt;<b>ObjectType, MemoryPoolType</b>&gt;()
     .With<b>(InitialSize|FixedSize)</b>()
     .ExpandBy<b>(OneAtATime|Doubling)</b>()
     .To&lt;<b>ResultType</b>&gt;()
@@ -157,8 +164,6 @@ Where:
 
 * **MemoryPoolType** = The type of the MemoryPool derived class, which is often a nested class of `ObjectType`.
 
-* **MemoryPoolContractType** = Note:  This can be left unspecified most of the time (ie. only the first two generic parameters are required).  This is the contract type to match for injected members.  In other words, when zenject injects on an object, it will be looking for constructor parameters/inject fields that have this type before injecting the memory pool instance.  It must be equal to or a parent class/interface of the given `MemoryPoolType`.  This is only useful for cases where you want to inject your memory pool by an interface like `IMemoryPool<Foo>` or a custom interface.
-
 * **With** = Determines the number of instances that the pool is seeded with.  When not specified, the pool starts with zero instances.  The options are:
 
     * WithInitializeSize(x) - Create x instances immediately when the pool is created.  The pool is also allowed to grow as necessary if it exceeds that amount
@@ -171,9 +176,9 @@ Where:
 
 The rest of the bind methods behave the same as the normal bind methods documented <a href="../README.md#binding">here</a>
 
-## <a id="resetting"></a>Resetting
+## <a id="resetting"></a>Resetting Items In Pool
 
-One very important thing to be aware of when using memory pools instead of factories is that you must make sure to completely "refresh" the given instance.  This is necessary otherwise you might have state a previous "life" of the instance bleeding in to the behaviour of the new instance.
+One very important thing to be aware of when using memory pools instead of factories is that you must make sure to completely "refresh" the given instance.  This is necessary otherwise you might have state from a previous "life" of the instance bleeding in to the behaviour of the new instance.
 
 You can refresh the object by implementing any of the following methods in your memory pool derived class:
 
@@ -185,6 +190,12 @@ public class Foo
         protected override void OnCreated(Foo item)
         {
             // Called immediately after the item is first added to the pool
+        }
+
+        protected override void OnDestroyed(Foo item)
+        {
+            // Called immediately after the item is removed from the pool without also being spawned
+            // This occurs when the pool is shrunk either by using WithRange or by explicitly shrinking the pool by calling the `Shrink()` method
         }
 
         protected override void OnSpawned(Foo item)
