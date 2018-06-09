@@ -8,9 +8,9 @@
     * <a href="#binding-syntax">Binding Syntax</a>
     * <a href="#resetting">Resetting Items In Pool</a>
     * <a href="#runtime-parameters">Runtime Parameters</a>
+    * <a href="#disposepattern">Factories, Pools, and the Dispose Pattern</a>
     * <a href="#monomemorypool">Memory Pools for MonoBehaviours</a>
 * Advanced
-    * <a href="#monomemorypoolex">MonoBehaviour Memory Pools With Reparenting</a>
     * <a href="#abstract-pools">Abstract Memory Pools</a>
     * <a href="#static-memory-pool">PoolableMemoryPool Pattern</a>
     * <a href="#instantiating-directory">Instantiating Memory Pools Directly</a>
@@ -347,6 +347,60 @@ public class Bar
 }
 ```
 
+## <a id="disposepattern"></a>Factories, Pools, and the Dispose Pattern
+
+The approach that is outlined above works fairly well but has the following drawbacks:
+
+- Every time we make a class poolable we always need to add boilerplate code where we have to subclass `MemoryPool` and then call an instance method 'Reset' on our object, passing along any parameters to it.  It would be easier if this was automated somehow insted of duplicated for every pooled obejct.
+
+- Any code that is spawning pooled objects has to maintain a reference to the pool class so that it can call the Despawn method.  This code doesn't really care about whether the object is pooled or not.  The fact that the object is pooled is more of an implementation detail, and therefore it would be better if this was abstracted away from the code that is using it.
+
+- Every time we want to convert some non-pooled objects to use a pool we have to change a lot of code.  We have to remove the `PlaceholderFactory` derived class, and then change every where to call `Spawn` instead of `Create`, and then also remember to call `Despawn`
+
+We can solve these problems by using `PlaceholderFactory` and the Dispose Pattern.  Any code can call the factory Create method just like for non-pooled objects and then call Dispose to automatically return the object to the pool.
+
+For example:
+
+```csharp
+public class Foo : IPoolable<IMemoryPool>, IDisposable
+{
+    IMemoryPool _pool;
+
+    public void Dispose()
+    {
+        _pool.Despawn(this);
+    }
+
+    public void OnDespawned()
+    {
+        _pool = null;
+    }
+
+    public void OnSpawned(IMemoryPool pool)
+    {
+        _pool = pool;
+    }
+
+    public class Factory : Factory<Foo>
+    {
+    }
+}
+
+public class TestInstaller : MonoInstaller<TestInstaller>
+{
+    public override void InstallBindings()
+    {
+        Container.BindFactory<Foo, Foo.Factory>().FromPoolableMemoryPool<Foo>(x => x.WithInitialSize(2));
+    }
+}
+```
+
+To accomplish this, we use a nested PlaceholderFactory derived class just like for non-pooled objects, and then implement the `IPoolable<IMemoryPool>` interface.  This will require that we define `OnSpawned` and `OnDespawned` methods which will handle the `Reset` logic that we used in previous examples.
+
+We can then also implement `IDisposable` and then return ourselves to the given pool whenever `Dispose` is called.
+
+Then when binding the factory, we can use the `FromPoolableMemoryPool` method to configure the pool with an initial seed value, max size, and expand method as well as the method that is used to construct the obejct.
+
 ## <a id="monomemorypool"></a>Memory Pools for MonoBehaviours
 
 Memory pools for GameObjects works similarly.  For example:
@@ -457,31 +511,91 @@ Therefore, if you override one of these methods you will have to make sure to ca
 
 Also, worth noting is the fact that for this logic to work, our MonoBehaviour must be at the root of the prefab, since otherwise only the transform associated with `Foo` and any children will be disabled.
 
-## <a id="monomemorypoolex"></a>MonoBehaviour Memory Pools With Reparenting
-
-One issue with the `MonoMemoryPool` example above is that if we change the parent of `Foo` after spawning it, and then despawn it, it will retain the same runtime parent that we assigned it.  So in many cases we will want to address that by resetting the parent during the despawn event.  There is a helper class included in Zenject which does this for you called `MonoMemoryPoolEx`.  It is implemented like this:
+You can also use the Dispose Pattern here using a similar approach outlined above for non-MonoBehaviours, which would look like this:
 
 ```csharp
-public class MonoMemoryPoolEx<TValue> : MonoMemoryPool<TValue>
-    where TValue : Component
+public class Foo : MonoBehaviour, IPoolable<Vector3, IMemoryPool>, IDisposable
 {
-    Transform _originalParent;
+    Vector3 _velocity;
+    IMemoryPool _pool;
 
-    protected override void OnCreated(TValue item)
+    public void Dispose()
     {
-        base.OnCreated(item);
-        _originalParent = item.transform.parent;
+        _pool.Despawn(this);
     }
 
-    protected override void OnDespawned(TValue item)
+    public void Update()
     {
-        base.OnDespawned(item);
-        item.transform.SetParent(_originalParent, false);
+        transform.position += _velocity * Time.deltaTime;
+    }
+
+    public void OnDespawned()
+    {
+        _pool = null;
+        _velocity = Vector3.zero;
+    }
+
+    public void OnSpawned(Vector3 velocity, IMemoryPool pool)
+    {
+        transform.position = Vector3.zero;
+        _pool = pool;
+        _velocity = velocity;
+    }
+
+    public class Factory : PlaceholderFactory<Vector3, Foo>
+    {
+    }
+}
+
+public class Bar
+{
+    readonly Foo.Factory _fooFactory;
+    readonly List<Foo> _foos = new List<Foo>();
+
+    public Bar(Foo.Factory fooFactory)
+    {
+        _fooFactory = fooFactory;
+    }
+
+    public void AddFoo()
+    {
+        float maxSpeed = 10.0f;
+        float minSpeed = 1.0f;
+
+        var foo = _fooFactory.Create(
+            Random.onUnitSphere * Random.Range(minSpeed, maxSpeed));
+
+        foo.transform.SetParent(null);
+
+        _foos.Add(foo);
+    }
+
+    public void RemoveFoo()
+    {
+        if (_foos.Any())
+        {
+            var foo = _foos[0];
+            foo.Dispose();
+            _foos.Remove(foo);
+        }
+    }
+}
+
+public class TestInstaller : MonoInstaller<TestInstaller>
+{
+    public GameObject FooPrefab;
+
+    public override void InstallBindings()
+    {
+        Container.Bind<Bar>().AsSingle();
+
+        Container.BindFactory<Vector3, Foo, Foo.Factory>().FromMonoPoolableMemoryPool<Foo>(
+            x => x.WithInitialSize(2).FromComponentInNewPrefab(FooPrefab).UnderTransformGroup("FooPool"));
     }
 }
 ```
 
-So, if we change to use this instead of `MonoMemoryPool` in the example above, regardless of which parent spawned instances of `Foo` are given, they will all return to be parented underneath the `Foos` game object on de spawn.
+Note that unlike in other examples, we derive from `PlaceholderFactory`, implement `IDisposable`, and we use `FromMonoPoolableMemoryPool` instead of `FromPoolableMemoryPool`.
 
 ## <a id="abstract-pools"></a>Abstract Memory Pools
 
