@@ -1,7 +1,22 @@
 
-## <a id="creating-objects-dynamically"></a>Creating Objects Dynamically Using Factories
+One of the things that often confuses people new to dependency injection is the question of how to create new objects dynamically, after the app/game has fully started up.  For example, if you are writing a game in which you are spawning new enemies throughout the game, then you will want to construct a new object for the 'enemy' class, and you will want to ensure that this object gets injected with dependencies just like all the objects that are part of the initial object graph.  How to do this?  The answer: Factories.
 
-One of the things that often confuses people new to dependency injection is the question of how to create new objects dynamically, after the app/game has fully started up and all the `IInitializable` objects have had their Initialize() method called.  For example, if you are writing a game in which you are spawning new enemies throughout the game, then you will want to construct a new object for the 'enemy' class, and you will want to ensure that this object gets injected with dependencies just like all the objects that are part of the initial object graph.  How to do this?  The answer: Factories.
+Similar to the main documentation, I recommend at least reading the Introduction section and then skipping around in Advanced if necessary
+
+## Table Of Contents
+
+* Introduction
+    * <a href="#theory">Theory</a>
+    * <a href="#example">Example</a>
+    * <a href="#binding-syntax">Binding Syntax</a>
+    * <a href="#abstract-factories">Abstract Factories</a>
+* Advanced
+    * <a href="#custom-factories">Custom Factories</a>
+    * <a href="#ifactory">Using IFactory directly</a>
+    * <a href="#custom-interface">Custom Factory Interface</a>
+    * <a href="#implementing-validatable">Implementing IValidatable</a>
+
+## <a id="theory"></a>Theory
 
 Remember that an important part of dependency injection is to reserve use of the container to strictly the "Composition Root Layer".  The container class (DiContainer) is included as a dependency in itself automatically so there is nothing stopping you from ignoring this rule and injecting the container into any classes that you want.  For example, the following code will work:
 
@@ -70,6 +85,8 @@ public class EnemySpawner
 ```
 
 This will not work however, since in our case the Enemy class requires a reference to the Player class in its constructor.  We could add a dependency to the Player class to the EnemySpawner class, but then we have the problem described <a href="../README.md#theory">above</a>.  The EnemySpawner class doesn't care about filling in the dependencies for the Enemy class.  All the EnemySpawner class cares about is getting a new Enemy instance.
+
+## <a id="example"></a>Example
 
 The recommended way to do this in Zenject is the following:
 
@@ -233,6 +250,31 @@ Other things to be aware of:
 - Note that you for dynamically instantiated MonoBehaviours (for example when using FromComponentInNewPrefab with BindFactory) injection should always occur before Awake and Start, so a common convention we recommend is to use Awake/Start for initialization logic and use the inject method strictly for saving dependencies (ie. similar to constructors for non-monobehaviours)
 
 - Unlike non-factory injection, you can have multiple runtime parameters declared with the same type.  In this case, the order that the values are given to the factory will be matched to the parameter order - assuming that you are using constructor or method injection.  However, note that this is not the case with field or property injection.  In those cases the order that values are injected is not guaranteed to follow the declaration order, since these fields are retrieved using `Type.GetFields` which does not guarantee order as described <a href="https://msdn.microsoft.com/en-us/library/ch9714z3.aspx">here</a>
+
+## <a id="binding-syntax"></a>Binding Syntax
+
+<pre>
+Container.BindFactory&lt;<b>ContractType</b>, <b>PlaceholderFactoryType</b>&gt;()
+    .WithId(<b>Identifier</b>)
+    .To&lt;<b>ResultType</b>&gt;()
+    .From<b>ConstructionMethod</b>()
+    .As<b>Scope</b>()
+    .WithArguments(<b>Arguments</b>)
+    .WithFactoryArguments(<b>Factory Arguments</b>)
+    .When(<b>Condition</b>)
+    .NonLazy();
+    .CopyIntoAllSubContainers()
+</pre>
+
+The binding syntax is almost identical to <a href="../README.md#binding">normal bindings</a>, with the exception of the following:
+
+Where:
+
+    * **ContractType** = The contract type returned from the factory Create method
+
+    * **PlaceholderFactoryType** = The class deriving from `PlaceholderFactory`
+
+    * **WithFactoryArguments** = If you want to inject extra argumentsinto your placeholder factory derived class, you can include them here.  Note that WithArguments applies to the actual instantiated type and not the factory.
 
 ## <a id="abstract-factories"></a>Abstract Factories
 
@@ -519,7 +561,7 @@ public class FooInstaller : MonoInstaller<FooInstaller>
 }
 ```
 
-## <a id="implementing-validatable"></a>Implementing Validatable
+## <a id="implementing-validatable"></a>Implementing IValidatable
 
 If you do need to use the DiContainer instantiate methods directly, but you still want to validate the dynamically created object graphs, you can still do that, by implementing the IValidatable interface.  To re-use the same example from above, that would look like this:
 
