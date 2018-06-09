@@ -7,6 +7,13 @@
     * <a href="#example">Example</a>
     * <a href="#binding-syntax">Binding Syntax</a>
     * <a href="#resetting">Resetting Items In Pool</a>
+    * <a href="#runtime-parameters">Runtime Parameters</a>
+    * <a href="#monomemorypool">Memory Pools for MonoBehaviours</a>
+* Advanced
+    * <a href="#monomemorypoolex">MonoBehaviour Memory Pools With Reparenting</a>
+    * <a href="#abstract-pools">Abstract Memory Pools</a>
+    * <a href="#static-memory-pool">PoolableMemoryPool Pattern</a>
+    * <a href="#instantiating-directory">Instantiating Memory Pools Directly</a>
 
 ### <a id="example"></a>Example
 
@@ -121,7 +128,9 @@ When we use WithInitialSize like this in the Bind statement for our pool, 10 ins
 
 ## <a id="binding-syntax"></a>Binding Syntax
 
-The syntax for memory pools are almost identical to factories.  The recommended convention is to use a public nested class named Pool (though this is just a convention).
+The syntax for memory pools are almost identical to factories, with a few new bind methods such as `With` and `ExpandBy`.  Also, unlike `BindFactory`, it is not necessary to specify the parameters to the factory as generic arguments to `BindMemoryPool`
+
+Just like with factories, the recommended convention is to use a public nested class named Pool (though this is just a convention)
 
 ```csharp
 public class Foo
@@ -178,9 +187,9 @@ The rest of the bind methods behave the same as the normal bind methods document
 
 ## <a id="resetting"></a>Resetting Items In Pool
 
-One very important thing to be aware of when using memory pools instead of factories is that you must make sure to completely "refresh" the given instance.  This is necessary otherwise you might have state from a previous "life" of the instance bleeding in to the behaviour of the new instance.
+One very important thing to be aware of when using memory pools instead of factories is that you must make sure to completely "reset" the given instance.  This is necessary otherwise you might have state from a previous "life" of the instance bleeding in to the behaviour of the new instance.
 
-You can refresh the object by implementing any of the following methods in your memory pool derived class:
+You can reset the object by implementing any of the following methods in your memory pool derived class:
 
 ```csharp
 public class Foo
@@ -195,7 +204,7 @@ public class Foo
         protected override void OnDestroyed(Foo item)
         {
             // Called immediately after the item is removed from the pool without also being spawned
-            // This occurs when the pool is shrunk either by using WithRange or by explicitly shrinking the pool by calling the `Shrink()` method
+            // This occurs when the pool is shrunk either by using WithMaxSize or by explicitly shrinking the pool by calling the `ShrinkBy` / `Resize methods
         }
 
         protected override void OnSpawned(Foo item)
@@ -275,7 +284,7 @@ public class Foo
 }
 ```
 
-## <a id="parameters"></a>Parameters
+## <a id="runtime-parameters"></a>Runtime Parameters
 
 Just like Factories, you can also pass runtime parameters when spawning new instances of your pooled classes.  The difference is, instead of the parameters being injected into the class, they are passed to the Reinitialize method:
 
@@ -287,7 +296,7 @@ public class Foo
 
     public Foo()
     {
-        Reset();
+        Reset(Vector3.zero);
     }
 
     public void Tick()
@@ -295,7 +304,7 @@ public class Foo
         _position += _velocity * Time.deltaTime;
     }
 
-    void Reset()
+    void Reset(Vector3 velocity)
     {
         _position = Vector3.zero;
         _velocity = Vector3.zero;
@@ -305,8 +314,7 @@ public class Foo
     {
         protected override void Reinitialize(Vector3 velocity, Foo foo)
         {
-            foo.Reset();
-            foo._velocity = velocity;
+            foo.Reset(velocity);
         }
     }
 }
@@ -351,7 +359,7 @@ public class Foo : MonoBehaviour
     [Inject]
     public void Construct()
     {
-        Reset();
+        Reset(Vector3.zero);
     }
 
     public void Update()
@@ -359,18 +367,17 @@ public class Foo : MonoBehaviour
         transform.position += _velocity * Time.deltaTime;
     }
 
-    void Reset()
+    void Reset(Vector3 velocity)
     {
         transform.position = Vector3.zero;
-        _velocity = Vector3.zero;
+        _velocity = velocity;
     }
 
     public class Pool : MonoMemoryPool<Vector3, Foo>
     {
         protected override void Reinitialize(Vector3 velocity, Foo foo)
         {
-            foo.Reset();
-            foo._velocity = velocity;
+            foo.Reset(velocity);
         }
     }
 }
@@ -418,7 +425,7 @@ public class TestInstaller : MonoInstaller<TestInstaller>
 }
 ```
 
-The main difference here is that Foo.Pool now derives from MonoMemoryPool instead of MemoryPool.  MonoMemoryPool is a helper class that will automatically enable and disable the game object for us when it is added/removed from the pool.  The implementation for MonoMemoryPool is simply this:
+The main difference here is that `Foo.Pool` now derives from `MonoMemoryPool` instead of `MemoryPool`.  `MonoMemoryPool` is a helper class that will automatically enable and disable the game object for us when it is added/removed from the pool.  The implementation for `MonoMemoryPool` is simply this:
 
 ```csharp
 public abstract class MonoMemoryPool<TParam1, TValue> : MemoryPool<TParam1, TValue>
@@ -427,6 +434,11 @@ public abstract class MonoMemoryPool<TParam1, TValue> : MemoryPool<TParam1, TVal
     protected override void OnCreated(TValue item)
     {
         item.gameObject.SetActive(false);
+    }
+
+    protected override void OnDestroyed(TValue item)
+    {
+        GameObject.Destroy(item.gameObject);
     }
 
     protected override void OnSpawned(TValue item)
@@ -443,7 +455,33 @@ public abstract class MonoMemoryPool<TParam1, TValue> : MemoryPool<TParam1, TVal
 
 Therefore, if you override one of these methods you will have to make sure to call the base version as well.
 
-Also, worth noting is the fact that for this logic to work, our MonoBehaviour must be at the root of the prefab, since otherwise only the transform associated with Foo and any children will be disabled.
+Also, worth noting is the fact that for this logic to work, our MonoBehaviour must be at the root of the prefab, since otherwise only the transform associated with `Foo` and any children will be disabled.
+
+## <a id="monomemorypoolex"></a>MonoBehaviour Memory Pools With Reparenting
+
+One issue with the `MonoMemoryPool` example above is that if we change the parent of `Foo` after spawning it, and then despawn it, it will retain the same runtime parent that we assigned it.  So in many cases we will want to address that by resetting the parent during the despawn event.  There is a helper class included in Zenject which does this for you called `MonoMemoryPoolEx`.  It is implemented like this:
+
+```csharp
+public class MonoMemoryPoolEx<TValue> : MonoMemoryPool<TValue>
+    where TValue : Component
+{
+    Transform _originalParent;
+
+    protected override void OnCreated(TValue item)
+    {
+        base.OnCreated(item);
+        _originalParent = item.transform.parent;
+    }
+
+    protected override void OnDespawned(TValue item)
+    {
+        base.OnDespawned(item);
+        item.transform.SetParent(_originalParent, false);
+    }
+}
+```
+
+So, if we change to use this instead of `MonoMemoryPool` in the example above, regardless of which parent spawned instances of `Foo` are given, they will all return to be parented underneath the `Foos` game object on de spawn.
 
 ## <a id="abstract-pools"></a>Abstract Memory Pools
 
@@ -511,9 +549,87 @@ public class TestInstaller : MonoInstaller<TestInstaller>
 
 We might also want to add a Reset() method to the IFoo interface as well here, and call that on Reinitialize()
 
+### <a id="poolable-memorypools"></a>PoolableMemoryPool Pattern
+
+If you use a lot of memory pools and follow the approach above where you call a private `Reset` method from the `MemoryPool` derived class, then you will start to see a pattern there that can be automated.  If every `MemoryPool` derived class just calls an instance method to handle the reset, then we can create a shortcut for ourselves to avoid the extra boilerplate code.  Zenject provides a helper class called `IPoolable` and `PoolableMemoryPool` for this purpose.  For example:
+
+```csharp
+public class Foo : IPoolable<string>
+{
+    public string Data
+    {
+        get; private set;
+    }
+
+    public void OnDespawned()
+    {
+        Data = null;
+    }
+
+    public void OnSpawned(string data)
+    {
+        Data = data;
+    }
+
+    public class Pool : PoolableMemoryPool<string, Foo>
+    {
+    }
+}
+```
+
+The implementation of `PoolableMemoryPool` is very simple and just calls the instance methods on the `IPoolable` class:
+
+```csharp
+public class PoolableMemoryPool<TParam1, TValue> : MemoryPool<TParam1, TValue>
+    where TValue : IPoolable<TParam1>
+{
+    protected override void OnDespawned(TValue item)
+    {
+        item.OnDespawned();
+    }
+
+    protected override void Reinitialize(TParam1 p1, TValue item)
+    {
+        item.OnSpawned(p1);
+    }
+}
+```
+
+You could also make the OnSpawned and OnDespawned methods private by using the c# feature 'explicit interface implementation' which will only allow calling the `OnSpawned` and `OnDespawned` methods via the IPoolable interface:
+
+```csharp
+public class Foo : IPoolable<string>
+{
+    public string Data
+    {
+        get; private set;
+    }
+
+    void IPoolable<string>.OnDespawned()
+    {
+        Data = null;
+    }
+
+    void IPoolable<string>.OnSpawned(string data)
+    {
+        Data = data;
+    }
+
+    public class Pool : PoolableMemoryPool<string, Foo>
+    {
+    }
+}
+```
+
+### <a id="implementing-disposable"></a>Using IDisposable Pattern
+
+### <a id="static-memory-pool"></a>Static Memory Pools
+
+
+
 ### <a id="instantiating-directory"></a>Instantiating Memory Pools Directly
 
-For complex scenarios involing custom factories, it might be desirable to directly instantiate memory pools.  In this case, you just have to make sure to provide an IFactory<> derived class to be used for creating new instances and all the settings information that would normally be provided via the bind statements.  For example:
+For complex scenarios involving custom factories, it might be desirable to directly instantiate memory pools.  In this case, you just have to make sure to provide an `IFactory<>` derived class to be used for creating new instances and all the settings information that would normally be provided via the bind statements.  For example:
 
 ```csharp
 public class BarFactory : IFactory<Bar>
@@ -529,6 +645,7 @@ public class BarFactory : IFactory<Bar>
 var settings = new MemoryPoolSettings()
 {
     InitialSize = 1,
+    MaxSize = int.MaxValue,
     ExpandMethod = PoolExpandMethods.Double,
 };
 
