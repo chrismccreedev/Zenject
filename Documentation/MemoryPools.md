@@ -135,7 +135,7 @@ When we use WithInitialSize like this in the Bind statement for our pool, 10 ins
 
 ### <a id="binding-syntax"></a>Binding Syntax
 
-The syntax for memory pools are almost identical to factories, with a few new bind methods such as `With` and `ExpandBy`.  Also, unlike `BindFactory`, it is not necessary to specify the parameters to the factory as generic arguments to `BindMemoryPool`
+The syntax for memory pools are almost identical to factories, with a few new bind methods such as `WithInitialSize` and `ExpandBy`.  Also, unlike `BindFactory`, it is not necessary to specify the parameters to the factory as generic arguments to `BindMemoryPool`
 
 Just like with factories, the recommended convention is to use a public nested class named Pool (though this is just a convention)
 
@@ -164,6 +164,7 @@ The full format of the binding is the following:
 <pre>
 Container.BindMemoryPool&lt;<b>ObjectType, MemoryPoolType</b>&gt;()
     .With<b>(InitialSize|FixedSize)</b>()
+    .WithMaxSize(<b>MaxSize</b>)
     .ExpandBy<b>(OneAtATime|Doubling)</b>()
     .To&lt;<b>ResultType</b>&gt;()
     .WithId(<b>Identifier</b>)
@@ -175,6 +176,12 @@ Container.BindMemoryPool&lt;<b>ObjectType, MemoryPoolType</b>&gt;()
 </pre>
 
 Where:
+
+* **InitialSize** - This will determine how many items to seed the initial pool with on startup.   It can be helpful to set a value here to avoid spikes caused by allocations during gameplay.
+
+* **FixedSize** - When set, the pool will initially be seed with the amount given here, and if that amount is exceeded then exceptions will be thrown.
+
+* **MaxSize** - When set, if enough items are returned to the pool that the pool size exceeds this value, then the remaining items will be destroyed. This can be useful to ensure that the pool takes a maximum amount of memory.
 
 * **ObjectType** = The type of the class that is being instantiated by the memory pool
 
@@ -358,7 +365,7 @@ public class Bar
 
 The approach that is outlined above works fairly well but has the following drawbacks:
 
-- Every time we make a class poolable we always need to add boilerplate code where we have to subclass `MemoryPool` and then call an instance method 'Reset' on our object, passing along any parameters to it.  It would be easier if this was automated somehow insted of duplicated for every pooled obejct.
+- Every time we make a class poolable we always need to add boilerplate code where we have to subclass `MemoryPool` and then call an instance method 'Reset' on our object, passing along any parameters to it.  It would be easier if this was automated somehow insted of duplicated for every pooled object.
 
 - Any code that is spawning pooled objects has to maintain a reference to the pool class so that it can call the Despawn method.  This code doesn't really care about whether the object is pooled or not.  The fact that the object is pooled is more of an implementation detail, and therefore it would be better if this was abstracted away from the code that is using it.
 
