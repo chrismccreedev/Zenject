@@ -1074,7 +1074,225 @@ public class PoolExample : MonoBehaviour
 
 ### <a id="subcontainersandpools"></a>Subcontainers/Facades And Memory Pools
 
-TBD
+You might wonder, if you are using dynamic subcontainers and facades, what is the best way to put the entire subcontainer in a pool?   Let's take the following example to work from:
+
+```csharp
+public class EnemyFacade : MonoBehaviour, IPoolable<IMemoryPool>, IDisposable
+{
+    IMemoryPool _pool;
+
+    public void OnSpawned(IMemoryPool pool)
+    {
+        _pool = pool;
+    }
+
+    public void OnDespawned()
+    {
+        _pool = null;
+    }
+
+    public void Dispose()
+    {
+        _pool.Despawn(this);
+    }
+
+    public class Factory : PlaceholderFactory<EnemyFacade>
+    {
+    }
+}
+
+public class EnemyMoveHandler : MonoBehaviour
+{
+    Settings _settings;
+    float _velocity;
+
+    [Inject]
+    public void Construct(Settings settings)
+    {
+        _settings = settings;
+    }
+
+    public void Update()
+    {
+        if (Input.GetKey(KeyCode.UpArrow))
+        {
+            _velocity += Time.deltaTime * _settings.Acceleration;
+        }
+
+        transform.position += Vector3.forward * _velocity * Time.deltaTime;
+    }
+
+    [Serializable]
+    public class Settings
+    {
+        public float Acceleration;
+    }
+}
+
+public class Runner : ITickable
+{
+    readonly EnemyFacade.Factory _enemyFactory;
+
+    EnemyFacade _enemy;
+
+    public Runner(EnemyFacade.Factory enemyFactory)
+    {
+        _enemyFactory = enemyFactory;
+    }
+
+    public void Tick()
+    {
+        if (Input.GetKeyDown(KeyCode.Space) && _enemy == null)
+        {
+            _enemy = _enemyFactory.Create();
+        }
+
+        if (Input.GetKeyDown(KeyCode.Escape) && _enemy != null)
+        {
+            _enemy.Dispose();
+            _enemy = null;
+        }
+    }
+}
+
+public class TestInstaller : MonoInstaller<TestInstaller>
+{
+    public EnemyMoveHandler.Settings EnemyMoveHandlerSettings;
+    public GameObject EnemyPrefab;
+
+    public override void InstallBindings()
+    {
+        Container.BindInstance(EnemyMoveHandlerSettings);
+        Container.BindInterfacesTo<Runner>().AsSingle();
+
+        Container.BindFactory<EnemyFacade, EnemyFacade.Factory>()
+            .FromMonoPoolableMemoryPool<EnemyFacade>(b => b
+                .WithInitialSize(1)
+                .FromSubContainerResolve()
+                .ByNewPrefabMethod(EnemyPrefab, InstallEnemy)
+                .UnderTransformGroup("Enemies"));
+    }
+
+    void InstallEnemy(DiContainer subContainer)
+    {
+        subContainer.Bind<EnemyFacade>().FromNewComponentOnRoot().AsSingle();
+        subContainer.Bind<EnemyMoveHandler>().FromNewComponentOnRoot().AsSingle().NonLazy();
+    }
+}
+```
+
+If we add this code to a project, then we should have a scene where the user can press space to spawn an instance of Enemy, and hit escape to despawn it.  Then, once spawned, the user can hit up arrow to apply some velocity to the enemy object.  It doesn't matter what you use for the `EnemyPrefab` setting on TestInstaller to represent our enemy.  I just added a cube by selecting `GameObject -> 3D Object -> Cube` from the menu and created a prefab directly from that.
+
+This works but as you will see if you run it, there is a problem with it.  After spawning a new enemy, adding a velocity to it, despawning it, and then spawning it again, the velocity remains unchanged.  When we spawn something from a pool, we always want the state to be set to default values.  In this example it is quite simple and there is only two classes in our subcontainer, but in a real world application, there could be many classes, all with their own state that needs to be reset by the despawn event.
+
+We can fix this by adding the `PoolableManager` to our subcontainer and then implementing the `IPoolable` interface in the classes that need to be reset:
+
+```csharp
+public class EnemyMoveHandler : MonoBehaviour, IPoolable
+{
+    Settings _settings;
+    float _velocity;
+
+    [Inject]
+    public void Construct(Settings settings)
+    {
+        _settings = settings;
+    }
+
+    public void OnDespawned()
+    {
+    }
+
+    public void OnSpawned()
+    {
+        _velocity = 0;
+        transform.position = Vector3.zero;
+    }
+
+    public void Update()
+    {
+        if (Input.GetKey(KeyCode.UpArrow))
+        {
+            _velocity += Time.deltaTime * _settings.Acceleration;
+        }
+
+        if (Input.GetKey(KeyCode.DownArrow))
+        {
+            _velocity -= Time.deltaTime * _settings.Acceleration;
+        }
+
+        transform.position += Vector3.forward * _velocity * Time.deltaTime;
+    }
+
+    [Serializable]
+    public class Settings
+    {
+        public float Acceleration;
+    }
+}
+
+public class EnemyFacade : MonoBehaviour, IPoolable<IMemoryPool>, IDisposable
+{
+    [Inject]
+    PoolableManager _poolableManager;
+
+    IMemoryPool _pool;
+
+    public void OnSpawned(IMemoryPool pool)
+    {
+        _pool = pool;
+        _poolableManager.TriggerOnSpawned();
+    }
+
+    public void OnDespawned()
+    {
+        _pool = null;
+        _poolableManager.TriggerOnDespawned();
+    }
+
+    public void Dispose()
+    {
+        _pool.Despawn(this);
+    }
+
+    public class Factory : PlaceholderFactory<EnemyFacade>
+    {
+    }
+}
+
+public class TestInstaller : MonoInstaller<TestInstaller>
+{
+    public EnemyMoveHandler.Settings EnemyMoveHandlerSettings;
+    public GameObject EnemyPrefab;
+
+    public override void InstallBindings()
+    {
+        Container.BindInstance(EnemyMoveHandlerSettings);
+        Container.BindInterfacesTo<Runner>().AsSingle();
+
+        Container.BindFactory<EnemyFacade, EnemyFacade.Factory>()
+            .FromMonoPoolableMemoryPool<EnemyFacade>(b => b
+                .WithInitialSize(2)
+                .FromSubContainerResolve()
+                .ByNewPrefabMethod(EnemyPrefab, InstallEnemy)
+                .UnderTransformGroup("Enemies"));
+    }
+
+    static void InstallEnemy(DiContainer subContainer)
+    {
+        subContainer.Bind<EnemyFacade>().FromNewComponentOnRoot().AsSingle();
+        subContainer.BindInterfacesAndSelfTo<EnemyMoveHandler>().FromNewComponentOnRoot().AsSingle().NonLazy();
+        subContainer.Bind<PoolableManager>().AsSingle();
+    }
+}
+```
+
+Note the following:
+
+- We've installed `PoolableManager` in our subcontainer
+- In EnemyFacade, we have to call the `TriggerOnSpawned` and `TriggerOnDespawned` methods on PoolableManager to trigger the `OnSpawned` and `OnDespawned` methods for the rest of the subcontainer classes
+
+Note also that the order that the `IPoolable` classes are triggered will use the same execution order that is set with the `BindExecutionOrder` method, just like the other standard interfaces.  Also note that the OnDespawned methods are called in the reverse order compared to OnSpawned.
 
 ### <a id="instantiating-directory"></a>Instantiating Memory Pools Directly
 
