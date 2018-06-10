@@ -11,8 +11,16 @@
     * <a href="#disposepattern">Factories, Pools, and the Dispose Pattern</a>
     * <a href="#monomemorypool">Memory Pools for MonoBehaviours</a>
 * Advanced
+    * <a href="#static-memory-pool">Static Memory Pools</a>
+    * <a href="#usingstatement">Using statements and dispose pattern</a>
+    * <a href="#listpool">List Pool</a>
+    * <a href="#disposeblock">Dispose Block</a>
+    * <a href="#poolable-memorypools">Poolable Memory Pool</a>
     * <a href="#abstract-pools">Abstract Memory Pools</a>
+    * <a href="#subcontainersandpools">Subcontainers/Facades And Memory Pools</a>
     * <a href="#instantiating-directory">Instantiating Memory Pools Directly</a>
+    * <a href="#poolcleanupchecker">Pool Cleanup Checker</a>
+    * <a href="#memorypoolmonitor">Memory Pool Monitor</a>
 
 ### <a id="example"></a>Example
 
@@ -125,7 +133,7 @@ public class TestInstaller : MonoInstaller<TestInstaller>
 
 When we use WithInitialSize like this in the Bind statement for our pool, 10 instances of Foo will be created immediately on startup to seed the pool.
 
-## <a id="binding-syntax"></a>Binding Syntax
+### <a id="binding-syntax"></a>Binding Syntax
 
 The syntax for memory pools are almost identical to factories, with a few new bind methods such as `With` and `ExpandBy`.  Also, unlike `BindFactory`, it is not necessary to specify the parameters to the factory as generic arguments to `BindMemoryPool`
 
@@ -184,7 +192,7 @@ Where:
 
 The rest of the bind methods behave the same as the normal bind methods documented <a href="../README.md#binding">here</a>
 
-## <a id="resetting"></a>Resetting Items In Pool
+### <a id="resetting"></a>Resetting Items In Pool
 
 One very important thing to be aware of when using memory pools instead of factories is that you must make sure to completely "reset" the given instance.  This is necessary otherwise you might have state from a previous "life" of the instance bleeding in to the behaviour of the new instance.
 
@@ -283,7 +291,7 @@ public class Foo
 }
 ```
 
-## <a id="runtime-parameters"></a>Runtime Parameters
+### <a id="runtime-parameters"></a>Runtime Parameters
 
 Just like Factories, you can also pass runtime parameters when spawning new instances of your pooled classes.  The difference is, instead of the parameters being injected into the class, they are passed to the Reinitialize method:
 
@@ -346,7 +354,7 @@ public class Bar
 }
 ```
 
-## <a id="disposepattern"></a>Factories, Pools, and the Dispose Pattern
+### <a id="disposepattern"></a>Factories, Pools, and the Dispose Pattern
 
 The approach that is outlined above works fairly well but has the following drawbacks:
 
@@ -400,7 +408,7 @@ We can then also implement `IDisposable` and then return ourselves to the given 
 
 Then when binding the factory, we can use the `FromPoolableMemoryPool` method to configure the pool with an initial seed value, max size, and expand method as well as the method that is used to construct the obejct.
 
-## <a id="monomemorypool"></a>Memory Pools for MonoBehaviours
+### <a id="monomemorypool"></a>Memory Pools for MonoBehaviours
 
 Memory pools for GameObjects works similarly.  For example:
 
@@ -595,146 +603,6 @@ public class TestInstaller : MonoInstaller<TestInstaller>
 ```
 
 Note that unlike in other examples, we derive from `PlaceholderFactory`, implement `IDisposable`, and we use `FromMonoPoolableMemoryPool` instead of `FromPoolableMemoryPool`.
-
-### <a id="poolable-memorypools"></a>PoolableMemoryPool
-
-If you prefer not to follow the dispose pattern explained above, but would also like to avoid the boilerplate code from the original approach using a Reset method, then you can do that too by using `PoolableMemoryPool` or `MonoPoolableMemoryPool`.
-
-For example:
-
-```csharp
-public class Foo : IPoolable<string>
-{
-    public string Data
-    {
-        get; private set;
-    }
-
-    public void OnDespawned()
-    {
-        Data = null;
-    }
-
-    public void OnSpawned(string data)
-    {
-        Data = data;
-    }
-
-    public class Pool : PoolableMemoryPool<string, Foo>
-    {
-    }
-}
-```
-
-The implementation of `PoolableMemoryPool` is very simple and just calls the instance methods on the `IPoolable` class:
-
-```csharp
-public class PoolableMemoryPool<TParam1, TValue> : MemoryPool<TParam1, TValue>
-    where TValue : IPoolable<TParam1>
-{
-    protected override void OnDespawned(TValue item)
-    {
-        item.OnDespawned();
-    }
-
-    protected override void Reinitialize(TParam1 p1, TValue item)
-    {
-        item.OnSpawned(p1);
-    }
-}
-```
-
-If you prefer, you could also make the OnSpawned and OnDespawned methods private by using the c# feature 'explicit interface implementation' which will only allow calling the `OnSpawned` and `OnDespawned` methods via the IPoolable interface:
-
-```csharp
-public class Foo : IPoolable<string>
-{
-    public string Data
-    {
-        get; private set;
-    }
-
-    void IPoolable<string>.OnDespawned()
-    {
-        Data = null;
-    }
-
-    void IPoolable<string>.OnSpawned(string data)
-    {
-        Data = data;
-    }
-
-    public class Pool : PoolableMemoryPool<string, Foo>
-    {
-    }
-}
-```
-
-## <a id="abstract-pools"></a>Abstract Memory Pools
-
-Just like <a href="Factories.md#abstract-factories">abstract factories</a>, sometimes you might want to create a memory pool that returns an interface, with the concrete type decided inside an installer.  This works very similarly to abstract factories.  For example:
-
-```csharp
-public interface IFoo
-{
-}
-
-public class Foo1 : IFoo
-{
-}
-
-public class Foo2 : IFoo
-{
-}
-
-public class FooPool : MemoryPool<IFoo>
-{
-}
-
-public class Bar
-{
-    readonly FooPool _fooPool;
-    readonly List<IFoo> _foos = new List<IFoo>();
-
-    public Bar(FooPool fooPool)
-    {
-        _fooPool = fooPool;
-    }
-
-    public void AddFoo()
-    {
-        _foos.Add(_fooPool.Spawn());
-    }
-
-    public void RemoveFoo()
-    {
-        var foo = _foos[0];
-        _fooPool.Despawn(foo);
-        _foos.Remove(foo);
-    }
-}
-
-public class TestInstaller : MonoInstaller<TestInstaller>
-{
-    public bool Use1;
-
-    public override void InstallBindings()
-    {
-        Container.Bind<Bar>().AsSingle();
-
-        if (Use1)
-        {
-            Container.BindMemoryPool<IFoo, FooPool>().WithInitialSize(10).To<Foo1>();
-        }
-        else
-        {
-            Container.BindMemoryPool<IFoo, FooPool>().WithInitialSize(10).To<Foo2>();
-        }
-    }
-}
-```
-
-We might also want to add a Reset() method to the IFoo interface as well here, and call that on Reinitialize()
 
 ### <a id="static-memory-pool"></a>Static Memory Pools
 
@@ -1072,6 +940,146 @@ public class PoolExample : MonoBehaviour
 }
 ```
 
+### <a id="poolable-memorypools"></a>PoolableMemoryPool
+
+If you prefer not to follow the dispose pattern explained above, but would also like to avoid the boilerplate code from the original approach using a Reset method, then you can do that too by using `PoolableMemoryPool` or `MonoPoolableMemoryPool`.
+
+For example:
+
+```csharp
+public class Foo : IPoolable<string>
+{
+    public string Data
+    {
+        get; private set;
+    }
+
+    public void OnDespawned()
+    {
+        Data = null;
+    }
+
+    public void OnSpawned(string data)
+    {
+        Data = data;
+    }
+
+    public class Pool : PoolableMemoryPool<string, Foo>
+    {
+    }
+}
+```
+
+The implementation of `PoolableMemoryPool` is very simple and just calls the instance methods on the `IPoolable` class:
+
+```csharp
+public class PoolableMemoryPool<TParam1, TValue> : MemoryPool<TParam1, TValue>
+    where TValue : IPoolable<TParam1>
+{
+    protected override void OnDespawned(TValue item)
+    {
+        item.OnDespawned();
+    }
+
+    protected override void Reinitialize(TParam1 p1, TValue item)
+    {
+        item.OnSpawned(p1);
+    }
+}
+```
+
+If you prefer, you could also make the OnSpawned and OnDespawned methods private by using the c# feature 'explicit interface implementation' which will only allow calling the `OnSpawned` and `OnDespawned` methods via the IPoolable interface:
+
+```csharp
+public class Foo : IPoolable<string>
+{
+    public string Data
+    {
+        get; private set;
+    }
+
+    void IPoolable<string>.OnDespawned()
+    {
+        Data = null;
+    }
+
+    void IPoolable<string>.OnSpawned(string data)
+    {
+        Data = data;
+    }
+
+    public class Pool : PoolableMemoryPool<string, Foo>
+    {
+    }
+}
+```
+
+## <a id="abstract-pools"></a>Abstract Memory Pools
+
+Just like <a href="Factories.md#abstract-factories">abstract factories</a>, sometimes you might want to create a memory pool that returns an interface, with the concrete type decided inside an installer.  This works very similarly to abstract factories.  For example:
+
+```csharp
+public interface IFoo
+{
+}
+
+public class Foo1 : IFoo
+{
+}
+
+public class Foo2 : IFoo
+{
+}
+
+public class FooPool : MemoryPool<IFoo>
+{
+}
+
+public class Bar
+{
+    readonly FooPool _fooPool;
+    readonly List<IFoo> _foos = new List<IFoo>();
+
+    public Bar(FooPool fooPool)
+    {
+        _fooPool = fooPool;
+    }
+
+    public void AddFoo()
+    {
+        _foos.Add(_fooPool.Spawn());
+    }
+
+    public void RemoveFoo()
+    {
+        var foo = _foos[0];
+        _fooPool.Despawn(foo);
+        _foos.Remove(foo);
+    }
+}
+
+public class TestInstaller : MonoInstaller<TestInstaller>
+{
+    public bool Use1;
+
+    public override void InstallBindings()
+    {
+        Container.Bind<Bar>().AsSingle();
+
+        if (Use1)
+        {
+            Container.BindMemoryPool<IFoo, FooPool>().WithInitialSize(10).To<Foo1>();
+        }
+        else
+        {
+            Container.BindMemoryPool<IFoo, FooPool>().WithInitialSize(10).To<Foo2>();
+        }
+    }
+}
+```
+
+We might also want to add a Reset() method to the IFoo interface as well here, and call that on Reinitialize()
+
 ### <a id="subcontainersandpools"></a>Subcontainers/Facades And Memory Pools
 
 You might wonder, if you are using dynamic subcontainers and facades, what is the best way to put the entire subcontainer in a pool?   Let's take the following example to work from:
@@ -1320,7 +1328,7 @@ var pool = _container.Instantiate<MemoryPool<Bar>>(
     new object[] { settings, new MyBarFactory<Bar>() });
 ```
 
-## <a id="poolcleanupchecker"></a>PoolCleanupChecker
+## <a id="poolcleanupchecker"></a>Pool Cleanup Checker
 
 One mistake that can sometimes occur when using memory pools is that the spawned objects are not returned to the pool properly.  This can happen if the Spawn method is called but then the programmer forgets to add a matching Despawn/Dispose.
 
@@ -1334,7 +1342,7 @@ Container.BindInterfacesTo<PoolCleanupChecker>().AsSingle()
 
 And then any time you forget to call Despawn, you will get errors reported in the console after ending play mode in Unity.  All this class does is check that each pool has zero active items during the LateDispose event.
 
-## <a id="memorypoolmonitor"></a>MemoryPoolMonitor
+## <a id="memorypoolmonitor"></a>Memory Pool Monitor
 
 Zenject also includes an experimental editor window that can be used to monitor the sizes of all the memory pools in the scene.  You can open it by clicking `Window -> Zenject Pool Monitor` inside Unity and should look like this:
 
