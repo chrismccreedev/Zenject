@@ -12,7 +12,6 @@
     * <a href="#monomemorypool">Memory Pools for MonoBehaviours</a>
 * Advanced
     * <a href="#abstract-pools">Abstract Memory Pools</a>
-    * <a href="#static-memory-pool">PoolableMemoryPool Pattern</a>
     * <a href="#instantiating-directory">Instantiating Memory Pools Directly</a>
 
 ### <a id="example"></a>Example
@@ -26,7 +25,7 @@ As an example let's look at at a case where we are dynamically creating a class:
 ```csharp
 public class Foo
 {
-    public class Factory : Factory<Foo>
+    public class Factory : PlaceholderFactory<Foo>
     {
     }
 }
@@ -381,7 +380,7 @@ public class Foo : IPoolable<IMemoryPool>, IDisposable
         _pool = pool;
     }
 
-    public class Factory : Factory<Foo>
+    public class Factory : PlaceholderFactory<Foo>
     {
     }
 }
@@ -597,6 +596,80 @@ public class TestInstaller : MonoInstaller<TestInstaller>
 
 Note that unlike in other examples, we derive from `PlaceholderFactory`, implement `IDisposable`, and we use `FromMonoPoolableMemoryPool` instead of `FromPoolableMemoryPool`.
 
+### <a id="poolable-memorypools"></a>PoolableMemoryPool
+
+If you prefer not to follow the dispose pattern explained above, but would also like to avoid the boilerplate code from the original approach using a Reset method, then you can do that too by using `PoolableMemoryPool` or `MonoPoolableMemoryPool`.
+
+For example:
+
+```csharp
+public class Foo : IPoolable<string>
+{
+    public string Data
+    {
+        get; private set;
+    }
+
+    public void OnDespawned()
+    {
+        Data = null;
+    }
+
+    public void OnSpawned(string data)
+    {
+        Data = data;
+    }
+
+    public class Pool : PoolableMemoryPool<string, Foo>
+    {
+    }
+}
+```
+
+The implementation of `PoolableMemoryPool` is very simple and just calls the instance methods on the `IPoolable` class:
+
+```csharp
+public class PoolableMemoryPool<TParam1, TValue> : MemoryPool<TParam1, TValue>
+    where TValue : IPoolable<TParam1>
+{
+    protected override void OnDespawned(TValue item)
+    {
+        item.OnDespawned();
+    }
+
+    protected override void Reinitialize(TParam1 p1, TValue item)
+    {
+        item.OnSpawned(p1);
+    }
+}
+```
+
+If you prefer, you could also make the OnSpawned and OnDespawned methods private by using the c# feature 'explicit interface implementation' which will only allow calling the `OnSpawned` and `OnDespawned` methods via the IPoolable interface:
+
+```csharp
+public class Foo : IPoolable<string>
+{
+    public string Data
+    {
+        get; private set;
+    }
+
+    void IPoolable<string>.OnDespawned()
+    {
+        Data = null;
+    }
+
+    void IPoolable<string>.OnSpawned(string data)
+    {
+        Data = data;
+    }
+
+    public class Pool : PoolableMemoryPool<string, Foo>
+    {
+    }
+}
+```
+
 ## <a id="abstract-pools"></a>Abstract Memory Pools
 
 Just like <a href="Factories.md#abstract-factories">abstract factories</a>, sometimes you might want to create a memory pool that returns an interface, with the concrete type decided inside an installer.  This works very similarly to abstract factories.  For example:
@@ -663,21 +736,125 @@ public class TestInstaller : MonoInstaller<TestInstaller>
 
 We might also want to add a Reset() method to the IFoo interface as well here, and call that on Reinitialize()
 
-### <a id="poolable-memorypools"></a>PoolableMemoryPool Pattern
+### <a id="static-memory-pool"></a>Static Memory Pools
 
-If you use a lot of memory pools and follow the approach above where you call a private `Reset` method from the `MemoryPool` derived class, then you will start to see a pattern there that can be automated.  If every `MemoryPool` derived class just calls an instance method to handle the reset, then we can create a shortcut for ourselves to avoid the extra boilerplate code.  Zenject provides a helper class called `IPoolable` and `PoolableMemoryPool` for this purpose.  For example:
+Another approach to memory pools is to not bother installing the memory pool at all and instead store the pool statically using the `StaticMemoryPool` class.  For example:
 
 ```csharp
-public class Foo : IPoolable<string>
+public class Foo
 {
+    public static readonly StaticMemoryPool<Foo> Pool =
+        new StaticMemoryPool<Foo>(OnSpawned, OnDespawned);
+
+    static void OnSpawned(Foo that)
+    {
+        // Initialize
+    }
+
+    static void OnDespawned(Foo that)
+    {
+        // Reset
+    }
+}
+
+public class PoolExample : MonoBehaviour
+{
+    public void Update()
+    {
+        var foo = Foo.Pool.Spawn();
+
+        // Use foo
+
+        Foo.Pool.Despawn(foo);
+    }
+}
+```
+
+In this case, the pool is accessed directly as a static member of the `Foo` class.   This approach can be useful for objects that do not have dependencies, or for cases where you don't want to bother with always needing to install it everywhere.   However, something to be aware of is that unlike with normal memory pools, the objects in the pool will remain in memory even after changing scenes, unless the pool is cleared manually by calling `Foo.Pool.Clear`.
+
+You can also use the Dispose Pattern for this approach as well.  For example:
+
+```csharp
+public class Foo : IDisposable
+{
+    public static readonly StaticMemoryPool<Foo> Pool =
+        new StaticMemoryPool<Foo>(OnSpawned, OnDespawned);
+
+    public void Dispose()
+    {
+        Pool.Despawn(this);
+    }
+
+    static void OnSpawned(Foo that)
+    {
+        // Initialize
+    }
+
+    static void OnDespawned(Foo that)
+    {
+        // Reset
+    }
+}
+
+public class PoolExample : MonoBehaviour
+{
+    public void Update()
+    {
+        var foo = Foo.Pool.Spawn();
+
+        // Use foo
+
+        foo.Dispose();
+    }
+}
+```
+
+You can also include runtime parameters in your pooled object using `StaticMemoryPool` using generic arguments, similar to normal memory pools:
+
+```csharp
+public class Foo : IDisposable
+{
+    public static readonly StaticMemoryPool<string, Foo> Pool =
+        new StaticMemoryPool<string, Foo>(OnSpawned, OnDespawned);
+
+    public string Value
+    {
+        get; private set;
+    }
+
+    public void Dispose()
+    {
+        Pool.Despawn(this);
+    }
+
+    static void OnSpawned(string value, Foo that)
+    {
+        that.Value = value;
+    }
+
+    static void OnDespawned(Foo that)
+    {
+        that.Value = null;
+    }
+}
+```
+
+Also, similar to normal memory pools, you can use the `IPoolable` interface in combination with `PoolableStaticMemoryPool` to avoid some boilerplate code and use instance methods instead of static methods:
+
+```csharp
+public class Foo : IPoolable<string>, IDisposable
+{
+    public static readonly PoolableStaticMemoryPool<string, Foo> Pool =
+        new PoolableStaticMemoryPool<string, Foo>();
+
     public string Data
     {
         get; private set;
     }
 
-    public void OnDespawned()
+    public void Dispose()
     {
-        Data = null;
+        Pool.Despawn(this);
     }
 
     public void OnSpawned(string data)
@@ -685,61 +862,215 @@ public class Foo : IPoolable<string>
         Data = data;
     }
 
-    public class Pool : PoolableMemoryPool<string, Foo>
-    {
-    }
-}
-```
-
-The implementation of `PoolableMemoryPool` is very simple and just calls the instance methods on the `IPoolable` class:
-
-```csharp
-public class PoolableMemoryPool<TParam1, TValue> : MemoryPool<TParam1, TValue>
-    where TValue : IPoolable<TParam1>
-{
-    protected override void OnDespawned(TValue item)
-    {
-        item.OnDespawned();
-    }
-
-    protected override void Reinitialize(TParam1 p1, TValue item)
-    {
-        item.OnSpawned(p1);
-    }
-}
-```
-
-You could also make the OnSpawned and OnDespawned methods private by using the c# feature 'explicit interface implementation' which will only allow calling the `OnSpawned` and `OnDespawned` methods via the IPoolable interface:
-
-```csharp
-public class Foo : IPoolable<string>
-{
-    public string Data
-    {
-        get; private set;
-    }
-
-    void IPoolable<string>.OnDespawned()
+    public void OnDespawned()
     {
         Data = null;
     }
+}
+```
 
-    void IPoolable<string>.OnSpawned(string data)
-    {
-        Data = data;
-    }
+### <a id="usingstatement"></a>Using statements and dispose pattern
 
-    public class Pool : PoolableMemoryPool<string, Foo>
+There are several drawbacks to the following approach:
+
+```csharp
+public class PoolExample : MonoBehaviour
+{
+    public void Update()
     {
+        var foo = Foo.Pool.Spawn();
+
+        // Use foo
+
+        foo.Dispose();
     }
 }
 ```
 
-### <a id="implementing-disposable"></a>Using IDisposable Pattern
+1.  We have to always remember to call `Dispose()` at the end of the method.  We could easily forget to do this and cause many allocations to occur per frame.
 
-### <a id="static-memory-pool"></a>Static Memory Pools
+1.  If we want to have multiple return statements within the function, we have to duplicate the cleanup code for each case, which can be even more error prone
+
+1.  If an exception occurs in between the Spawn and Dispose, then the object will not be returned to the pool.
+
+An easy way to solve these problems would be to add a try-finally block:
+
+```csharp
+public class PoolExample : MonoBehaviour
+{
+    public void Update()
+    {
+        var foo = Foo.Pool.Spawn();
+
+        try
+        {
+            // Use foo
+        }
+        finally
+        {
+            foo.Dispose();
+        }
+    }
+}
+```
+
+Or, equivalently, we could add a using statement:
 
 
+```csharp
+public class PoolExample : MonoBehaviour
+{
+    public void Update()
+    {
+        using (var foo = Foo.Pool.Spawn())
+        {
+            // Use foo
+        }
+    }
+}
+```
+
+These approaches guarantee that the Foo object will be returned to the pool, regardless of whether an exception is thrown or the method exits early.  This is another reason why using the Dispose pattern for memory pooled objects is useful.
+
+### <a id="listpool"></a>List Pool
+
+Static memory pools are especially useful for common data structures such as lists or dictionaries.  Zenject includes some standard memory pools for this exact purpose which you can use.  For example, let's say you are writing a MonoBehaviour that needs to iterate over every component on a game object every frame.  You might implement it like this:
+
+```csharp
+public class PoolExample : MonoBehaviour
+{
+    public void Update()
+    {
+        var components = this.GetComponents(typeof(Component));
+
+        foreach (var component in components)
+        {
+            // Some logic
+        }
+    }
+}
+```
+
+However, if you run a scene with this MonoBehaviour added to it, and open up the unity profiler, you will see that there is around 48 bytes allocated per frame.  We can get rid of that by using the `Zenject.ListPool` class and doing this instead:
+
+```csharp
+public class PoolExample : MonoBehaviour
+{
+    public void Update()
+    {
+        var components = ListPool<Component>.Instance.Spawn();
+
+        this.GetComponents(typeof(Component), components);
+
+        foreach (var component in components)
+        {
+            // Some logic
+        }
+
+        ListPool<Component>.Instance.Despawn(components);
+    }
+}
+```
+
+Zenject also includes `DictionaryPool` and `HashSetPool` classes that can be used similarly.
+
+### <a id="disposeblock"></a>Dispose Block
+
+Zenject also provides the DisposeBlock class which is simply a collection of IDisposable objects that are disposed of all at once when DisposeBlock.Dispose is called.  It can also be useful when combined with the using statement for cases where you are allocating multiple temporary instances from the same pool or multiple pools.  For example, let's say we needed to spawn multiple temporary objects in our PoolExample class.  We could do it this way:
+
+```csharp
+public class PoolExample : MonoBehaviour
+{
+    public void Update()
+    {
+        using (var foo = Foo.Pool.Spawn())
+        using (var bar = Bar.Pool.Spawn())
+        {
+            // Some logic
+        }
+    }
+}
+```
+
+This will work but is not scalable if we are spawning more than a few objects.  So a better alternative might be to use the DisposeBlock class instead like this:
+
+```csharp
+public class PoolExample : MonoBehaviour
+{
+    public void Update()
+    {
+        using (var block = DisposeBlock.Spawn())
+        {
+            var foo = Foo.Pool.Spawn();
+            var bar = Bar.Pool.Spawn();
+
+            block.Add(foo);
+            block.Add(bar);
+
+            // Some logic
+        }
+    }
+}
+```
+
+Or, equivalently:
+
+
+```csharp
+public class PoolExample : MonoBehaviour
+{
+    public void Update()
+    {
+        using (var block = DisposeBlock.Spawn())
+        {
+            var foo = block.Spawn(Foo.Pool);
+            var bar = block.Spawn(Bar.Pool);
+
+            // Some logic
+        }
+    }
+}
+```
+
+We can simplify this further by using the `DisposeBlock.Spawn` method:
+
+```csharp
+public class PoolExample : MonoBehaviour
+{
+    public void Update()
+    {
+        using (var block = DisposeBlock.Spawn())
+        {
+            var foo = block.Spawn(Foo.Pool);
+            var bar = block.Spawn(Bar.Pool);
+
+            // Some logic
+        }
+    }
+}
+```
+
+We can also use DisposeBlock to improve our `ListPool` example above and avoid the need to explicitly call Despawn:
+
+```csharp
+public class PoolExample : MonoBehaviour
+{
+    public void Update()
+    {
+        using (var block = DisposeBlock.Spawn())
+        {
+            var components = block.Spawn(ListPool<Component>.Instance);
+
+            this.GetComponents(typeof(Component), components);
+
+            foreach (var component in components)
+            {
+                // Some logic
+            }
+        }
+    }
+}
+```
 
 ### <a id="instantiating-directory"></a>Instantiating Memory Pools Directly
 

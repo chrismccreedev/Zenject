@@ -419,7 +419,7 @@ public class Ship : MonoBehaviour
         _healthHandler.TakeDamage(damage);
     }
 
-    public class Factory : Factory<float, Ship>
+    public class Factory : PlaceholderFactory<float, Ship>
     {
     }
 }
