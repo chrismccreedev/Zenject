@@ -1072,6 +1072,8 @@ public class PoolExample : MonoBehaviour
 }
 ```
 
+## <a id="subcontainersandpools"></a>Subcontainers/Facades And Memory Pools
+
 ### <a id="instantiating-directory"></a>Instantiating Memory Pools Directly
 
 For complex scenarios involving custom factories, it might be desirable to directly instantiate memory pools.  In this case, you just have to make sure to provide an `IFactory<>` derived class to be used for creating new instances and all the settings information that would normally be provided via the bind statements.  For example:
@@ -1097,4 +1099,28 @@ var settings = new MemoryPoolSettings()
 var pool = _container.Instantiate<MemoryPool<Bar>>(
     new object[] { settings, new MyBarFactory<Bar>() });
 ```
+
+## <a id="poolcleanupchecker"></a>PoolCleanupChecker
+
+One mistake that can sometimes occur when using memory pools is that the spawned objects are not returned to the pool properly.  This can happen if the Spawn method is called but then the programmer forgets to add a matching Despawn/Dispose.
+
+This isn't always a problem and can sometimes even be intentional.  Assuming the spawned object is not a MonoBehaviours, once the object is no longer used it will be automatically destroyed by the C# garbage collector, so forgetting a Despawn in that case will not produce a memory leak.  The only drawback is that when the object is not returned to the pool, it means the pool has to spawn more objects next time which can be slightly less efficient.
+
+To detect these mistakes, Zenject includes an optional class that you can install that will throw exceptions when there are actively spawned objects when the scene is closed.  Just add the following to one of your scene installers:
+
+```csharp
+Container.BindInterfacesTo<PoolCleanupChecker>().AsSingle()
+```
+
+And then any time you forget to call Despawn, you will get errors reported in the console after ending play mode in Unity.  All this class does is check that each pool has zero active items during the LateDispose event.
+
+## <a id="memorypoolmonitor"></a>MemoryPoolMonitor
+
+Zenject also includes an experimental editor window that can be used to monitor the sizes of all the memory pools in the scene.  You can open it by clicking `Window -> Zenject Pool Monitor` inside Unity and should look like this:
+
+<img src="../UnityProject/Assets/Plugins/Zenject/Documentation/PoolMonitor.png?raw=true" alt="Memory Pool Monitor"/>
+
+This can be useful if you want to make sure that the pools you're using are all reasonable sizes.   It can also be useful as a way to choose a good size to use with the `WithInitializeSize` method to ensure that all allocations occur at once during a loading screen rather than incrementally during gameplay.
+
+Also, you can use the Expand button and the Clear button along with Unity's Profiler window to see how much the pool contributes to overall memory usage.
 

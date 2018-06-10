@@ -563,6 +563,8 @@ public class FooInstaller : MonoInstaller<FooInstaller>
 }
 ```
 
+Note that there is an equivalent method for memory pools called `BindMemoryPoolCustomInterface` as well
+
 ## <a id="implementing-validatable"></a>Implementing IValidatable
 
 If you do need to use the DiContainer instantiate methods directly, but you still want to validate the dynamically created object graphs, you can still do that, by implementing the IValidatable interface.  To re-use the same example from above, that would look like this:
