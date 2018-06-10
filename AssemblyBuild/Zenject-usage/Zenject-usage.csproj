@@ -81,6 +81,7 @@
     <Compile Include="InjectLocalAttribute.cs" />
     <Compile Include="InjectOptionalAttribute.cs" />
     <Compile Include="InjectSources.cs" />
+    <Compile Include="IPoolable.cs" />
     <Compile Include="ITickable.cs" />
     <Compile Include="ILateDisposable.cs" />
     <Compile Include="InjectAttributeBase.cs" />
