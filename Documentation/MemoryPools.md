@@ -1349,6 +1349,19 @@ Container.BindInterfacesTo<PoolCleanupChecker>().AsSingle()
 
 And then any time you forget to call Despawn, you will get errors reported in the console after ending play mode in Unity.  All this class does is check that each pool has zero active items during the LateDispose event.
 
+Also, since this is intentional in some cases, you can suppress the error reporting for specific pools by passing in a list of types as an argument to PoolCleanupChecker:
+
+```csharp
+Container.BindInterfacesTo<PoolCleanupChecker>().AsSingle()
+Container.BindInstance(
+    new List<Type>()
+    {
+        typeof(Foo.Pool),
+        typeof(Bar.Pool),
+    })
+    .WhenInjectedInto<PoolCleanupChecker>();
+```
+
 ## <a id="memorypoolmonitor"></a>Memory Pool Monitor
 
 Zenject also includes an experimental editor window that can be used to monitor the sizes of all the memory pools in the scene.  You can open it by clicking `Window -> Zenject Pool Monitor` inside Unity and should look like this:
