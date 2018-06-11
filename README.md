@@ -150,6 +150,7 @@ Also, if you prefer video documentation, see the [youtube series on zenject](htt
     * <a href="#sub-containers-and-facades">Sub-Containers And Facades</a>
     * <a href="#writing-tests">Writing Automated Unit Tests / Integration Tests</a>
     * <a href="#using-outside-unity">Using Zenject Outside Unity Or For DLLs</a>
+    * <a href="#zenjectsettings">Zenject Settings</a>
     * <a href="#signals">Signals</a>
     * <a href="#auto-mocking-using-moq">Auto-Mocking using Moq</a>
     * <a href="#editor-windows">Creating Unity EditorWindow's with Zenject</a>
@@ -1663,11 +1664,15 @@ public class MainInstaller : MonoInstaller
 
 ScriptableObjectInstaller works the same as MonoInstaller in this regard.
 
-## <a id="using-outside-unity"></a>Using Zenject Outside Unity
+## <a id="using-outside-unity"></a>Using Zenject Outside Unity Or For DLLs
 
 If you are building some code as DLLs and then including them in Unity, you can still add bindings for those classes inside your installers, with the only limitation being that you have to use constructor injection.  If you want to use the other inject approaches such as member injection or method injection, then you can do that too, however in that case you will need to add a reference for your project to `Zenject-Usage.dll` which can be found in the `Zenject\Source\Usage` directory.  This DLL also includes the standard interfaces such as ITickable, IInitializable, etc. so you can use those as well.
 
 You can also use Zenject for non-unity projects by downloading `Zenject-NonUnity.zip` from the [releases section](https://github.com/modesttree/Zenject/releases)
+
+## <a id="zenjectsettings"></a>Zenject Settings
+
+TBD
 
 ## <a id="signals"></a>Signals
 

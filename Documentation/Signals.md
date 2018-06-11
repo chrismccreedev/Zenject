@@ -10,7 +10,7 @@ Given two classes A and B that need to communicate, your options are usually:
 
 So, often you have to ask yourself, should A know about B or should B know about A?
 
-As a third option, in some cases it might actually be better for neither one to know about the other. This way your code is kept as loosely coupled as possible.  You can achieve this by having A and B interact with an intermediary object instead of directly with each other.  You can use Zenject Signals to act as this intermediary object.
+As a third option, in some cases it might actually be better for neither one to know about the other. This way your code is kept as loosely coupled as possible.  You can achieve this by having A and B interact with an intermediary object (in this case, zenject signals) instead of directly with each other.
 
 Note also that while the result will be more loosely coupled, this isn't always going to be better.  Signals can be misused just like any programming pattern, so you have to consider each case for whether it's a good candidate for them or not.
 
@@ -19,8 +19,33 @@ Note also that while the result will be more loosely coupled, this isn't always 
 If you just want to get up and running immediately, see the following example which shows basic usage:
 
 ```csharp
-public class UserJoinedSignal : Signal<UserJoinedSignal, string>
+
+public class UserJoinedSignal : ISignal
 {
+    public UserJoinedSignal(string username)
+    {
+        Username = username;
+    }
+
+    public string Username
+    {
+        get; private set;
+    }
+}
+
+public class GameInitializer : IInitializable
+{
+    readonly SignalBus _signalBus;
+
+    public GameInitializer(SignalBus signalBus)
+    {
+        _signalBus = signalBus;
+    }
+
+    public void Initialize()
+    {
+        _signalBus.Fire(new UserJoinedSignal("Bob"));
+    }
 }
 
 public class Greeter
@@ -31,29 +56,18 @@ public class Greeter
     }
 }
 
-public class GameInitializer : IInitializable
-{
-    readonly UserJoinedSignal _userJoinedSignal;
-
-    public GameInitializer(UserJoinedSignal userJoinedSignal)
-    {
-        _userJoinedSignal = userJoinedSignal;
-    }
-
-    public void Initialize()
-    {
-        _userJoinedSignal.Fire("Bob");
-    }
-}
-
 public class GameInstaller : MonoInstaller<GameInstaller>
 {
     public override void InstallBindings()
     {
+        SignalRootInstaller.Install(Container);
+
         Container.DeclareSignal<UserJoinedSignal>();
 
-        Container.BindSignal<string, UserJoinedSignal>()
-            .To<Greeter>(x => x.SayHello).AsSingle();
+        Container.Bind<Greeter>().AsSingle();
+
+        Container.BindSignal<UserJoinedSignal>()
+            .ToMethod<Greeter>((x, s) => x.SayHello(s.Username)).FromResolve();
 
         Container.BindInterfacesTo<GameInitializer>().AsSingle();
     }
@@ -67,26 +81,31 @@ There are several ways of creating signal handlers.  Another approach would be t
 ```csharp
 public class Greeter : IInitializable, IDisposable
 {
-    UserJoinedSignal _userJoinedSignal;
+    readonly SignalBus _signalBus;
 
-    public Greeter(UserJoinedSignal userJoinedSignal)
+    public Greeter(SignalBus signalBus)
     {
-        _userJoinedSignal = userJoinedSignal;
+        _signalBus = signalBus;
     }
 
     public void Initialize()
     {
-        _userJoinedSignal += OnUserJoined;
+        _signalBus.Subscribe<UserJoinedSignal>(OnUserJoined);
     }
 
     public void Dispose()
     {
-        _userJoinedSignal -= OnUserJoined;
+        _signalBus.Unsubscribe<UserJoinedSignal>(OnUserJoined);
     }
 
-    void OnUserJoined(string username)
+    void OnUserJoined(UserJoinedSignal args)
     {
-        Debug.Log("Hello again " + username + "!");
+        SayHello(args.Username);
+    }
+
+    public void SayHello(string userName)
+    {
+        Debug.Log("Hello " + userName + "!");
     }
 }
 
@@ -94,48 +113,106 @@ public class GameInstaller : MonoInstaller<GameInstaller>
 {
     public override void InstallBindings()
     {
+        SignalRootInstaller.Install(Container);
+
         Container.DeclareSignal<UserJoinedSignal>();
 
-        Container.BindInterfacesTo<GameInitializer>().AsSingle();
+        // Here, we can get away with just binding the interfaces since they don't refer
+        // to each other
         Container.BindInterfacesTo<Greeter>().AsSingle();
+        Container.BindInterfacesTo<GameInitializer>().AsSingle();
     }
 }
 ```
 
-As you can see in the the above examples, you can either directly bind a handler method to a signal in an installer (first example) or you can have your signal handler attach and detach itself to the signal (second example).
+Note that the UserJoinedSignal and GameInitializer were not included here because they are the same as in the first example.  As one final alternative approach, you could also combine zenject signals with the UniRx library and do it like this instead:
 
-For more details on what's going on above see the following sections.
+
+```csharp
+public class Greeter : IInitializable, IDisposable
+{
+    readonly SignalBus _signalBus;
+    readonly CompositeDisposable _disposables = new CompositeDisposable();
+
+    public Greeter(SignalBus signalBus)
+    {
+        _signalBus = signalBus;
+    }
+
+    public void Initialize()
+    {
+        _signalBus.GetStream<UserJoinedSignal>()
+            .Subscribe(x => SayHello(x.Username)).AddTo(_disposables);
+    }
+
+    public void Dispose()
+    {
+        _disposables.Dispose();
+    }
+
+    public void SayHello(string userName)
+    {
+        Debug.Log("Hello " + userName + "!");
+    }
+}
+```
+
+As you can see in the the above examples, you can either directly bind a handler method to a signal in an installer using BindSignal (first example) or you can have your signal handler attach and detach itself to the signal (second and third examples)
+
+Details of how this works will be explained in the following sections.
 
 ## <a id="declaration"></a>Signals Declaration
 
 Signals are defined like this:
 
 ```csharp
-public class DoSomethingSignal : Signal<DoSomethingSignal>
+public class PlayerDiedSignal : ISignal
 {
+    // Add parameters here
 }
 ```
 
-Note that the signal class must provide itself as a generic argument to the Signal base class.
-
-Classes that derive from Signal should always be left empty - their only purpose is to represent a single action.
-
-Any parameters passed along with the signal need to be included as more generic arguments:
+Any parameters passed along with the signal should be added as public members or properties.  For example:
 
 ```csharp
-public class DoSomethingSignal : Signal<DoSomethingSignal, string, int>
+public class WeaponEquippedSignal : ISignal
 {
+    public Player Player;
+    public IWeapon Weapon;
 }
 ```
 
-In this case, the signal would take a string and an int parameter.
+However - it is usually best practice to make the signal classes immutable, so our WeaponEquippedSignal might be better written as this instead:
 
-Then in an installer they must be declared somewhere:
+```csharp
+public class WeaponEquippedSignal : ISignal
+{
+    public WeaponEquippedSignal(Player player, IWeapon weapon)
+    {
+        Player = player;
+        Weapon = weapon;
+    }
+
+    public IWeapon Weapon
+    {
+        get; private set;
+    }
+
+    public Player Player
+    {
+        get; private set;
+    }
+}
+```
+
+This isn't necessary but is good practice because it will ensure that any signal handlers do not attempt to change the signal parameter values, which could negatively affect other signal handler behaviour.
+
+After we have created our signal class we just need to declare it in an installer somewhere:
 
 ```csharp
 public override void InstallBindings()
 {
-    Container.DeclareSignal<DoSomethingSignal>();
+    Container.DeclareSignal<PlayerDiedSignal>();
 }
 ```
 
@@ -145,14 +222,17 @@ The format of the DeclareSignal statement is the following:
 
 <pre>
 Container.DeclareSignal&lt;<b>SignalType</b>&gt;()
-    .WithId(<b>Identifier</b>)
-    .<b>RequireHandler</b>()
-    .When(<b>Condition</b>);
+    .<b>(RequireHandler|OptionalHandler)</b>()
+    .<b>(RunAsync|RunSync)</b>();
 </pre>
 
-The When Condition can be any Zenject condition just like any other binding (see Zenject docs for details).  When using installer handlers (see below) this can be useful to restrict which classes are allowed to fire the signal
+Where:
 
-The `RequireHandler()` method is optional.  If not included, then the signal will be allowed to fire with zero handlers attached.  If `RequireHandler()` is added to the binding, then an exception will be thrown if the signal is fired and there isn't any handlers attached.
+- **RequireHandler**/**OptionalHandler** - These values control how to behave when the signal is fired and there is no handler associated with it.  Unless it is over-ridden in <a href="../README.md#zenjectsettings">ZenjectSettings</a>, the default is OptionalHandler, which will allow signals to fire with zero handlers.  When RequireHandler is set, exceptions will be thrown in the case where the signal is fired with zero handlers.  Which one you choose depends on how strict you prefer the system to be.  When it's optional, it can sometimes be 
+
+- **RunAsync**/**RunSync** - These values control whether the signal is fired synchronously or asynchronously.  Unless it is over-ridden in <a href="../README.md#zenjectsettings">ZenjectSettings</a>, the default value is to run synchronously.  When RunAsync is used, this means that when a signal is fired by calling `SignalBus.Fire`, the handlers will not actually be invoked until the beginning of the next frame.  See <a href="#async-vs-sync">here</a> for a discussion of this feature.
+
+Note that the defaults for both of these values can be overridden by changing <a href="../README.md#zenjectsettings">ZenjectSettings</a>.
 
 ## <a id="firing"></a>Signal Firing
 
@@ -437,3 +517,6 @@ public class Qux
     }
 }
 ```
+
+## <a id="async-vs-sync"></a>Asynchronous Versus Synchronous Events
+
