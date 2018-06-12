@@ -157,6 +157,8 @@ public class Greeter : IInitializable, IDisposable
 }
 ```
 
+Note that if you go this route that you need to enable UniRx integration as described <a href="../README.md#unirx-integration">here</a>.
+
 As you can see in the the above examples, you can either directly bind a handler method to a signal in an installer using BindSignal (first example) or you can have your signal handler attach and detach itself to the signal (second and third examples)
 
 Details of how this works will be explained in the following sections.
@@ -222,130 +224,82 @@ The format of the DeclareSignal statement is the following:
 
 <pre>
 Container.DeclareSignal&lt;<b>SignalType</b>&gt;()
-    .<b>(RequireHandler|OptionalHandler)</b>()
+    .<b>(RequiredSubscriber|OptionalSubscriber|OptionalSubscriberWithWarning)</b>()
     .<b>(RunAsync|RunSync)</b>();
 </pre>
 
 Where:
 
-- **RequireHandler**/**OptionalHandler** - These values control how to behave when the signal is fired and there is no handler associated with it.  Unless it is over-ridden in <a href="../README.md#zenjectsettings">ZenjectSettings</a>, the default is OptionalHandler, which will allow signals to fire with zero handlers.  When RequireHandler is set, exceptions will be thrown in the case where the signal is fired with zero handlers.  Which one you choose depends on how strict you prefer the system to be.  When it's optional, it can sometimes be 
+- **RequiredSubscriber**/**OptionalSubscriber**/**OptionalSubscriberWithWarning** - These values control how the signal should behave when it fired but there are no subscribers associated with it.  Unless it is over-ridden in <a href="../README.md#zenjectsettings">ZenjectSettings</a>, the default is OptionalSubscriber, which will allow signals to fire with zero subscribers.  When RequiredSubscriber is set, exceptions will be thrown in the case where the signal is fired with zero subscribers.  Which one you choose depends on how strict you prefer your application to be.
 
-- **RunAsync**/**RunSync** - These values control whether the signal is fired synchronously or asynchronously.  Unless it is over-ridden in <a href="../README.md#zenjectsettings">ZenjectSettings</a>, the default value is to run synchronously.  When RunAsync is used, this means that when a signal is fired by calling `SignalBus.Fire`, the handlers will not actually be invoked until the beginning of the next frame.  See <a href="#async-vs-sync">here</a> for a discussion of this feature.
+- **RunAsync**/**RunSync** - These values control whether the signal is fired synchronously or asynchronously.  Unless it is over-ridden in <a href="../README.md#zenjectsettings">ZenjectSettings</a>, the default value is to run synchronously, which means that when the signal is fired by calling `SignalBus.Fire`, that all the subscribers are immediately notified.  When `RunAsync` is used instead, this means that when a signal is fired, the subscribers will not actually be notified until the end of the current frame.  Which one you choose comes down to a matter of preference.  Asynchronous events and synchronous events both have their advantages and disadvantages.  See <a href="#async-vs-sync">here</a> for a discussion.
 
 Note that the defaults for both of these values can be overridden by changing <a href="../README.md#zenjectsettings">ZenjectSettings</a>.
 
 ## <a id="firing"></a>Signal Firing
 
-Firing the signal is as simple as just adding a reference to it and calling Fire
+To fire the signal, you add a reference to the `SignalBus` class, and then call the `Fire` method like this:
 
 ```csharp
-public class Bar : ITickable
+public class UserJoinedSignal : ISignal
 {
-    readonly DoSomethingSignal _signal;
+}
 
-    public Bar(DoSomethingSignal signal)
+public class UserManager
+{
+    readonly SignalBus _signalBus;
+
+    public UserManager(SignalBus signalBus)
     {
-        _signal = signal;
+        _signalBus = signalBus;
     }
 
     public void DoSomething()
     {
-        _signal.Fire();
+        _signalBus.Fire<UserJoinedSignal>();
+    }
+}
+```
+
+Or, if the signal has parameters then you will want to create a new instance of it, like this:
+
+```csharp
+public class UserJoinedSignal : ISignal
+{
+    public UserJoinedSignal(string username)
+    {
+        Username = username;
+    }
+
+    public string Username
+    {
+        get; private set;
+    }
+}
+
+public class UserManager
+{
+    readonly SignalBus _signalBus;
+
+    public UserManager(SignalBus signalBus)
+    {
+        _signalBus = signalBus;
+    }
+
+    public void DoSomething()
+    {
+        _signalBus.Fire(new UserJoinedSignal("Bob"));
     }
 }
 ```
 
 ## <a id="handlers"></a>Signal Handlers
 
-There are three ways of adding handlers to a signal:
+As seen in the example above are three ways of adding handlers to a signal:
 
-1. C# events
-2. UniRx Observable
+1. SignalBus.Subscribe
+2. UniRx with SignalBus.GetStream
 3. Installer Binding
-
-### <a id="handler-events"></a>C# Event Signal Handler
-
-Probably the easiest method to add a handler is to add it directly from within the handler class.  For example:
-
-```csharp
-public class Greeter : IInitializable, IDisposable
-{
-    AppStartedSignal _appStartedSignal;
-
-    public Greeter(AppStartedSignal appStartedSignal)
-    {
-        _appStartedSignal = appStartedSignal;
-    }
-
-    public void Initialize()
-    {
-        _appStartedSignal += OnAppStarted;
-    }
-
-    public void Dispose()
-    {
-        _appStartedSignal -= OnAppStarted;
-    }
-
-    void OnAppStarted()
-    {
-        Debug.Log("Hello world!");
-    }
-}
-```
-
-Or, equivalently:
-
-```csharp
-public class Greeter : IInitializable, IDisposable
-{
-    AppStartedSignal _appStartedSignal;
-
-    public Greeter(AppStartedSignal appStartedSignal)
-    {
-        _appStartedSignal = appStartedSignal;
-    }
-
-    public void Initialize()
-    {
-        _appStartedSignal.Listen(OnAppStarted);
-    }
-
-    public void Dispose()
-    {
-        _appStartedSignal.Unlisten(OnAppStarted);
-    }
-
-    void OnAppStarted()
-    {
-        Debug.Log("Hello world!");
-    }
-}
-```
-
-### <a id="handler-unirx"></a>UniRx Signal Handler
-
-If you are a fan of <a href="https://github.com/neuecc/UniRx">UniRx</a>, as we are, then you might also want to treat the signal as a UniRx observable.  For example:
-
-```csharp
-public class Greeter : MonoBehaviour
-{
-    [Inject]
-    AppStartedSignal _appStartedSignal;
-
-    public void Start()
-    {
-        _appStartedSignal.AsObservable.Subscribe(OnAppStarted).AddTo(this);
-    }
-
-    void OnAppStarted()
-    {
-        Debug.Log("Hello World!");
-    }
-}
-```
-
-NOTE:  Integration with UniRx is disabled by default.  To enable, you must add the define `ZEN_SIGNALS_ADD_UNIRX` to your project, which you can do by selecting Edit -> Project Settings -> Player and then adding `ZEN_SIGNALS_ADD_UNIRX` in the "Scripting Define Symbols" section
 
 ### <a id="handler-binding"></a>Installer Binding Signal Handler
 
@@ -519,4 +473,6 @@ public class Qux
 ```
 
 ## <a id="async-vs-sync"></a>Asynchronous Versus Synchronous Events
+
+TBD
 

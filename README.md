@@ -152,6 +152,7 @@ Also, if you prefer video documentation, see the [youtube series on zenject](htt
     * <a href="#using-outside-unity">Using Zenject Outside Unity Or For DLLs</a>
     * <a href="#zenjectsettings">Zenject Settings</a>
     * <a href="#signals">Signals</a>
+    * <a href="#unirx-integration">UniRx Integration</a>
     * <a href="#auto-mocking-using-moq">Auto-Mocking using Moq</a>
     * <a href="#editor-windows">Creating Unity EditorWindow's with Zenject</a>
     * <a href="#optimization_notes">Optimization Notes</a>
@@ -2573,6 +2574,78 @@ Container.Bind<Bar>().FromComponentInNewPrefab(MyPrefab).AsSingle("bar");
 ```
 
 Now two instances of the prefab will be created.
+
+## <a id="unirx-integration"></a>UniRx Integration
+
+<a href="https://github.com/neuecc/UniRx">UniRx</a> is a library that brings Reactive Extensions to Unity.  It can greatly simplify your code by thinking of some kinds of communication between classes as 'streams' of data.  For more details see the <a href="https://github.com/neuecc/UniRx">UniRx docs</a>.
+
+Zenject integration with UniRx is disabled by default.  To enable, you must add the define `ZEN_SIGNALS_ADD_UNIRX` to your project, which you can do by selecting Edit -> Project Settings -> Player and then adding `ZEN_SIGNALS_ADD_UNIRX` in the "Scripting Define Symbols" section
+
+With `ZEN_SIGNALS_ADD_UNIRX` enabled, you can observe zenject signals via UniRx streams as explained here, and you can also observe zenject events such as Tick, LateTick, Dispose, etc. by using the `ZenjectStreams` class.  One example usage for this class is to ensure that certain events are only handled a maximum of once per frame:
+
+```csharp
+public class User
+{
+    public string Username;
+}
+
+public class UserManager
+{
+    readonly List<User> _users = new List<User>();
+    readonly Subject<User> _userAddedStream = new Subject<User>();
+
+    public IReadOnlyList<User> Users
+    {
+        get { return _users; }
+    }
+
+    public IObservableRx<User> UserAddedStream
+    {
+        get { return _userAddedStream; }
+    }
+
+    public void AddUser(User user)
+    {
+        _users.Add(user);
+        _userAddedStream.OnNext(user);
+    }
+}
+
+public class UserDisplayWindow : IInitializable, IDisposable
+{
+    readonly ZenjectStreams _zenjectStreams;
+    readonly CompositeDisposable _disposables = new CompositeDisposable();
+    readonly UserManager _userManager;
+
+    public UserDisplayWindow(
+        UserManager userManager,
+        ZenjectStreams zenjectStreams)
+    {
+        _zenjectStreams = zenjectStreams;
+        _userManager = userManager;
+    }
+
+    public void Initialize()
+    {
+        _userManager.UserAddedStream.Sample(_zenjectStreams.TickStream)
+            .Subscribe(x => SortView()).AddTo(_disposables);
+    }
+
+    void SortView()
+    {
+        // Sort the displayed user list
+    }
+
+    public void Dispose()
+    {
+        _disposables.Dispose();
+    }
+}
+```
+
+In this case we have some costly operation that we want to run every time some data changes (in this case, sorting), and all it does is affect how something is rendered (in this case, a displayed list of user names).  We could implement ITickable and then set a boolean flag every time the data changes, then perform the update inside Tick(), but this isn't really the reactive way of doing things, so we use Sample() instead.
+
+All the other Zenject events are exposed via the ZenjectStreams class for other kinds of UniRx situations as well.
 
 ## <a id="auto-mocking-using-moq"></a>Auto-Mocking using Moq
 
