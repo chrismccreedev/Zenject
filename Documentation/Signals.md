@@ -20,7 +20,7 @@ If you just want to get up and running immediately, see the following example wh
 
 ```csharp
 
-public class UserJoinedSignal : ISignal
+public class UserJoinedSignal
 {
     public UserJoinedSignal(string username)
     {
@@ -168,7 +168,7 @@ Details of how this works will be explained in the following sections.
 Signals are defined like this:
 
 ```csharp
-public class PlayerDiedSignal : ISignal
+public class PlayerDiedSignal
 {
     // Add parameters here
 }
@@ -177,7 +177,7 @@ public class PlayerDiedSignal : ISignal
 Any parameters passed along with the signal should be added as public members or properties.  For example:
 
 ```csharp
-public class WeaponEquippedSignal : ISignal
+public class WeaponEquippedSignal
 {
     public Player Player;
     public IWeapon Weapon;
@@ -187,7 +187,7 @@ public class WeaponEquippedSignal : ISignal
 However - it is usually best practice to make the signal classes immutable, so our WeaponEquippedSignal might be better written as this instead:
 
 ```csharp
-public class WeaponEquippedSignal : ISignal
+public class WeaponEquippedSignal
 {
     public WeaponEquippedSignal(Player player, IWeapon weapon)
     {
@@ -225,14 +225,19 @@ The format of the DeclareSignal statement is the following:
 <pre>
 Container.DeclareSignal&lt;<b>SignalType</b>&gt;()
     .<b>(RequiredSubscriber|OptionalSubscriber|OptionalSubscriberWithWarning)</b>()
-    .<b>(RunAsync|RunSync)</b>();
+    .<b>(RunAsync|RunSync)</b>()
+    .(**Copy**|**Move**)Into(**All**|**Direct**)SubContainers();
 </pre>
 
 Where:
 
+- **SignalType** - The custom class that represents the signal
+
 - **RequiredSubscriber**/**OptionalSubscriber**/**OptionalSubscriberWithWarning** - These values control how the signal should behave when it fired but there are no subscribers associated with it.  Unless it is over-ridden in <a href="../README.md#zenjectsettings">ZenjectSettings</a>, the default is OptionalSubscriber, which will allow signals to fire with zero subscribers.  When RequiredSubscriber is set, exceptions will be thrown in the case where the signal is fired with zero subscribers.  Which one you choose depends on how strict you prefer your application to be.
 
 - **RunAsync**/**RunSync** - These values control whether the signal is fired synchronously or asynchronously.  Unless it is over-ridden in <a href="../README.md#zenjectsettings">ZenjectSettings</a>, the default value is to run synchronously, which means that when the signal is fired by calling `SignalBus.Fire`, that all the subscribers are immediately notified.  When `RunAsync` is used instead, this means that when a signal is fired, the subscribers will not actually be notified until the end of the current frame.  Which one you choose comes down to a matter of preference.  Asynchronous events and synchronous events both have their advantages and disadvantages.  See <a href="#async-vs-sync">here</a> for a discussion.
+
+* (**Copy**|**Move**)Into(**All**|**Direct**)SubContainers = Same as behaviour as described in <a href="../README.md#binding">main section on binding</a>.
 
 Note that the defaults for both of these values can be overridden by changing <a href="../README.md#zenjectsettings">ZenjectSettings</a>.
 
@@ -241,7 +246,7 @@ Note that the defaults for both of these values can be overridden by changing <a
 To fire the signal, you add a reference to the `SignalBus` class, and then call the `Fire` method like this:
 
 ```csharp
-public class UserJoinedSignal : ISignal
+public class UserJoinedSignal
 {
 }
 
@@ -264,7 +269,7 @@ public class UserManager
 Or, if the signal has parameters then you will want to create a new instance of it, like this:
 
 ```csharp
-public class UserJoinedSignal : ISignal
+public class UserJoinedSignal
 {
     public UserJoinedSignal(string username)
     {
@@ -293,184 +298,103 @@ public class UserManager
 }
 ```
 
-## <a id="handlers"></a>Signal Handlers
+### Binding Signals with BindSignal
 
-As seen in the example above are three ways of adding handlers to a signal:
+As mentioned above, in addition to being able to directly subscribe to signals on the event bus (via `SignalBus.Subscribe` or `SignalBus.GetStream`) you can also directly bind a signal to a handling class inside an installer.  This approach has advantages and disadvantages compared to directly subscribing in a handling class.
 
-1. SignalBus.Subscribe
-2. UniRx with SignalBus.GetStream
-3. Installer Binding
+The format of the BindSignal command is:
 
-### <a id="handler-binding"></a>Installer Binding Signal Handler
+<pre>
+Container.BindSignal&lt;<b>SignalType</b>&gt;()
+    .ToMethod(<b>Handler</b>)
+    .From(<b>ConstructionMethod</b>)
+    .(**Copy**|**Move**)Into(**All**|**Direct**)SubContainers();
+</pre>
 
-Finally, you can also add signal handlers directly within an installer. There are three ways to do this:
+Where:
 
-1.  Instance Method
+- **SignalType** - The custom class that represents the signal
 
-    ```csharp
-    public class Greeter1
-    {
-        public void SayHello()
-        {
-            Debug.Log("Hello!");
-        }
-    }
+- **Handler** - The method that should be triggered when the signal fires.  This has several variations:
 
-    public class GreeterInstaller : MonoInstaller<GreeterInstaller>
-    {
-        public override void InstallBindings()
-        {
-            Container.BindSignal<AppStartedSignal>()
-                .To<Greeter1>(x => x.SayHello).AsSingle();
-        }
-    }
-    ```
-
-    Or, when the signal has parameters:
-
-    ```csharp
-    public class Greeter1
-    {
-        public void SayHello(string name)
-        {
-            Debug.Log("Hello " + name + "!");
-        }
-    }
-
-    public class GreeterInstaller : MonoInstaller<GreeterInstaller>
-    {
-        public override void InstallBindings()
-        {
-            Container.BindSignal<string, AppStartedSignal>()
-                .To<Greeter1>(x => x.SayHello).AsSingle();
-        }
-    }
-    ```
-
-2.  Static Method
-
-    ```csharp
-
-    public class GreeterInstaller : MonoInstaller<GreeterInstaller>
-    {
-        public override void InstallBindings()
-        {
-            Container.BindSignal<AppStartedSignal>()
-                .To(() => Debug.Log("Hello!")).AsSingle();
-        }
-    }
-    ```
-
-    Or, when the signal has parameters:
-
-    ```csharp
-    public class GreeterInstaller : MonoInstaller<GreeterInstaller>
-    {
-        public override void InstallBindings()
-        {
-            Container.BindSignal<string, AppStartedSignal>()
-                .To(name => Debug.Log("Hello " + name + "!")).AsSingle();
-        }
-    }
-    ```
-
-3.  Static Method With Instance
-
-    This approach is similar to 1 except allows you to implement a static method that contains both the list of parameters, and a handler class that you can either call or make use of somehow in the method.  This approach is particularly useful if you need to apply some kind of transformation to the parameters before forwarding it to the handler class
-
-    ```csharp
-    public class Greeter1
-    {
-        public void SayHello()
-        {
-            Debug.Log("Hello!");
-        }
-    }
-
-    public class GreeterInstaller : MonoInstaller<GreeterInstaller>
-    {
-        public override void InstallBindings()
-        {
-            Container.BindSignal<AppStartedSignal>()
-                .To<Greeter1>(x => x.SayHello(x)).AsSingle();
-        }
-    }
-    ```
-
-    Or, when the signal has parameters:
-
-    ```csharp
-    public class Greeter1
-    {
-        public void SayHello(string name)
-        {
-            Debug.Log("Hello " + name + "!");
-        }
-    }
-
-    public class GreeterInstaller : MonoInstaller<GreeterInstaller>
-    {
-        public override void InstallBindings()
-        {
-            Container.BindSignal<string, AppStartedSignal>()
-                .To<Greeter1>((x, name) => x.SayHello(name)).AsSingle();
-        }
-    }
-    ```
-
-Installer bindings for signals have the following advantages:
-- More flexible, because you can wire it up in the installer and can have multiple installer configurations
-- More loosely coupled, because the handler class can remain completely ignorant of the signal
-- Less error prone, because you don't have to remember to unsubscribe.  The signal will automatically be unsubscribed when the 'context' is disposed of.  This means that if you add a handler within a sub-container, the handler will automatically unsubscribe when the sub-container is disposed of
-- You can more easily control which classes are allowed to fire the signal.  You can do this by adding a When() conditional to the declaration.  (You can't do this with the other handler types because the listener also needs access to the signal to add itself to it)
-
-However, it might also be harder to follow just by reading the code, because you will have to check the installers to see what handlers a given has.
-
-Which approach to signal handlers depends on the specifics of each case and personal preference.
-
-### Signals With Subcontainers
-
-One interesting feature of signals is that the signal handlers do not need to be in the same container as the signal declaration.  The declaration can either be in the same container, a parent container, or a sub-container, and it should trigger the handlers regardless of where they are declared.  Note that the declaration will however determine which container the signal can be fired from (the signal itself will be accessible as a dependency for the container it is declared in and all sub-containers just like other bindings)
-
-For example, you can declare a signal in your ProjectContext and then add signal handlers for each particular scene.  Then, when each scene exits, the signal handler that was added in that scene will no longer be called when the signal is fired.
-
-Or, you could add signal handlers in the ProjectContext and then declare the signal in some particular scene.
-
-For example, You might use this to implement your GUI entirely in its own scene, loaded alongside the main backend scene.  Then you could have the GUI scene strictly fire Signals, which would then have method bindings in the game scene.
-
-### Signals With Identifiers
-
-If you want to define multiple instances of the same signal, you would need to use identifiers.  This works identically to how normal zenject binding identifiers work. For example:
+1. Static method
 
 ```csharp
-Container.DeclareSignal<FooSignal>().WithId("foo");
+Container.BindSignal<UserJoinedSignal>().ToMethod(s => Debug.Log("Hello user " + s.Username));
 ```
 
-Then for installer handlers:
+Note that the method can also be parameterless:
 
 ```csharp
-Container.BindSignal<FooSignal>().WithId("foo").To<Bar>(x => x.DoSomething).AsSingle();
+Container.BindSignal<UserJoinedSignal>().ToMethod(() => Debug.Log("Received UserJoinedSignal signal"))
 ```
 
-Then to access it to fire it, or to add a C# event / unirx handlers:
+Note also that in this case, there is no option to provide a value for `From` since there is no instance needed
+
+1. Instance method directly
 
 ```csharp
-public class Qux
+public class Greeter
 {
-    FooSignal _signal;
-
-    public Qux(
-        [Inject(Id = "foo")] FooSignal signal)
+    public void SayHello(UserJoinedSignal signal)
     {
-        _signal = signal;
+        Debug.Log("Hello " + signal.Username + "!");
     }
+}
 
-    public void Run()
+Container.Bind<Greeter>().AsSingle();
+Container.BindSignal<UserJoinedSignal>().ToMethod<Greeter>(x => x.SayHello).FromResolve();
+```
+
+In this case we want to fire the `Greeter.SayHello` method.  In this case we also need to supply a value for `From` so that there is an instance that can be called with the given method.
+
+Similar to static methods you could also bind to a method without parameters:
+
+```csharp
+public class Greeter
+{
+    public void SayHello()
     {
-        _signal.Fire();
+        Debug.Log("Hello there!");
+    }
+}
+
+Container.Bind<Greeter>().AsSingle();
+Container.BindSignal<UserJoinedSignal>().ToMethod<Greeter>(x => x.SayHello).FromResolve();
+```
+
+1. Instance method with mapping
+
+There might also be cases where the arguments to the handling method directly contain the signal arguments.  For example:
+
+```csharp
+public class Greeter
+{
+    public void SayHello(string username)
+    {
+        Debug.Log("Hello " + username + "!");
     }
 }
 ```
+
+In this case you could bind the signal to a method that does a mapping of the parameters for us:
+
+```csharp
+Container.Bind<Greeter>().AsSingle();
+Container.BindSignal<UserJoinedSignal>().ToMethod<Greeter>((x, s) => x.SayHello(s.Username)).FromResolve()
+```
+
+- **ConstructionMethod** - After binding to an instance method above, you also need to define where this instance comes from.
+
+* (**Copy**|**Move**)Into(**All**|**Direct**)SubContainers = Same as behaviour as described in <a href="../README.md#binding">main section on binding</a>.
+
+### Signals With Subcontainers
+
+Signals are only visible at the container level where they are declared and below.  For example, you might use Unity's multi-scene support and split up your game into a GUI scene and an Environment scene.  In the GUI scene you might fire a signal indicating that the GUI popup overlay has been opened/closed, so that the Environment scene can pause/resume activity.  One way of achieving this would be to declare a signal in a ProjectContext installer, then subscribe to it in the Environment scene, and then fire it from the GUI scene.  Or, alternatively, you could use a scene that is the parent of both the Environment scene and the GUI scene and put the signal declaration there.
+
+## <a id="signal-naming-convention"></a>Signal Naming Convention
+
+TBD
 
 ## <a id="async-vs-sync"></a>Asynchronous Versus Synchronous Events
 

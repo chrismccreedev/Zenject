@@ -445,8 +445,8 @@ Container.Bind&lt;<b>ContractType</b>&gt;()
     .As<b>Scope</b>()
     .WithArguments(<b>Arguments</b>)
     .When(<b>Condition</b>)
+    .(<b>Copy</b>|<b>Move</b>)Into(<b>All</b>|<b>Direct</b>)SubContainers()
     .NonLazy();
-    .CopyIntoAllSubContainers()
 </pre>
 
 Where:
@@ -529,7 +529,26 @@ Where:
 
 * **Arguments** = A list of objects to use when constructing the new instance of type **ResultType**.  This can be useful as an alternative to adding other bindings for the arguments in the form `Container.BindInstance(arg).WhenInjectedInto<ResultType>()`
 * **Condition** = The condition that must be true for this binding to be chosen.  See <a href="#conditional-bindings">here</a> for more details.
-* **CopyIntoAllSubContainers** = If supplied, then this binding will automatically be inherited from any subcontainers that are created from it.  In other words, the result will be equivalent to copying and pasting the `Container.Bind` statement into the installer for every sub-container.
+* (**Copy**|**Move**)Into(**All**|**Direct**)SubContainers = This value can be ignored for 99% of users.  It can be used to automatically have the binding inherited by subcontainers.  For example, if you have a class Foo and you want a unique instance of Foo to be automatically placed in the container and every subcontainer, then you could add the following binding:
+
+```csharp
+Container.Bind<Foo>().AsSingle().CopyIntoAllSubContainers()
+```
+
+In other words, the result will be equivalent to copying and pasting the `Container.Bind<Foo>().AsSingle()` statement into the installer for every sub-container.
+
+Or, if you only wanted Foo in the subcontainers and not the current container:
+
+```csharp
+Container.Bind<Foo>().AsSingle().MoveIntoAllSubContainers()
+```
+
+Or, if you only wanted Foo to be in the immediate child subcontainer, and not the subcontainers of these subcontainers:
+
+```csharp
+Container.Bind<Foo>().AsSingle().MoveIntoDirectSubContainers()
+```
+
 * **NonLazy** = Normally, the **ResultType** is only ever instantiated when the binding is first used (aka "lazily").  However, when NonLazy is used, **ResultType** will immediately by created on startup.
 
 ## <a id="construction-methods"></a>Construction Methods
