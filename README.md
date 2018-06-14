@@ -160,7 +160,7 @@ Also, if you prefer video documentation, see the [youtube series on zenject](htt
     * <a href="#isthisoverkill">Isn't this overkill?  I mean, is using statically accessible singletons really that bad?</a>
     * <a href="#aot-support">Does this work on AOT platforms such as iOS and WebGL?</a>
     * <a href="#faq-performance">How is Performance?</a>
-    * <a href="#howtousecoroutines">How do I use Unity style Coroutines in normal C# classes?</a>
+    * <a href="#more-samples">Are there any more sample projects with source to look at?</a>
     * <a href="#what-games-are-using-zenject">What games/tools/libraries are using Zenject</a>
 * <a href="#cheatsheet">Cheat Sheet</a>
 * <a href="#further-help">Further Help</a>
@@ -2845,6 +2845,15 @@ You can also get minor gains in speed and minor reductions in memory allocations
     Another solution to this problem which I highly recommend is [UniRx](https://github.com/neuecc/UniRx).
 
     Yet another option is to use a coroutine library that implements similar functionality to what Unity provides.  See [here](https://github.com/svermeulen/UnityCoroutinesWithoutMonoBehaviours) for one example that we've used in the past at Modest Tree
+
+* **<a id="more-samples"></a>Are there any more sample projects to look at?**
+
+Complete examples (with source) using zenject:
+    * [Zenject Hero](https://github.com/Mathijs-Bakker/Zenject-Hero) - Remake of the classic Atari game H.E.R.O.   Based on Zenject 6
+    * [Quick Golf](https://assetstore.unity.com/packages/templates/packs/quick-golf-67900) - Mini-golf game
+    * [EcsRx Roguelike 2D](https://github.com/grofit/ecsrx.roguelike2d) - An example of a Roguelike 2d game using EcsRx and Zenject
+    * [Push The Squares](https://assetstore.unity.com/packages/templates/packs/push-the-squares-69780) - This is the puzzle game in which you have to find the proper way to connect squares with stars of the same color. 
+    * [Submarine](https://github.com/shiwano/submarine) - A mobile game that is made with Unity3D, RoR, and WebSocket server written in Go.
 
 * **<a id="what-games-are-using-zenject"></a>What games/tools/libraries are using Zenject?**
 
