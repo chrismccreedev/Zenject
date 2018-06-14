@@ -244,11 +244,17 @@ Where:
 
 - **RequiredSubscriber**/**OptionalSubscriber**/**OptionalSubscriberWithWarning** - These values control how the signal should behave when it fired and yet there are no subscribers associated with it.  Unless it is over-ridden in <a href="../README.md#zenjectsettings">ZenjectSettings</a>, the default is OptionalSubscriber, which will do nothing in this case.  When RequiredSubscriber is set, exceptions will be thrown in the case of zero subscribers.  OptionalSubscriberWithWarning is half way in between where it will issue a console log warning instead of an exception.  Which one you choose depends on how strict you prefer your application to be, and whether it matters if the given signal is actually handled or not.
 
-- **RunAsync**/**RunSync** - These values control whether the signal is fired synchronously or asynchronously.  Unless it is over-ridden in <a href="../README.md#zenjectsettings">ZenjectSettings</a>, the default value is to run synchronously, which means that when the signal is fired by calling `SignalBus.Fire`, that all the subscribers are immediately notified.  When `RunAsync` is used instead, this means that when a signal is fired, the subscribers will not actually be notified until the end of the current frame.  Which one you choose comes down to a matter of preference.  See here for a discussion of asynchronous signals.  See  for a discussion.
+- **RunAsync**/**RunSync** - These values control whether the signal is fired synchronously or asynchronously:
+
+    RunSync - This means the that when the signal is fired by calling `SignalBus.Fire` that all the subscribed handler methods are immediately invoked.
+
+    RunAsync - This means that when a signal is fired, the subscribed methods will not be invoked until later in the frame.  Internally, the signal is added to queue inside SignalBus, which is emptied at the end of every frame.
+
+    Note that Unless It is over-ridden in <a href="../README.md#zenjectsettings">ZenjectSettings</a>, the default value is to run synchronously.   See <a href="">here</a> for a discussion of asynchronous signals and why you might sometimes want to use that instead.
 
 * (**Copy**|**Move**)Into(**All**|**Direct**)SubContainers = Same as behaviour as described in <a href="../README.md#binding">main section on binding</a>.
 
-Note that the default value for RunSync/RunAsync and RequiredSubscriber/OptionalSubscriber can be overridden by changing <a href="../README.md#zenjectsettings">ZenjectSettings</a>
+    Note that the default value for RunSync/RunAsync and RequiredSubscriber/OptionalSubscriber can be overridden by changing <a href="../README.md#zenjectsettings">ZenjectSettings</a>
 
 ## <a id="firing"></a>Signal Firing
 
@@ -442,7 +448,7 @@ Synchronous events have the following drawbacks:
 
 1. The order that the signal handler is triggered in is not always predictable when compared to normal update logic inside ITickables or MonoBehaviour.Update
 
-For example, let's say you have a clas
+For example, let's say you have a Camera class
 
 For example, you might have a class Foo that updates its state in Foo.Tick.  Then Foo might also subscribe to a signal that affects this same state.  This signal could be fired at any point during the frame, both before and after the Foo.Tick method gets called.
 
