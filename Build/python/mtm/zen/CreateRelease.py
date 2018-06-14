@@ -76,9 +76,10 @@ class Runner:
         self._sys.createDirectory('[TempDir]')
 
         try:
+            # Do this first because it is the thing that usually breaks
+            self._createNonUnityZip('[DistDir]/Zenject-NonUnity@v{0}.zip'.format(versionStr))
             self._createCSharpPackage(True, '[DistDir]/Zenject-WithSampleGames@v{0}.unitypackage'.format(versionStr))
             self._createCSharpPackage(False, '[DistDir]/Zenject@v{0}.unitypackage'.format(versionStr))
-            self._createNonUnityZip('[DistDir]/Zenject-NonUnity@v{0}.zip'.format(versionStr))
         finally:
             self._sys.deleteDirectory('[TempDir]')
 
