@@ -1,6 +1,8 @@
 
 ## Signals
 
+NOTE: If you are upgrading from zenject 5.x and want to continue using that version of signals, you can find a zenject-6 compatible version of that [here](https://github.com/svermeulen/ZenjectSignalsOld).  So to use that, just import zenject and make sure to uncheck the `OptionalExtras/Signals` folder, and then add the `ZenjectSignalsOld` folder to your project.
+
 ## <a id="theory"></a>Motivation / Theory
 
 Given two classes A and B that need to communicate, your options are usually:
