@@ -8,8 +8,6 @@ Given two classes A and B that need to communicate, your options are usually:
 1. Directly call a method on B from A.  In this case, A is strongly coupled with B.
 2. Inverse the dependency by having B observe an event on A.  In this case, B is strongly coupled with A.
 
-So, often you have to ask yourself, should A know about B or should B know about A?
-
 As a third option, in some cases it might actually be better for neither one to know about the other. This way your code is kept as loosely coupled as possible.  You can achieve this by having A and B interact with an intermediary object (in this case, zenject signals) instead of directly with each other.
 
 Note also that while the result will be more loosely coupled, this isn't always going to be better.  Signals can be misused just like any programming pattern, so you have to consider each case for whether it's a good candidate for them or not.
@@ -50,9 +48,9 @@ public class GameInitializer : IInitializable
 
 public class Greeter
 {
-    public void SayHello(string userName)
+    public void SayHello(UserJoinedSignal userJoinedInfo)
     {
-        Debug.Log("Hello " + userName + "!");
+        Debug.Log("Hello " + userJoinedInfo.Username + "!");
     }
 }
 
@@ -67,14 +65,14 @@ public class GameInstaller : MonoInstaller<GameInstaller>
         Container.Bind<Greeter>().AsSingle();
 
         Container.BindSignal<UserJoinedSignal>()
-            .ToMethod<Greeter>((x, s) => x.SayHello(s.Username)).FromResolve();
+            .ToMethod<Greeter>(x => x.SayHello).FromResolve();
 
         Container.BindInterfacesTo<GameInitializer>().AsSingle();
     }
 }
 ```
 
-To run, just create copy and paste the code above into a new file named GameInstaller then create an empty scene with a new scene context and attach the new installer.
+To run, just create copy and paste the code above into a new file named `GameInstaller` then create an empty scene with a new scene context and attach the new installer.
 
 There are several ways of creating signal handlers.  Another approach would be the following
 
@@ -125,7 +123,7 @@ public class GameInstaller : MonoInstaller<GameInstaller>
 }
 ```
 
-Note that the UserJoinedSignal and GameInitializer were not included here because they are the same as in the first example.  As one final alternative approach, you could also combine zenject signals with the UniRx library and do it like this instead:
+As one final alternative approach, you could also combine zenject signals with the UniRx library and do it like this instead:
 
 
 ```csharp
@@ -161,16 +159,15 @@ Note that if you go this route that you need to enable UniRx integration as desc
 
 As you can see in the the above examples, you can either directly bind a handler method to a signal in an installer using BindSignal (first example) or you can have your signal handler attach and detach itself to the signal (second and third examples)
 
-Details of how this works will be explained in the following sections.
+Details of how this works are explained in the following sections.
 
 ## <a id="declaration"></a>Signals Declaration
 
-Signals are defined like this:
+Before declaring a signal you need to create a class that will represent it.  For example:
 
 ```csharp
 public class PlayerDiedSignal
 {
-    // Add parameters here
 }
 ```
 
@@ -218,28 +215,26 @@ public override void InstallBindings()
 }
 ```
 
-Note that the declaration is the same regardless of the parameter list.
-
 The format of the DeclareSignal statement is the following:
 
 <pre>
 Container.DeclareSignal&lt;<b>SignalType</b>&gt;()
     .<b>(RequiredSubscriber|OptionalSubscriber|OptionalSubscriberWithWarning)</b>()
     .<b>(RunAsync|RunSync)</b>()
-    .(**Copy**|**Move**)Into(**All**|**Direct**)SubContainers();
+    .(<b>Copy</b>|<b>Move</b>)Into(<b>All</b>|<b>Direct</b>)SubContainers();
 </pre>
 
 Where:
 
 - **SignalType** - The custom class that represents the signal
 
-- **RequiredSubscriber**/**OptionalSubscriber**/**OptionalSubscriberWithWarning** - These values control how the signal should behave when it fired but there are no subscribers associated with it.  Unless it is over-ridden in <a href="../README.md#zenjectsettings">ZenjectSettings</a>, the default is OptionalSubscriber, which will allow signals to fire with zero subscribers.  When RequiredSubscriber is set, exceptions will be thrown in the case where the signal is fired with zero subscribers.  Which one you choose depends on how strict you prefer your application to be.
+- **RequiredSubscriber**/**OptionalSubscriber**/**OptionalSubscriberWithWarning** - These values control how the signal should behave when it fired and yet there are no subscribers associated with it.  Unless it is over-ridden in <a href="../README.md#zenjectsettings">ZenjectSettings</a>, the default is OptionalSubscriber, which will do nothing in this case.  When RequiredSubscriber is set, exceptions will be thrown in the case of zero subscribers.  OptionalSubscriberWithWarning is half way in between where it will issue a console log warning instead of an exception.  Which one you choose depends on how strict you prefer your application to be, and whether it matters if the given signal is actually handled or not.
 
 - **RunAsync**/**RunSync** - These values control whether the signal is fired synchronously or asynchronously.  Unless it is over-ridden in <a href="../README.md#zenjectsettings">ZenjectSettings</a>, the default value is to run synchronously, which means that when the signal is fired by calling `SignalBus.Fire`, that all the subscribers are immediately notified.  When `RunAsync` is used instead, this means that when a signal is fired, the subscribers will not actually be notified until the end of the current frame.  Which one you choose comes down to a matter of preference.  Asynchronous events and synchronous events both have their advantages and disadvantages.  See <a href="#async-vs-sync">here</a> for a discussion.
 
 * (**Copy**|**Move**)Into(**All**|**Direct**)SubContainers = Same as behaviour as described in <a href="../README.md#binding">main section on binding</a>.
 
-Note that the defaults for both of these values can be overridden by changing <a href="../README.md#zenjectsettings">ZenjectSettings</a>.
+Note that the default value for RunSync/RunAsync and RequiredSubscriber/OptionalSubscriber can be overridden by changing <a href="../README.md#zenjectsettings">ZenjectSettings</a>
 
 ## <a id="firing"></a>Signal Firing
 
@@ -300,7 +295,7 @@ public class UserManager
 
 ### Binding Signals with BindSignal
 
-As mentioned above, in addition to being able to directly subscribe to signals on the event bus (via `SignalBus.Subscribe` or `SignalBus.GetStream`) you can also directly bind a signal to a handling class inside an installer.  This approach has advantages and disadvantages compared to directly subscribing in a handling class.
+As mentioned above, in addition to being able to directly subscribe to signals on the signal bus (via `SignalBus.Subscribe` or `SignalBus.GetStream`) you can also directly bind a signal to a handling class inside an installer.  This approach has advantages and disadvantages compared to directly subscribing in a handling class so again comes down to personal preference.
 
 The format of the BindSignal command is:
 
@@ -308,7 +303,7 @@ The format of the BindSignal command is:
 Container.BindSignal&lt;<b>SignalType</b>&gt;()
     .ToMethod(<b>Handler</b>)
     .From(<b>ConstructionMethod</b>)
-    .(**Copy**|**Move**)Into(**All**|**Direct**)SubContainers();
+    .(<b>Copy</b>|<b>Move</b>)Into(<b>All</b>|<b>Direct</b>)SubContainers();
 </pre>
 
 Where:
@@ -317,7 +312,7 @@ Where:
 
 - **Handler** - The method that should be triggered when the signal fires.  This has several variations:
 
-1. Static method
+*1.* Static method
 
 ```csharp
 Container.BindSignal<UserJoinedSignal>().ToMethod(s => Debug.Log("Hello user " + s.Username));
@@ -331,7 +326,9 @@ Container.BindSignal<UserJoinedSignal>().ToMethod(() => Debug.Log("Received User
 
 Note also that in this case, there is no option to provide a value for `From` since there is no instance needed
 
-1. Instance method directly
+*2.* Instance method directly
+
+For example:
 
 ```csharp
 public class Greeter
@@ -346,7 +343,7 @@ Container.Bind<Greeter>().AsSingle();
 Container.BindSignal<UserJoinedSignal>().ToMethod<Greeter>(x => x.SayHello).FromResolve();
 ```
 
-In this case we want to fire the `Greeter.SayHello` method.  In this case we also need to supply a value for `From` so that there is an instance that can be called with the given method.
+In this case we want the signal to trigger the `Greeter.SayHello` method.  Note that we need to supply a value for `From` in thise case so that there is an instance that can be called with the given method.
 
 Similar to static methods you could also bind to a method without parameters:
 
@@ -362,6 +359,28 @@ public class Greeter
 Container.Bind<Greeter>().AsSingle();
 Container.BindSignal<UserJoinedSignal>().ToMethod<Greeter>(x => x.SayHello).FromResolve();
 ```
+
+We are using `FromResolve` however we could use any kind of construction method we want as well.  Under the hood, `FromResolve` actually expands to the following:
+
+```csharp
+Container.BindSignal<UserJoinedSignal>().ToMethod<Greeter>(x => x.SayHello).From(x => x.FromResolve().AsCached());
+```
+
+So, if we didn't need the Greeter class to be injected anywhere else, we could have also implemented it as follows:
+
+```csharp
+public class Greeter
+{
+    public void SayHello(UserJoinedSignal signal)
+    {
+        Debug.Log("Hello " + signal.Username + "!");
+    }
+}
+
+Container.BindSignal<UserJoinedSignal>().ToMethod<Greeter>(x => x.SayHello).From(x => x.AsCached());
+```
+
+This way, we don't need a separate binding for Greeter at all.   You can provide many other kinds of arguments to `From` as well, including binding to a lazily instantiated MonoBehaviour, a factory method, a custom factory, a facade in a subcontainer, etc.
 
 1. Instance method with mapping
 
