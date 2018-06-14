@@ -3,12 +3,24 @@
 
 NOTE: If you are upgrading from zenject 5.x and want to continue using that version of signals, you can find a zenject-6 compatible version of that [here](https://github.com/svermeulen/ZenjectSignalsOld).  So to use that, just import zenject and make sure to uncheck the `OptionalExtras/Signals` folder, and then add the `ZenjectSignalsOld` folder to your project.
 
+## Table Of Contents
+
+* Introduction
+    * <a href="#theory">Theory</a>
+    * <a href="#quick-start">Signals Quick Start</a>
+    * <a href="#declaration">Signals Declaration</a>
+    * <a href="#firing">Signal Firing</a>
+    * <a href="#when-to-use-signals">When To Use Signals</a>
+* Advanced
+    * <a href="#use-with-subcontainers">Signals With Subcontainers</a>
+    * <a href="#async-signals">Asynchronous Signals</a>
+
 ## <a id="theory"></a>Motivation / Theory
 
 Given two classes A and B that need to communicate, your options are usually:
 
 1. Directly call a method on B from A.  In this case, A is strongly coupled with B.
-2. Inverse the dependency by having B observe an event on A.  In this case, B is strongly coupled with A.
+2. Inverse the dependency by having B observe an event on A.  In this case, B is strongly coupled with A
 
 As a third option, in some cases it might actually be better for neither one to know about the other. This way your code is kept as loosely coupled as possible.  You can achieve this by having A and B interact with an intermediary object (in this case, zenject signals) instead of directly with each other.
 
@@ -232,7 +244,7 @@ Where:
 
 - **RequiredSubscriber**/**OptionalSubscriber**/**OptionalSubscriberWithWarning** - These values control how the signal should behave when it fired and yet there are no subscribers associated with it.  Unless it is over-ridden in <a href="../README.md#zenjectsettings">ZenjectSettings</a>, the default is OptionalSubscriber, which will do nothing in this case.  When RequiredSubscriber is set, exceptions will be thrown in the case of zero subscribers.  OptionalSubscriberWithWarning is half way in between where it will issue a console log warning instead of an exception.  Which one you choose depends on how strict you prefer your application to be, and whether it matters if the given signal is actually handled or not.
 
-- **RunAsync**/**RunSync** - These values control whether the signal is fired synchronously or asynchronously.  Unless it is over-ridden in <a href="../README.md#zenjectsettings">ZenjectSettings</a>, the default value is to run synchronously, which means that when the signal is fired by calling `SignalBus.Fire`, that all the subscribers are immediately notified.  When `RunAsync` is used instead, this means that when a signal is fired, the subscribers will not actually be notified until the end of the current frame.  Which one you choose comes down to a matter of preference.  Asynchronous events and synchronous events both have their advantages and disadvantages.  See <a href="#async-vs-sync">here</a> for a discussion.
+- **RunAsync**/**RunSync** - These values control whether the signal is fired synchronously or asynchronously.  Unless it is over-ridden in <a href="../README.md#zenjectsettings">ZenjectSettings</a>, the default value is to run synchronously, which means that when the signal is fired by calling `SignalBus.Fire`, that all the subscribers are immediately notified.  When `RunAsync` is used instead, this means that when a signal is fired, the subscribers will not actually be notified until the end of the current frame.  Which one you choose comes down to a matter of preference.  See here for a discussion of asynchronous signals.  See  for a discussion.
 
 * (**Copy**|**Move**)Into(**All**|**Direct**)SubContainers = Same as behaviour as described in <a href="../README.md#binding">main section on binding</a>.
 
@@ -312,9 +324,13 @@ Where:
 
 - **SignalType** - The custom class that represents the signal
 
+- **ConstructionMethod** - When binding to an instance method above, you also need to define where this instance comes from.  See the section on Handler below for more detail
+
+* (**Copy**|**Move**)Into(**All**|**Direct**)SubContainers = Same as behaviour as described in <a href="../README.md#binding">main section on binding</a>.
+
 - **Handler** - The method that should be triggered when the signal fires.  This has several variations:
 
-*1.* Static method
+**1. Static method**
 
 ```csharp
 Container.BindSignal<UserJoinedSignal>().ToMethod(s => Debug.Log("Hello user " + s.Username));
@@ -328,7 +344,7 @@ Container.BindSignal<UserJoinedSignal>().ToMethod(() => Debug.Log("Received User
 
 Note also that in this case, there is no option to provide a value for `From` since there is no instance needed
 
-*2.* Instance method directly
+**2. Instance method directly**
 
 For example:
 
@@ -384,7 +400,7 @@ Container.BindSignal<UserJoinedSignal>().ToMethod<Greeter>(x => x.SayHello).From
 
 This way, we don't need a separate binding for Greeter at all.   You can provide many other kinds of arguments to `From` as well, including binding to a lazily instantiated MonoBehaviour, a factory method, a custom factory, a facade in a subcontainer, etc.
 
-1. Instance method with mapping
+**3. Instance method with mapping**
 
 There might also be cases where the arguments to the handling method directly contain the signal arguments.  For example:
 
@@ -405,19 +421,38 @@ Container.Bind<Greeter>().AsSingle();
 Container.BindSignal<UserJoinedSignal>().ToMethod<Greeter>((x, s) => x.SayHello(s.Username)).FromResolve()
 ```
 
-- **ConstructionMethod** - After binding to an instance method above, you also need to define where this instance comes from.
+## <a id="when-to-use-signals"></a>When To Use Signals
 
-* (**Copy**|**Move**)Into(**All**|**Direct**)SubContainers = Same as behaviour as described in <a href="../README.md#binding">main section on binding</a>.
+Signals are most appropriate as a communication mechanism when:
 
-### Signals With Subcontainers
+1. There might be multiple interested receivers listening to the signal
+2. The sender doesn't need to get a result back from the receiver
+3. The sender doesn't even really care if it gets received.  In other words, the sender should not rely on some state changing when the signal is called for subsequent sender logic to work correctly
+4. The sender triggers the signal infrequently or at unpredictable times
+
+These are just rules of thumb, but useful to keep in mind when using signals.  The less logically coupled the sender is to the response behaviour of the receivers, the more appropriate it is compared to other forms of communication such as direct method calls, interfaces, C# event class members, etc.  This is also one reason you might consider using <a href="#async-vs-sync-signals">asynchronous signals</a>
+
+## <a id="use-with-subcontainers"></a>Signals With Subcontainers
 
 Signals are only visible at the container level where they are declared and below.  For example, you might use Unity's multi-scene support and split up your game into a GUI scene and an Environment scene.  In the GUI scene you might fire a signal indicating that the GUI popup overlay has been opened/closed, so that the Environment scene can pause/resume activity.  One way of achieving this would be to declare a signal in a ProjectContext installer, then subscribe to it in the Environment scene, and then fire it from the GUI scene.  Or, alternatively, you could use a scene that is the parent of both the Environment scene and the GUI scene and put the signal declaration there.
 
-## <a id="signal-naming-convention"></a>Signal Naming Convention
+## <a id="async-signals"></a>Asynchronous Signals
 
-TBD
+Synchronous events have the following drawbacks:
 
-## <a id="async-vs-sync"></a>Asynchronous Versus Synchronous Events
+1. The order that the signal handler is triggered in is not always predictable when compared to normal update logic inside ITickables or MonoBehaviour.Update
 
-TBD
+For example, let's say you have a clas
+
+For example, you might have a class Foo that updates its state in Foo.Tick.  Then Foo might also subscribe to a signal that affects this same state.  This signal could be fired at any point during the frame, both before and after the Foo.Tick method gets called.
+
+You can change to make your signal
+
+To take one example, an object A might trigger a signal which would perform some logic that would eventually cause A to be deleted.  If the signal was executed synchronously, 
+
+This is not to say that asynchronous events are superious to synchronous events.  Asynchronous events have their own risks as well.
+
+If you use async events for an object delete signal, you might have events on the queue that assume the object still exists, so you 
+
+Fire and forget
 

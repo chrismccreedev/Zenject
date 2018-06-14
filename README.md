@@ -2873,6 +2873,7 @@ Complete examples (with source) using zenject:
     * [EcsRx Roguelike 2D](https://github.com/grofit/ecsrx.roguelike2d) - An example of a Roguelike 2d game using EcsRx and Zenject
     * [Push The Squares](https://assetstore.unity.com/packages/templates/packs/push-the-squares-69780) - This is the puzzle game in which you have to find the proper way to connect squares with stars of the same color. 
     * [Submarine](https://github.com/shiwano/submarine) - A mobile game that is made with Unity3D, RoR, and WebSocket server written in Go.
+    * [Craberoid](https://github.com/Crabar/Craberoid-3.0) - Arkanoid clone
 
 * **<a id="what-games-are-using-zenject"></a>What games/tools/libraries are using Zenject?**
 
