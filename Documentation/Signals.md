@@ -442,7 +442,7 @@ Signals are most appropriate as a communication mechanism when:
 
 1. There might be multiple interested receivers listening to the signal
 2. The sender doesn't need to get a result back from the receiver
-3. The sender doesn't even really care if it gets received.  In other words, the sender should not rely on some state changing when the signal is called for subsequent sender logic to work correctly
+3. The sender doesn't even really care if it gets received.  In other words, the sender should not rely on some state changing when the signal is called for subsequent sender logic to work correctly.  Ideally signals can be thought as "fire and forget" events
 4. The sender triggers the signal infrequently or at unpredictable times
 
 These are just rules of thumb, but useful to keep in mind when using signals.  The less logically coupled the sender is to the response behaviour of the receivers, the more appropriate it is compared to other forms of communication such as direct method calls, interfaces, C# event class members, etc.  This is also one reason you might consider using <a href="#async-vs-sync-signals">asynchronous signals</a>
@@ -453,23 +453,23 @@ Signals are only visible at the container level where they are declared and belo
 
 ## <a id="async-signals"></a>Asynchronous Signals
 
-Synchronous events have the following drawbacks:
+In some cases it might be desirable to run a given signal asynchronously.  Asynchronous signals have the following advantages:
 
-1. The order that the signal handler is triggered in is not always predictable when compared to normal update logic inside ITickables or MonoBehaviour.Update
+1. The update-order that the signal handlers are triggered might be more predictable.  When using synchronous signals, the signal handler methods are executed at the same time that the signal is fired, which could be triggered at any time during the frame, or in some cases multiple places if the signal is fired multiple times.  This can lead to some update-order issues.  With async signals, the signal handlers are always executed at the same time in the frame as configured by the TickPriority.
 
-For example, let's say you have a Camera class
+2. Asynchronous signals can encourage less coupling between the sender and receiver, which is often what you want.  As explained <a href="#when-to-use-signals">above</a>, signals work best when they are used for "fire and forget" events where the sender doesn't care about the behaviour of any listeners.   By making a signal async, it can enforce this separation because the signal handler methods will be executed later, and therefore the sender can not make direct use of the result of the handlers behaviour.
 
-For example, you might have a class Foo that updates its state in Foo.Tick.  Then Foo might also subscribe to a signal that affects this same state.  This signal could be fired at any point during the frame, both before and after the Foo.Tick method gets called.
+3. Unexpected state changes can occur while firing just one signal.  For example, an object A might trigger a signal which would trigger some logic that would eventually cause A to be deleted.  If the signal was executed synchronously, then the call stack could eventually return to object A where the signal was fired, and object A could then attempt to execute commands afterwards that causes problems (since object A will have already been deleted)
 
-You can change to make your signal
+This is not to say that asynchronous signals are superious to synchronous signals.  Asynchronous signals have their own risks as well.
 
-To take one example, an object A might trigger a signal which would perform some logic that would eventually cause A to be deleted.  If the signal was executed synchronously, 
+1. Debugging can be more difficult, because it isn't clear from the stack trace where the signal was fired.
 
-This is not to say that asynchronous events are superious to synchronous events.  Asynchronous events have their own risks as well.
+2. Some parts of the state can be out of sync with each other.   If a class A fires an async signal that requires a response from class B, then there will be some period between when the signal was fired and the handler method in class B was invoked, where B is out of sync with A, which can lead to some bugs.
 
-If you use async events for an object delete signal, you might have events on the queue that assume the object still exists, so you 
+3. The overall system might be more complex than when using synchronous signals and therefore harder to understand.
 
-Fire and forget
+In both cases it is possible to find yourself in "callback hell" where signals are triggering other signals etc. and which make the entire system impossible to understand.  So signals in general should be used with caution for a narrow set of use cases.
 
 ## <a id="settings"></a>Signal Settings
 

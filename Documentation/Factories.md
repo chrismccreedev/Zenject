@@ -264,8 +264,8 @@ Container.BindFactory&lt;<b>ContractType</b>, <b>PlaceholderFactoryType</b>&gt;(
     .WithArguments(<b>Arguments</b>)
     .WithFactoryArguments(<b>Factory Arguments</b>)
     .When(<b>Condition</b>)
-    .NonLazy();
-    .CopyIntoAllSubContainers()
+    .NonLazy()
+    .(<b>Copy</b>|<b>Move</b>)Into(<b>All</b>|<b>Direct</b>)SubContainers();
 </pre>
 
 The binding syntax is almost identical to <a href="../README.md#binding">normal bindings</a>, with the exception of the following:

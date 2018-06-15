@@ -147,12 +147,12 @@ Also, if you prefer video documentation, see the [youtube series on zenject](htt
         * <a href="#dicontainer-methods-other">Other DiContainer methods</a>
     * <a href="#scenes-decorator">Scene Decorators</a>
     * <a href="#zenautoinjector">ZenAutoInjecter</a>
-    * <a href="#profiling">Profiling</a>
     * <a href="#sub-containers-and-facades">Sub-Containers And Facades</a>
     * <a href="#writing-tests">Writing Automated Unit Tests / Integration Tests</a>
     * <a href="#using-outside-unity">Using Zenject Outside Unity Or For DLLs</a>
     * <a href="#zenjectsettings">Zenject Settings</a>
     * <a href="#signals">Signals</a>
+    * <a href="#decorator-bindings">Decorator Bindings</a>
     * <a href="#open-generic-types">Open Generic Types</a>
     * <a href="#destruction-order">Notes About Destruction/Dispose Order</a>
     * <a href="#unirx-integration">UniRx Integration</a>
@@ -673,13 +673,15 @@ Container.Bind<Foo>().AsSingle().MoveIntoDirectSubContainers()
     Container.Bind<Foo>().FromIFactory(x => x.To<FooFactory>().AsCached()).AsSingle();
     ```
 
-1. **FromComponentInNewPrefab** - Instantiate the given prefab as a new game object, inject any MonoBehaviour's on it, and then search the result for type **ResultType** in a similar way that `GetComponentInChildren` works (in that it will return the first matching value found)
+1. **FromComponentInNewPrefab** - Instantiate the given prefab as a new game object, inject any MonoBehaviour's on it, and then search the result for type **ResultType** in a similar way that `GetComponentInChildren` works
 
     ```csharp
     Container.Bind<Foo>().FromComponentInNewPrefab(somePrefab);
     ```
 
     **ResultType** must either be an interface or derive from UnityEngine.MonoBehaviour / UnityEngine.Component in this case
+
+    Note that if there are multiple matches for **ResultType** on the prefab it will only match the first one encountered just like how GetComponentInChildren works.  So if you are binding a prefab and there isn't a specific MonoBehaviour/Component that you want to bind to, you can just choose Transform and it will match the root of the prefab.
 
 1. **FromComponentsInNewPrefab** - Same as FromComponentInNewPrefab except will match multiple values or zero values.  You might use it for example and then inject **List<ContractType>** somewhere.  Can be thought of as similar to `GetComponentsInChildren`
 
@@ -1136,7 +1138,9 @@ Or you can use the <a href="#all-interfaces-shortcuts">BindInterfaces shortcut</
 Container.BindInterfacesAndSelfTo<Logger>().AsSingle();
 ```
 
-This works because when the scene changes or your unity application is closed, the unity event OnDestroy() is called on all MonoBehaviours, including the SceneContext class, which then triggers Dispose() on all objects that are bound to `IDisposable`
+This works because when the scene changes or your unity application is closed, the unity event OnDestroy() is called on all MonoBehaviours, including the SceneContext class, which then triggers Dispose() on all objects that are bound to `IDisposable`.
+
+You can also implement the `ILateDisposable` interface which works similar to `ILateTickable` in that it will be called after all `IDisposable` objects have been triggered.  However, for most cases you're probably better off setting an explicit <a href="#update--initialization-order">execution order</a> instead if the order is an issue.
 
 ## <a id="all-interfaces-shortcuts"></a>BindInterfacesTo and BindInterfacesAndSelfTo
 
@@ -1263,23 +1267,26 @@ The usual workflow when setting up bindings using a DI framework is something li
 
 This works ok for small projects, but as the complexity of your project grows it is often a tedious process.  The problem gets worse if the startup time of your application is particularly bad, or when the exceptions only occur from factories at various points at runtime.  What would be great is some tool to analyze your object graph and tell you exactly where all the missing bindings are, without requiring the cost of firing up your whole app.
 
-You can do this in Zenject out-of-the-box by executing the menu item `Edit -> Zenject -> Validate Current Scene` or simply hitting CTRL+SHIFT+V with the scenes open that you want to validate.  This will execute all installers for the current scene, with the result being a fully bound container.   It will then iterate through the object graphs and verify that all bindings can be found (without actually instantiating any of them).  Under the hood, this works by storing dummy objects in the container in place of actually instantiating your classes
+You can do this in Zenject out-of-the-box by executing the menu item `Edit -> Zenject -> Validate Current Scene` or simply hitting CTRL+SHIFT+V with the scenes open that you want to validate.  This will execute all installers for the current scene, with the result being a fully bound container.   It will then iterate through the object graphs and verify that all bindings can be found (without actually instantiating any of them).  In other words, it executes a 'dry run' of the normal startup procedure.  Under the hood, this works by storing dummy objects in the container in place of actually instantiating your classes.
 
 Alternatively, you can execute the menu item `Edit -> Zenject -> Validate Then Run` or simply hitting CTRL+SHIFT+R.  This will validate the scenes you have open and then if validation succeeds, it will start play mode.  Validation is usually pretty fast so this can be a good alternative to always just hitting play, especially if your game has a costly startup time.
 
-**Under the hood**
+Note that this will also include factories and memory pools, which is especially helpful because those errors might not be caught until sometime after startup.
 
-In object validation mode Zenject makes a "dry run" i.e. instead of all dependencies null values get injected.
+There are a few things to be aware of:
 
-So there are a few things that are different from a regular run of game:
+- No actual logic code is executed, only install bindings is called.  This means that if you have logic inside installers other than bind commands that these will be executed as well and may cause issues with the validation
+- **null** values are injected into the dependencies that are actually instantiated (regardles of what was binded) such as installers.
 
-- No actual logic code is executed, only install bindings is called.
-- For each Factory `Validate()` is called (see [Factory](https://github.com/modesttree/Zenject/blob/master/Documentation/Factories.md) docs).
-- **null** values are injected in all dependencies(regardles of what was binded)
-
-You might want to inject some classes even in validation mode. In that case mark them with `[ZenjectAllowDuringValidation]`.
+You might want to inject some classes even in validation mode.  In that case you can mark them with `[ZenjectAllowDuringValidation]`.
 
 Also note that some validation behaviour is configurable in <a href="#zenjectsettings">zenjectsettings</a>
+
+**Custom validatables**
+
+If you want to add your own validation logic, you can do this simply by having one of your classes inherit from `IValidatable`.  After doing this, as long as your class is bound in an installer somewhere, it will be instantiated during validation and then its `Validate()` method will be called.  Note however that any dependencies it has will be injected as null (unless marked with `[ZenjectAllowDuringValidation]` attribute).
+
+Inside the Validate method you can throw exceptions if you want validation to fail, or you can just log information to the console.  One common thing that occurs in custom validatables is to instantiate types that would not otherwise be validated.  For exmaple, if you create a custom factory that directly instantiates a type using `Container.Instantiate<Foo>()`, then `Foo` will not be validated - however you can fix this by having your factory implement `IValidatable` and then calling `Container.Instantiate<Foo>()` inside the Validate() method.
 
 ## <a id="scene-bindings"></a>Scene Bindings
 
@@ -1405,10 +1412,10 @@ The `ZenjectBinding` component has the following properties:
     * If you have dynamically created objects that have an Update() method, it is usually best to call Update() on those manually, and often there is a higher level manager-like class in which it makes sense to do this from.  If however you prefer to use `ITickable` for dynamically objects you can declare a dependency to TickableManager and add/remove it explicitly as well.
 
 * **Using multiple constructors**
-    * Zenject does not support injecting into multiple constructors currently.  You can have multiple constructors however you must mark one of them with the [Inject] attribute so Zenject knows which one to use.
+    * You can have multiple constructors however you must mark one of them with the [Inject] attribute so Zenject knows which one to use.  If you have multiple constructors and none of them are marked with [Inject] then Zenject will guess that the intended constructor is the one with the least amount of arguments.
 
 * **Lazily instantiated objects and the object graph**
-    * Zenject does not immediately instantiate every object defined by the bindings that you've set up in your installers.  Instead, Zenject will construct some number of root-level objects, and then lazily instantiate the rest based on usage.  Root-level objects are any classes that are bound to IInitializable / ITickable / IDisposable, and any class that is declared in a binding that is marked `NonLazy()`.
+    * Zenject does not immediately instantiate every object defined by the bindings that you've set up in your installers.  It will only instantiate those bindings that are marked `NonLazy`.  All other bindings are only instantiated when they are needed.  All the NonLazy objects as well as all their dependencies form the 'initial object graph' of the application.  Note that this automatically includes all types that implement IInitializable, ITickable, IDisposabl, etc.   So if you have a binding that is not being created because nothing in the initial object graph references it, then you can make this explicit by adding `NonLazy` to your binding
 
 * <a id="bad-execution-order"></a>**The order that things occur in is wrong, like injection is occurring too late, or Initialize() event is not called at the right time, etc.**
     * It may be because the 'script execution order' of the Zenject classes 'ProjectContext' or 'SceneContext' is incorrect.  These classes should always have the earliest or near earliest execution order.  This should already be set by default (since this setting is included in the `cs.meta` files for these classes).  However if you are compiling Zenject yourself or have a unique configuration, you may want to make sure, which you can do by going to "Edit -> Project Settings -> Script Execution Order" and confirming that these classes are at the top, before the default time.
@@ -2689,13 +2696,93 @@ Container.Bind<Bar>().FromComponentInNewPrefab(MyPrefab).AsSingle("bar");
 
 Now two instances of the prefab will be created.
 
-## <a id="open-generic-types"></a>Open generic types
+## <a id="decorator-bindings"></a>Decorator Bindings
 
-TBD
+See <a href="Documentation/DecoratorBindings.md">here</a>.
+
+## <a id="open-generic-types"></a>Open Generic Types
+
+Zenject also has a feature that allow you to automatically fill in open generic arguments during injection.  For example:
+
+```csharp
+public class Bar<T>
+{
+    public int Value
+    {
+        get; set;
+    }
+}
+
+public class Foo
+{
+    public Foo(Bar<int> bar)
+    {
+    }
+}
+
+public class TestInstaller : MonoInstaller<TestInstaller>
+{
+    public override void InstallBindings()
+    {
+        Container.Bind(typeof(Bar<>)).AsSingle();
+        Container.Bind<Foo>().AsSingle().NonLazy();
+    }
+}
+```
+
+Note that when binding a type with open generic arguments, you must use the non generic version of the Bind() method.  As you can see in the example, when binding an open generic type, it will match whatever the injected parameter/field/property requires.  You can also bind one open generic type to another open generic type like this
+
+```csharp
+public interface IBar<T>
+{
+    int Value
+    {
+        get; set;
+    }
+}
+
+public class Bar<T> : IBar<T>
+{
+    public int Value
+    {
+        get; set;
+    }
+}
+
+public class Foo
+{
+    public Foo(IBar<int> bar)
+    {
+    }
+}
+
+public class TestInstaller : MonoInstaller<TestInstaller>
+{
+    public override void InstallBindings()
+    {
+        Container.Bind(typeof(IBar<>)).To(typeof(Bar<>)).AsSingle();
+        Container.Bind<Foo>().AsSingle().NonLazy();
+    }
+}
+```
+
+This can sometimes open up some interesting design possibilities so good to be aware of.
 
 ## <a id="destruction-order"></a>Notes About Destruction/Dispose Order
 
-TBD
+If you add bindings for classes that implement `IDisposable`, then you can control the order that they are disposed in by setting the <a href="#update--initialization-order">execution order</a>.  However this is not the case for GameObjects in the scene.
+
+Unity has a concept of "script execution order" however this value does not affect the order that OnDestroy is executed.  The root-level game objects might be destroyed in any order and this includes the SceneContext as well.
+
+One way to make this more predictable is to place everything underneath SceneContext.   For cases where a deterministic destruction order is needed this can be very helpful, because it will at least guarantee that the bound IDisposables get disposed of first before any of the game objects in the scene.  You can also toggle the setting on SceneContext "Parent New Objects Under Root" to automatically parent all dynamically instantiated objects under SceneContext as well.
+
+Another issue that can sometimes arise in terms of destruction order is the order that the scenes are unloaded in and also the order that the DontDestroyOnLoad objects (including ProjectContext) are unloaded in.
+
+Unfortunately, Unity does not guarantee a deterministic destruction order in this case either, and you will find that sometimes when exiting your application, the DontDestroyOnLoad objects are actually destroyed before the scenes, or you will find that a scene that was loaded first was also the first to be destroyed which is usually not what you want.
+
+If the scene destruction order is important to you, then you might consider also changing the ZenjectSetting `Ensure Deterministic Destruction Order On Application Quit` to true.  When this is set to true, this will cause all scenes to be forcefully destroyed during the OnApplicationQuit event, using a more sensible order than what unity does by default.  It will first destroy all scenes in the reverse order that they were loaded in (so that earlier loaded scenes are destroyed later) and will finish by destroying the DontDestroyOnLoad objects which include project context.
+
+The reason this setting is not set to true by default is because it can cause crashes on Android as discussed <a href="https://github.com/modesttree/Zenject/issues/301">here</a>.
 
 ## <a id="unirx-integration"></a>UniRx Integration
 
