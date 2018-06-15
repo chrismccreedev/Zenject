@@ -152,6 +152,8 @@ Also, if you prefer video documentation, see the [youtube series on zenject](htt
     * <a href="#using-outside-unity">Using Zenject Outside Unity Or For DLLs</a>
     * <a href="#zenjectsettings">Zenject Settings</a>
     * <a href="#signals">Signals</a>
+    * <a href="#open-generic-types">Open Generic Types</a>
+    * <a href="#destruction-order">Notes About Destruction/Dispose Order</a>
     * <a href="#unirx-integration">UniRx Integration</a>
     * <a href="#auto-mocking-using-moq">Auto-Mocking using Moq</a>
     * <a href="#editor-windows">Creating Unity EditorWindow's with Zenject</a>
@@ -446,7 +448,8 @@ Container.Bind&lt;<b>ContractType</b>&gt;()
     .WithArguments(<b>Arguments</b>)
     .When(<b>Condition</b>)
     .(<b>Copy</b>|<b>Move</b>)Into(<b>All</b>|<b>Direct</b>)SubContainers()
-    .NonLazy();
+    .NonLazy()
+    .IfNotBound();
 </pre>
 
 Where:
@@ -551,6 +554,8 @@ Container.Bind<Foo>().AsSingle().MoveIntoDirectSubContainers()
 
 * **NonLazy** = Normally, the **ResultType** is only ever instantiated when the binding is first used (aka "lazily").  However, when NonLazy is used, **ResultType** will immediately by created on startup.
 
+* **IfNotBound** = When this is added to a binding and there is already a binding with the given contract type + identifier, then this binding will be skipped.
+
 ## <a id="construction-methods"></a>Construction Methods
 
 1. **FromNew** - Create via the C# new operator. This is the default if no construction method is specified.
@@ -619,6 +624,52 @@ Container.Bind<Foo>().AsSingle().MoveIntoDirectSubContainers()
     }
 
     Container.Bind<Foo>().FromFactory<FooFactory>()
+    ```
+
+1. **FromIFactory** - Create instance using a custom factory class.  This is a more generic and more powerful alternative to FromFactory, because you can use any kind of construction method you want for your custom factory (unlike FromFactory which assumes `FromNew().AsCached()`)
+
+    For example, you could use a factory that is a scriptable object like this:
+
+    ```csharp
+    class FooFactory : ScriptableObject, IFactory<Foo>
+    {
+        public Foo Create()
+        {
+            // ...
+            return new Foo();
+        }
+    }
+
+    Container.Bind<Foo>().FromIFactory(x => x.To<FooFactory>().FromScriptableObjectResource("FooFactory")).AsSingle();
+    ```
+
+    Or, you might want to have your custom factory be placed in a subcontainer like this:
+
+    ```csharp
+    public class FooFactory : IFactory<Foo>
+    {
+        public Foo Create()
+        {
+            return new Foo();
+        }
+    }
+
+    public override void InstallBindings()
+    {
+        Container.Bind<Foo>().FromIFactory(x => x.To<FooFactory>().FromSubContainerResolve().ByMethod(InstallFooFactory)).AsSingle();
+    }
+
+    void InstallFooFactory(DiContainer subContainer)
+    {
+        subContainer.Bind<FooFactory>().AsSingle();
+    }
+    ```
+
+    Also note that the following two lines are equivalent:
+
+    ```csharp
+    Container.Bind<Foo>().FromFactory<FooFactory>().AsSingle();
+    Container.Bind<Foo>().FromIFactory(x => x.To<FooFactory>().AsCached()).AsSingle();
     ```
 
 1. **FromComponentInNewPrefab** - Instantiate the given prefab as a new game object, inject any MonoBehaviour's on it, and then search the result for type **ResultType**.
@@ -724,6 +775,14 @@ Container.Bind<Foo>().AsSingle().MoveIntoDirectSubContainers()
     **ResultType** must either be an interface or derive from UnityEngine.MonoBehaviour / UnityEngine.Component in this case
 
     Note that if a non-MonoBehaviour requests the given type, an exception will be thrown, since there is no current transform in that case.
+
+1. **FromNewComponentOnRoot** - Instantiate the given component on the root of the current context.  This is most often used with GameObjectContext.
+
+    ```csharp
+    Container.Bind<Foo>().FromNewComponentOnRoot();
+    ```
+
+    **ResultType** must derive from UnityEngine.MonoBehaviour / UnityEngine.Component in this case
 
 1. **FromResource** - Create by calling the Unity3d function `Resources.Load` for **ResultType**.  This can be used to load any type that `Resources.Load` can load, such as textures, sounds, prefabs, etc.
 
@@ -1198,6 +1257,8 @@ So there are a few things that are different from a regular run of game:
 - **null** values are injected in all dependencies(regardles of what was binded)
 
 You might want to inject some classes even in validation mode. In that case mark them with `[ZenjectAllowDuringValidation]`.
+
+Also note that some validation behaviour is configurable in <a href="#zenjectsettings">zenjectsettings</a>
 
 ## <a id="scene-bindings"></a>Scene Bindings
 
@@ -1692,7 +1753,23 @@ You can also use Zenject for non-unity projects by downloading `Zenject-NonUnity
 
 ## <a id="zenjectsettings"></a>Zenject Settings
 
-TBD
+A lot of the default behaviour in Zenject can be customized via a settings property on the ProjectContext.  This includes the following:
+
+- Validation Error Response - This value controls the behaviour that is triggered when zenject encounters a validation error.  It can be set to either 'Log' or 'Throw'.  The difference here is that when set to 'Log' there will be multiple validation errors printed every time validation is run, whereas if set to 'Throw' only the first validation error will be output to the console.  When unset the default value is 'Log'.  'Throw' is also sometimes useful if running validation inside unit tests.
+
+- Validation Root Resolve Method - When validation is triggered for a given scene, the DiContainer will do a 'dry run' and pretend to instantiate the entire object graph as defined by the installers in the scene.   However, by default it will only validate the 'roots' of the object graph - that is, the 'NonLazy' bindings or the bindings which are injected into the 'NonLazy' bindings.  As an option, you can change this behaviour to 'All' which will validate all bindings, even those that are not not used during startup.
+
+- Display Warning When Resolving During Install - This value will control whether a warning is issued to the console when either a Resolve or an Instantiate is triggered during the install phase which looks like this:
+
+```
+Zenject Warning: It is bad practice to call Inject/Resolve/Instantiate before all the Installers have completed!  This is important to ensure that all bindings have properly been installed in case they are needed when injecting/instantiating/resolving.  Detected when operating on type 'Steve1.TestInstaller+Foo'.
+```
+
+So if you often encounter this warning and are aware of the implications of what you're doing then you might set this value to false to suppress it.
+
+- Ensure Deterministic Destruction Order On Application Quit - When set to true, this will ensure that all GameObject's and IDisposables are destroyed in a predictable order when the application is closed.  By default it is set to false, because there are some undesirable implications to enabling this feature as described in <a href="#destruction-order">this section</a>.
+
+There are also settings for the signals system which are documented <a href="Documentation/Signals.md#settings">here</a>.
 
 ## <a id="signals"></a>Signals
 
@@ -2593,6 +2670,14 @@ Container.Bind<Bar>().FromComponentInNewPrefab(MyPrefab).AsSingle("bar");
 ```
 
 Now two instances of the prefab will be created.
+
+## <a id="open-generic-types"></a>Open generic types
+
+TBD
+
+## <a id="destruction-order"></a>Notes About Destruction/Dispose Order
+
+TBD
 
 ## <a id="unirx-integration"></a>UniRx Integration
 

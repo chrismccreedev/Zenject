@@ -14,6 +14,7 @@ NOTE: If you are upgrading from zenject 5.x and want to continue using that vers
 * Advanced
     * <a href="#use-with-subcontainers">Signals With Subcontainers</a>
     * <a href="#async-signals">Asynchronous Signals</a>
+    * <a href="#settings">Signal Settings</a>
 
 ## <a id="theory"></a>Motivation / Theory
 
@@ -242,7 +243,7 @@ Where:
 
 - **SignalType** - The custom class that represents the signal
 
-- **RequiredSubscriber**/**OptionalSubscriber**/**OptionalSubscriberWithWarning** - These values control how the signal should behave when it fired and yet there are no subscribers associated with it.  Unless it is over-ridden in <a href="../README.md#zenjectsettings">ZenjectSettings</a>, the default is OptionalSubscriber, which will do nothing in this case.  When RequiredSubscriber is set, exceptions will be thrown in the case of zero subscribers.  OptionalSubscriberWithWarning is half way in between where it will issue a console log warning instead of an exception.  Which one you choose depends on how strict you prefer your application to be, and whether it matters if the given signal is actually handled or not.
+- **RequiredSubscriber**/**OptionalSubscriber**/**OptionalSubscriberWithWarning** - These values control how the signal should behave when it fired and yet there are no subscribers associated with it.  Unless it is over-ridden in <a href="#settings">ZenjectSettings</a>, the default is OptionalSubscriber, which will do nothing in this case.  When RequiredSubscriber is set, exceptions will be thrown in the case of zero subscribers.  OptionalSubscriberWithWarning is half way in between where it will issue a console log warning instead of an exception.  Which one you choose depends on how strict you prefer your application to be, and whether it matters if the given signal is actually handled or not.
 
 - **RunAsync**/**RunSync** - These values control whether the signal is fired synchronously or asynchronously:
 
@@ -250,11 +251,11 @@ Where:
 
     RunAsync - This means that when a signal is fired, the subscribed methods will not be invoked until later in the frame.  Internally, the signal is added to queue inside SignalBus, which is emptied at the end of every frame.
 
-    Note that Unless It is over-ridden in <a href="../README.md#zenjectsettings">ZenjectSettings</a>, the default value is to run synchronously.   See <a href="">here</a> for a discussion of asynchronous signals and why you might sometimes want to use that instead.
+    Note that Unless It is over-ridden in <a href="#settings">ZenjectSettings</a>, the default value is to run synchronously.   See <a href="">here</a> for a discussion of asynchronous signals and why you might sometimes want to use that instead.
 
 * (**Copy**|**Move**)Into(**All**|**Direct**)SubContainers = Same as behaviour as described in <a href="../README.md#binding">main section on binding</a>.
 
-    Note that the default value for RunSync/RunAsync and RequiredSubscriber/OptionalSubscriber can be overridden by changing <a href="../README.md#zenjectsettings">ZenjectSettings</a>
+    Note that the default value for RunSync/RunAsync and RequiredSubscriber/OptionalSubscriber can be overridden by changing <a href="#settings">ZenjectSettings</a>
 
 ## <a id="firing"></a>Signal Firing
 
@@ -390,6 +391,14 @@ We are using `FromResolve` however we could use any kind of construction method 
 Container.BindSignal<UserJoinedSignal>().ToMethod<Greeter>(x => x.SayHello).From(x => x.FromResolve().AsCached());
 ```
 
+There is also another shortcut `FromNew` for cases where the handler classes is not accessed anywhere else in the container
+
+```csharp
+// These are both equivalent
+Container.BindSignal<UserJoinedSignal>().ToMethod<Greeter>(x => x.SayHello).FromNew();
+Container.BindSignal<UserJoinedSignal>().ToMethod<Greeter>(x => x.SayHello).From(x => x.AsCached());
+```
+
 So, if we didn't need the Greeter class to be injected anywhere else, we could have also implemented it as follows:
 
 ```csharp
@@ -461,4 +470,16 @@ This is not to say that asynchronous events are superious to synchronous events.
 If you use async events for an object delete signal, you might have events on the queue that assume the object still exists, so you 
 
 Fire and forget
+
+## <a id="settings"></a>Signal Settings
+
+Most of the default settings for signals can be overriden via a settings property that is on the ProjectContext.  It can also be configured on a per-container level by setting the `DiContainer.Settings` property.  For signals this includes the following:
+
+Default Sync Mode - This value controls the default value for the `DeclareSignal` property `RunSync`/`RunAsync` when it is left unspecified.  By default it is set to synchronous so will assume `RunSync` when unspecified by a call to `DeclareSignal`
+
+Missing Handler Default Response - This value controls the default value when **RequiredSubscriber**/**OptionalSubscriber**/**OptionalSubscriberWithWarning** is not specified for a call to `DeclareSignal`.  By default it is set to **OptionalSubscriber**.
+
+Require Strict Unsubscribe - When true, this will cause exceptions to be thrown if the scene ends and there are still signal handlers that have not yet unsubscribed yet.  By default it is false.
+
+Default Async Tick Priority - This value controls the default tick priority when `RunAsync` is used with `DeclareSignal` but `WithTickPriority` is left unset.  By default it is set to 1, which will cause the signal handlers to be invoked right after all the normal tickables have been called.  This default is chosen because it will ensure that the signal is handled in the same frame that it is triggered, which can be important if the signal affects how the frame is rendered.
 
