@@ -147,6 +147,7 @@ Also, if you prefer video documentation, see the [youtube series on zenject](htt
         * <a href="#dicontainer-methods-other">Other DiContainer methods</a>
     * <a href="#scenes-decorator">Scene Decorators</a>
     * <a href="#zenautoinjector">ZenAutoInjecter</a>
+    * <a href="#profiling">Profiling</a>
     * <a href="#sub-containers-and-facades">Sub-Containers And Facades</a>
     * <a href="#writing-tests">Writing Automated Unit Tests / Integration Tests</a>
     * <a href="#using-outside-unity">Using Zenject Outside Unity Or For DLLs</a>
@@ -1405,9 +1406,6 @@ The `ZenjectBinding` component has the following properties:
 
 * **Using multiple constructors**
     * Zenject does not support injecting into multiple constructors currently.  You can have multiple constructors however you must mark one of them with the [Inject] attribute so Zenject knows which one to use.
-
-* **Using Zenject outside of Unity**
-    * Zenject is primarily designed to work within Unity3D.  However, it can also be used as a general purpose DI framework outside of Unity3D.  Zenject has been used within ASP.NET MVC and WPF projects successfully.  In order to do this, you can get the DLL from the Releases section of the GitHub page, or build the solution yourself at `NonUnityBuild/Zenject.sln`
 
 * **Lazily instantiated objects and the object graph**
     * Zenject does not immediately instantiate every object defined by the bindings that you've set up in your installers.  Instead, Zenject will construct some number of root-level objects, and then lazily instantiate the rest based on usage.  Root-level objects are any classes that are bound to IInitializable / ITickable / IDisposable, and any class that is declared in a binding that is marked `NonLazy()`.
@@ -3014,6 +3012,10 @@ Complete examples (with source) using zenject:
 
     * [Modest 3D](http://www.modest3d.com/editor) (WebGL, WebPlayer, PC) - An IDE to allow users to quickly and easily create procedural training content
     * [Modest 3D Explorer](http://www.modest3d.com/explorer) (WebGL, WebPlayer, iOS, Android, PC, Windows Store) - A simple editor to quickly create a 3D presentation with some number of slides
+
+* **<a id="circular-dependency-error"></a>I keep getting errors complaining about circular reference!  How to address this?**
+
+If two classes are injected into each other and both classes use contructor injection, then obviously it is not possible for zenject to create both of these classes.  However, what you can do instead is switch to use method injection or field/property injection instead.  Or, alternatively, you could use the <a href="#just-in-time-resolve">Lazy<> construct</a>
 
 ## <a id="cheatsheet"></a>Cheat Sheet
 
