@@ -672,7 +672,7 @@ Container.Bind<Foo>().AsSingle().MoveIntoDirectSubContainers()
     Container.Bind<Foo>().FromIFactory(x => x.To<FooFactory>().AsCached()).AsSingle();
     ```
 
-1. **FromComponentInNewPrefab** - Instantiate the given prefab as a new game object, inject any MonoBehaviour's on it, and then search the result for type **ResultType**.
+1. **FromComponentInNewPrefab** - Instantiate the given prefab as a new game object, inject any MonoBehaviour's on it, and then search the result for type **ResultType** in a similar way that `GetComponentInChildren` works (in that it will return the first matching value found)
 
     ```csharp
     Container.Bind<Foo>().FromComponentInNewPrefab(somePrefab);
@@ -680,13 +680,17 @@ Container.Bind<Foo>().AsSingle().MoveIntoDirectSubContainers()
 
     **ResultType** must either be an interface or derive from UnityEngine.MonoBehaviour / UnityEngine.Component in this case
 
-1. **FromComponentInNewPrefabResource** - Instantiate the given prefab (found at the given resource path) as a new game object, inject any MonoBehaviour's on it, and then search the result for type **ResultType**.
+1. **FromComponentsInNewPrefab** - Same as FromComponentInNewPrefab except will match multiple values or zero values.  You might use it for example and then inject **List<ContractType>** somewhere.  Can be thought of as similar to `GetComponentsInChildren`
+
+1. **FromComponentInNewPrefabResource** - Instantiate the given prefab (found at the given resource path) as a new game object, inject any MonoBehaviour's on it, and then search the result for type **ResultType** in a similar way that `GetComponentInChildren` works (in that it will return the first matching value found)
 
     ```csharp
     Container.Bind<Foo>().FromComponentInNewPrefabResource("Some/Path/Foo");
     ```
 
     **ResultType** must either be an interface or derive from UnityEngine.MonoBehaviour / UnityEngine.Component in this case
+
+1. **FromComponentsInNewPrefabResource** - Same as FromComponentInNewPrefab except will match multiple values or zero values.  You might use it for example and then inject **List<ContractType>** somewhere.  Can be thought of as similar to `GetComponentsInChildren`
 
 1. **FromNewComponentOnNewGameObject** - Create a new empty game object and then instantiate a new component of the given type on it.
 
@@ -732,7 +736,7 @@ Container.Bind<Foo>().AsSingle().MoveIntoDirectSubContainers()
 
     Also note that if a non-MonoBehaviour requests the given type, an exception will be thrown, since there is no current transform in that case.
 
-1. **FromComponentInHierarchy** - Look up the component within the scene hierarchy associated with the current context, as well as the hierarchy associated with any parent contexts.
+1. **FromComponentInHierarchy** - Look up the component within the scene hierarchy associated with the current context, as well as the hierarchy associated with any parent contexts.  Works similar to `GetComponentInChildren` in that it will return the first matching value found
 
     ```csharp
     Container.Bind<Foo>().FromComponentInHierarchy();
@@ -746,6 +750,8 @@ Container.Bind<Foo>().AsSingle().MoveIntoDirectSubContainers()
 
     In the case where the context is ProjectContext, it will only search within the project context prefab
 
+1. **FromComponentsInHierarchy** - Same as FromComponentInHierarchy except will match multiple values or zero values.  You might use it for example and then inject **List<ContractType>** somewhere.  Can be thought of as similar to `GetComponentsInChildren`
+
 1. **FromComponentSibling** - Look up the given component type by searching over the components that are attached to the current transform.  The current transform here is taken from the object being injected, which must therefore be a MonoBehaviour derived type. 
 
     ```csharp
@@ -755,6 +761,8 @@ Container.Bind<Foo>().AsSingle().MoveIntoDirectSubContainers()
     **ResultType** must either be an interface or derive from UnityEngine.MonoBehaviour / UnityEngine.Component in this case
 
     Note that if a non-MonoBehaviour requests the given type, an exception will be thrown, since there is no current transform in that case.
+
+1. **FromComponentsSibling** - Same as FromComponentSibling except will match multiple values or zero values.
 
 1. **FromComponentInParents** - Look up the component by searching the current transform or any parent for the given component type.  The current transform here is taken from the object being injected, which must therefore be a MonoBehaviour derived type. 
 
@@ -766,7 +774,9 @@ Container.Bind<Foo>().AsSingle().MoveIntoDirectSubContainers()
 
     Note that if a non-MonoBehaviour requests the given type, an exception will be thrown, since there is no current transform in that case.
 
-1. **FromComponentInChildren** - Look up the component by searching the current transform or any child transform for the given component type.  The current transform here is taken from the object being injected, which must therefore be a MonoBehaviour derived type. 
+1. **FromComponentsInParents** - Same as FromComponentInParents except will match multiple values or zero values.  You might use it for example and then inject **List<ContractType>** somewhere
+
+1. **FromComponentInChildren** - Look up the component by searching the current transform or any child transform for the given component type.  The current transform here is taken from the object being injected, which must therefore be a MonoBehaviour derived type.   Similar to `GetComponentInChildren` in that it will return the first matching value found
 
     ```csharp
     Container.Bind<Foo>().FromComponentInChildren();
@@ -775,6 +785,8 @@ Container.Bind<Foo>().AsSingle().MoveIntoDirectSubContainers()
     **ResultType** must either be an interface or derive from UnityEngine.MonoBehaviour / UnityEngine.Component in this case
 
     Note that if a non-MonoBehaviour requests the given type, an exception will be thrown, since there is no current transform in that case.
+
+1. **FromComponentsInChildren** - Same as FromComponentInChildren except will match multiple values or zero values.  You might use it for example and then inject **List<ContractType>** somewhere.  Can be thought of as similar to `GetComponentsInChildren`
 
 1. **FromNewComponentOnRoot** - Instantiate the given component on the root of the current context.  This is most often used with GameObjectContext.
 
@@ -789,6 +801,8 @@ Container.Bind<Foo>().AsSingle().MoveIntoDirectSubContainers()
     ```csharp
     Container.Bind<Texture>().WithId("Glass").FromResource("Some/Path/Glass");
     ```
+
+1. **FromResources** - Same as FromResource except will match multiple values or zero values.  You might use it for example and then inject **List<ContractType>** somewhere
 
 1. **FromScriptableObjectResource** - Bind directly to the scriptable object instance at the given resource path.  NOTE:  Changes to this value while inside unity editor will be saved persistently.  If this is undesirable, use FromNewScriptableObjectResource.
 
@@ -821,6 +835,8 @@ Container.Bind<Foo>().AsSingle().MoveIntoDirectSubContainers()
     Container.Bind<IBar>().To<Foo>();
     ```
 
+1. **FromResolveAll** - Same as FromResolve except will match multiple values or zero values.
+
 1. **FromResolveGetter&lt;ObjectType&gt;** - Get instance from the property of another dependency which is obtained by doing another lookup on the container (in other words, calling `DiContainer.Resolve<ObjectType>()` and then accessing a value on the returned instance of type **ResultType**).  Note that for this to work, **ObjectType** must be bound in a separate bind statement.
 
     ```csharp
@@ -839,6 +855,8 @@ Container.Bind<Foo>().AsSingle().MoveIntoDirectSubContainers()
     Container.Bind<Foo>();
     Container.Bind<Bar>().FromResolveGetter<Foo>(x => x.GetBar());
     ```
+
+1. **FromResolveAllGetter&lt;ObjectType&gt;** - Same as FromResolveGetter except will match multiple values or zero values.
 
 1. **FromSubContainerResolve** - Get **ResultType** by doing a lookup on a subcontainer.  Note that for this to work, the sub-container must have a binding for **ResultType**.  This approach can be very powerful, because it allows you to group related dependencies together inside a mini-container, and then expose only certain classes (aka <a href="https://en.wikipedia.org/wiki/Facade_pattern">"Facades"</a>) to operate on this group of dependencies at a higher level.  For more details on using sub-containers, see <a href="#sub-containers-and-facades">this section</a>.  There are 4 different ways to define the subcontainer:
 
@@ -938,6 +956,8 @@ Container.Bind<Foo>().AsSingle().MoveIntoDirectSubContainers()
             }
         }
         ```
+
+1. **FromSubContainerResolveAll** - Same as FromSubContainerResolve except will match multiple values or zero values.
 
 Note also that the "scope" here (eg. FromCached, FromSingle, or FromTransient) refers to the sub container itself and not the dependency in the subcontainer. For FromSingle, the 'singleton' subcontainer is identified by the method in the case of ByMethod, the installer type in the case of ByInstaller, and the prefab in the case of ByNewPrefab or ByNewPrefabResource.
 
