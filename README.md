@@ -284,7 +284,7 @@ Other benefits include:
 * Encourages modular code - When using a DI framework you will naturally follow better design practices, because it forces you to think about the interfaces between classes.
 * Testability - Writing automated unit tests or user-driven tests becomes very easy, because it is just a matter of writing a different 'composition root' which wires up the dependencies in a different way.  Want to only test one subsystem?  Simply create a new composition root.  Zenject also has some support for avoiding code duplication in the composition root itself (using Installers - described below).
 
-Also see <a href="#isthisoverkill">here</a> and <a href="#zenject-philophy">here</a> for further justification for using a DI framework.
+Also see <a href="#isthisoverkill">here</a> and <a href="#zenject-philophy">here</a> for further discussion and justification for using a DI framework.
 
 ## <a id="hello-world-example"></a>Hello World Example
 
@@ -315,16 +315,16 @@ You can run this example by doing the following:
 
 * Create a new scene in Unity
 * Right Click inside the Hierarchy tab and select `Zenject -> Scene Context`
-* Right Click in a folder within the Project Tab and Choose `Create -> Zenject -> MonoInstaller`.  Name it TestInstaller.cs.  (Note that you can also just directly create this file too without using this template).
+* Right Click in a folder within the Project Tab and Choose `Create -> Zenject -> MonoInstaller`.  Name it TestInstaller.cs
 * Add your TestInstaller script to the scene (as its own GameObject or on the same GameObject as the SceneContext, it doesn't matter)
-* Add a reference to your TestInstaller to the properties of the SceneContext by adding a new row in the inspector of the "Installers" property (press the + button) and then dragging the TestInstaller GameObject to it
+* Add a reference to your TestInstaller to the properties of the SceneContext by adding a new row in the inspector of the "Installers" property (press the + button) and then dragging TestInstaller to it
 * Open up TestInstaller and paste the above code into it
 * Validate your scene by either selecting Edit -> Zenject -> Validate Current Scene or hitting CTRL+ALT+V.  (note that this step isn't necessary but good practice to get into)
 * Run
 * Note also, that you can use the shortcut CTRL+SHIFT+R to "validate then run".  Validation is usually fast enough that this does not add a noticeable overhead to running your game, and when it does detect errors it is much faster to iterate on since you avoid the startup time.
 * Observe unity console for output
 
-The SceneContext MonoBehaviour is the entry point of the application, where Zenject sets up all the various dependencies before kicking off your scene.  To add content to your Zenject scene, you need to write what is referred to in Zenject as an 'Installer', which declares all the dependencies used in your scene and their relationships with each other.  All dependencies that are marked as "NonLazy" are automatically created at this point, which is why the Greeter class that we added above gets created on startup.  If the above doesn't make sense to you yet, keep reading!
+The SceneContext MonoBehaviour is the entry point of the application, where Zenject sets up all the various dependencies before kicking off your scene.  To add content to your Zenject scene, you need to write what is referred to in Zenject as an 'Installer', which declares all the dependencies and their relationships with each other.  All dependencies that are marked as "NonLazy" are automatically created after the installers are run, which is why the Greeter class that we added above gets created on startup.  If this doesn't make sense to you yet, keep reading!
 
 ## <a id="injection"></a>Injection
 
@@ -391,25 +391,21 @@ public class Foo
 
 Method Inject injection works very similarly to constructor injection.
 
-Note that inject methods are called after all other injection types.  It is designed this way so that these methods can be used to execute initialization logic which might make use of one of these dependencies.  Note also that you can leave the parameter list empty if you just want to do some initialization logic only.
+Note the following:
 
-Note that there can be any number of inject methods.  In this case, they are called in the order of Base class to Derived class.  This can be useful to avoid the need to forward many dependencies from derived classes to the base class via constructor parameters, while also guaranteeing that the base class inject methods complete first, just like how constructors work.
-
-Note that the dependencies that you receive via inject methods should themselves have already been injected (the only exception to this is in the case where you have circular dependencies).  This can be important if you use inject methods to perform some basic initialization, since you may need the given dependencies to themselves be initialized via their Inject methods.
-
-Using [Inject] methods to inject dependencies is the recommended approach for MonoBehaviours, since MonoBehaviours cannot have constructors.
-
-Also note that you can define your inject methods to have return type IEnumerator.  In this case, they will be started as a coroutine.  In the case where the object is a MonoBehaviour, it will be started as a coroutine on itself, and otherwise it will use the "Context" MonoBehaviour that the object is in (that is, either ProjectContext, SceneContext or GameObjectContext)
-
-Note however that we would recommend minimizing the initialization logic in [Inject] methods however.  You can use Start() or Awake() to have initialization logic instead (this should work for both dynamically instantiated prefabs and objects added to the scene during edit time).
+- Inject methods are the recommended approach for MonoBehaviours, since MonoBehaviours cannot have constructors.
+- There can be any number of inject methods.  In this case, they are called in the order of Base class to Derived class.  This can be useful to avoid the need to forward many dependencies from derived classes to the base class via constructor parameters, while also guaranteeing that the base class inject methods complete first, just like how constructors work.
+- Inject methods are are called after all other injection types.  It is designed this way so that these methods can be used to execute initialization logic which might make use of injected fields or properties.  Note also that you can leave the parameter list empty if you just want to do some initialization logic only.
+- You can safely assume that the dependencies that you receive via inject methods will themselves already have been injected (the only exception to this is in the case where you have circular dependencies).  This can be important if you use inject methods to perform some basic initialization, since in that case you may need the given dependencies to be initialized as well
+- Note however that it is usually not a good idea to use inject methods for initialization logic.  Often it is better to use IInitializable.Initialize or Start() methods instead, since this will allow the entire initial object graph to be created first.
 
 **Recommendations**
 
-Best practice is to prefer constructor injection or method injection to field or property injection.
+Best practice is to prefer constructor/method injection compared to field/property injection.
 * Constructor injection forces the dependency to only be resolved once, at class creation, which is usually what you want.  In most cases you don't want to expose a public property for your initial dependencies because this suggests that it's open to changing.
-* Constructor injection guarantees no circular dependencies between classes, which is generally a bad thing to do.  You can do this however using method injection or field injection if necessary.
+* Constructor injection guarantees no circular dependencies between classes, which is generally a bad thing to do.  Zenject does allow circular dependencies when using other injections types however such as method/field/property injection
 * Constructor/Method injection is more portable for cases where you decide to re-use the code without a DI framework such as Zenject.  You can do the same with public properties but it's more error prone (it's easier to forget to initialize one field and leave the object in an invalid state)
-* Finally, Constructor/Method injection makes it clear what all the dependencies of a class are when another programmer is reading the code.  They can simply look at the parameter list of the method.  This is also good because it will be more obvious when a class has too many dependencies and should therefore be split up (since it's constructor parameter list will start to seem long)
+* Finally, Constructor/Method injection makes it clear what all the dependencies of a class are when another programmer is reading the code.  They can simply look at the parameter list of the method.  This is also good because it will be more obvious when a class has too many dependencies and should therefore be split up (since its constructor parameter list will start to seem long)
 
 ## <a id="binding"></a>Binding
 
@@ -2804,7 +2800,7 @@ The reason this setting is not set to true by default is because it can cause cr
 
 Zenject integration with UniRx is disabled by default.  To enable, you must add the define `ZEN_SIGNALS_ADD_UNIRX` to your project, which you can do by selecting Edit -> Project Settings -> Player and then adding `ZEN_SIGNALS_ADD_UNIRX` in the "Scripting Define Symbols" section
 
-With `ZEN_SIGNALS_ADD_UNIRX` enabled, you can observe zenject signals via UniRx streams as explained here, and you can also observe zenject events such as Tick, LateTick, Dispose, etc. by using the `ZenjectStreams` class.  One example usage for this class is to ensure that certain events are only handled a maximum of once per frame:
+With `ZEN_SIGNALS_ADD_UNIRX` enabled, you can observe zenject signals via UniRx streams as explained here, and you can also observe zenject events such as Tick, LateTick, and FixedTick etc. on the `TickableManager` class.  One example usage for this class is to ensure that certain events are only handled a maximum of once per frame:
 
 ```csharp
 public class User
@@ -2836,21 +2832,21 @@ public class UserManager
 
 public class UserDisplayWindow : IInitializable, IDisposable
 {
-    readonly ZenjectStreams _zenjectStreams;
+    readonly TickableManager _tickManager;
     readonly CompositeDisposable _disposables = new CompositeDisposable();
     readonly UserManager _userManager;
 
     public UserDisplayWindow(
         UserManager userManager,
-        ZenjectStreams zenjectStreams)
+        TickableManager tickManager)
     {
-        _zenjectStreams = zenjectStreams;
+        _tickManager = tickManager;
         _userManager = userManager;
     }
 
     public void Initialize()
     {
-        _userManager.UserAddedStream.Sample(_zenjectStreams.TickStream)
+        _userManager.UserAddedStream.Sample(_tickManager.TickStream)
             .Subscribe(x => SortView()).AddTo(_disposables);
     }
 
@@ -2867,8 +2863,6 @@ public class UserDisplayWindow : IInitializable, IDisposable
 ```
 
 In this case we have some costly operation that we want to run every time some data changes (in this case, sorting), and all it does is affect how something is rendered (in this case, a displayed list of user names).  We could implement ITickable and then set a boolean flag every time the data changes, then perform the update inside Tick(), but this isn't really the reactive way of doing things, so we use Sample() instead.
-
-All the other Zenject events are exposed via the ZenjectStreams class for other kinds of UniRx situations as well.
 
 ## <a id="auto-mocking-using-moq"></a>Auto-Mocking using Moq
 
