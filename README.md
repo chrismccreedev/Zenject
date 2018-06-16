@@ -5,13 +5,11 @@
 
 [![Join the chat at https://gitter.im/Zenject/Lobby](https://badges.gitter.im/Zenject/Lobby.svg)](https://gitter.im/Zenject/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-If you are looking for the older documentation for Zenject 3.X click <a href="https://github.com/modesttree/Zenject/tree/f0dd30ad451dcbc3eb17e636455a6c89b14ad537">here</a> and for 4.x click <a href="https://github.com/modesttree/Zenject/tree/0b4a15b1e6e680c94fd34a2d7420eb41e320b21b">here</a>.
+If you are looking for the older documentation for Zenject you can find that here:  <a href="https://github.com/modesttree/Zenject/tree/f0dd30ad451dcbc3eb17e636455a6c89b14ad537">Zenject 3.x</a>, <a href="https://github.com/modesttree/Zenject/tree/0b4a15b1e6e680c94fd34a2d7420eb41e320b21b">Zenject 4.x</a>, <a href="https://github.com/modesttree/Zenject/tree/dc019e31dbae09eb53c1638be00f7f002898956c">Zenject 5.x</a>
 
-Many hours have gone into the creation of this framework and many more will go to continue maintaining it.  If you or your team have found it useful, consider <a href="http://svermeulen.github.io/DonateToZenject.html">buying me a coffee</a>!  Every donation makes me significantly more likely to find time for it.  Also, anyone who donates will get priority support.
+Many hours have gone into the creation of this framework and many more will go to continue maintaining it.  If you or your team have found it useful, consider <a href="http://svermeulen.github.io/DonateToZenject.html">buying me a coffee</a>!  Every donation makes me significantly more likely to find time for it
 
 <a href="http://svermeulen.github.io/DonateToZenject.html"><img src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif" alt="Buy me a coffee!"/></a>
-
-Also, if you like Zenject, you may also be interested in [Projeny](https://github.com/modesttree/projeny) (our other open source project)
 
 ## <a id="introduction"></a>Introduction
 
@@ -21,7 +19,6 @@ Tested in Unity 3D on the following platforms:
 * PC/Mac/Linux
 * iOS
 * Android
-* Webplayer
 * WebGL
 * PS4 (with IL2CPP backend)
 * Windows Store (including 8.1, Phone 8.1, Universal 8.1 and Universal 10 - both .NET and IL2CPP backend)
