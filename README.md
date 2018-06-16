@@ -161,6 +161,7 @@ Also, if you prefer video documentation, see the [youtube series on zenject](htt
     * <a href="#auto-mocking-using-moq">Auto-Mocking using Moq</a>
     * <a href="#editor-windows">Creating Unity EditorWindow's with Zenject</a>
     * <a href="#optimization_notes">Optimization Notes</a>
+    * <a href="#upgrading-from-zenject5">Upgrade Guide for Zenject 6</a>
 * <a href="#questions">Frequently Asked Questions</a>
     * <a href="#isthisoverkill">Isn't this overkill?  I mean, is using statically accessible singletons really that bad?</a>
     * <a href="#aot-support">Does this work on AOT platforms such as iOS and WebGL?</a>
@@ -2958,6 +2959,67 @@ Zenject should also produce zero per-frame heap allocations.
 If performance is really important, then we recommend that you use memory pools (and also specify an initial size) and also cache reflection by calling `Zenject.TypeAnalyzer.GetInfo`.  By doing this, you should be able to restrict all the costly operations to the initialization time and avoid any performance issues once your game starts.
 
 You can also get minor gains in speed and minor reductions in memory allocations by defining `ZEN_STRIP_ASSERTS_IN_BUILDS` in build settings.  This will cause all asserts to be stripped out of builds.  However, note that debugging any zenject related errors within builds will be made significantly more difficult by doing this.
+
+## <a id="upgrading-from-zenject5"></a>Upgrade Guide for Zenject 6
+
+The biggest backwards-incompatible change in Zenject 6 is that the signals system was re-written from scratch and works quite differently now.  However - if you want to continue using the previous signals implementation you can get a zenject-6-compatible version of that <a href="https://github.com/svermeulen/ZenjectSignalsOld">here</a>. So to use that, just import zenject 6 and make sure to uncheck the `OptionalExtras/Signals` folder, and then add the ZenjectSignalsOld folder to your project from that link.
+
+Another backwards-incompatible change in zenject 6 is that AsSingle can no longer be used across multiple bind statements when mapping to the same instance.  In Zenject 5.x and earlier, you could do the following:
+
+```csharp
+public interface IFoo
+{
+}
+
+public class Foo : IFoo
+{
+}
+
+public void InstallBindings()
+{
+    Container.Bind<Foo>().AsSingle();
+    Container.Bind<IFoo>().To<Foo>().AsSingle();
+}
+```
+
+However, if you attempt this in Zenject 6, you will get runtime errors.  The zenject 6 way of doing this is now this:
+
+```csharp
+public void InstallBindings()
+{
+    Container.Bind(typeof(Foo), typeof(IFoo)).To<Foo>().AsSingle();
+}
+```
+
+Or, alternatively you could do it this way as well:
+
+```csharp
+public void InstallBindings()
+{
+    Container.Bind<Foo>().AsSingle();
+    Container.Bind<IFoo>().To<Foo>().FromResolve();
+}
+```
+
+The reason this was changed was because supporting the previous way of using AsSingle had large implementation costs and was unnecessary given these other ways of doing things.
+
+Another change that may cause issues is that for every binding that is a lookup there is both a plural form and a non plural form.  This includes the following:
+
+- FromResource / FromResources
+- FromResolve / FromResolveAll
+- FromComponentInNewPrefab / FromComponentsInNewPrefab
+- FromComponentInNewPrefabResource / FromComponentsInNewPrefabResource
+- FromComponentInHierarchy / FromComponentsInHierarchy
+- FromComponentSibling / FromComponentsSibling
+- FromComponentInParents / FromComponentsInParents
+- FromComponentInChildren / FromComponentsInChildren
+
+So if you were previously using one of these methods to match multiple values you will have to change to use the plural version instead.
+
+There were also a few things that were renamed:
+
+- `Factory<>` is now called `PlaceholderFactory<>` (in this case you should just get warnings about it however)
+- BindFactoryContract is now called BindFactoryCustomInterface.  BindMemoryPool has a similar method called BindMemoryPoolCustomInterface
 
 ## <a id="questions"></a>Frequently Asked Questions
 
