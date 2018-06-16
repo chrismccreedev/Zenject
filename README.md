@@ -73,7 +73,9 @@ You can install Zenject using any of the following methods
 1. From Source
 
     * After syncing the git repo, note that you will have to build the `Zenject-Usage.dll` by building the solution at `AssemblyBuild\Zenject-usage\Zenject-usage.sln`.  Or, if you prefer you can get `Zenject-Usage.dll` from Releases section instead
-    * Then you can copy the `UnityProject/Assets/Plugins/Zenject` directory to your own Unity3D project.  In this case, make note of the folders underneath "OptionalExtras" and choose only the ones you want.
+    * Then you can copy the `UnityProject/Assets/Plugins/Zenject` directory to your own Unity3D project.
+
+Note that for when importing Zenject into your unity project, you can uncheck any folder underneath the OptionalExtras folder for cases where you don't want to include it, or if you just want the core zenject functionality, you can uncheck the entire OptionalExtras directory.
 
 ## <a id="history"></a>History
 
@@ -2037,6 +2039,16 @@ Note that you do not need to load the environment scene and the ship scene at th
 Also note that the Validate command can be used to quickly verify the different multi-scene setups.  If you find that scenes are unloaded when you do this see <a href="https://github.com/modesttree/Zenject/issues/168">here</a>.
 
 Also, I should mention that Unity currently doesn't have a built-in way to save and restore multi-scene setups.  We use a simple editor script for this that you can find <a href="https://gist.github.com/svermeulen/8927b29b2bfab4e84c950b6788b0c677">here</a> if interested.
+
+## <a id="default-scene-parents"></a>Default Scene Parents
+
+One drawback to using scene parent contract names instead of ProjectContext to add bindings shared across scenes, is that you always have to remember to configure the scene hierarchy inside Unity to contain the correct scenes before running it.  You can't simply open different scenes and hit Play like you can with ProjectContext.  So to address this, zenject allows specifying a default value for the different contract names in cases where an existing value is not already loaded.
+
+To take our example from <a href="#scene-parenting">above</a>, we'd like to be able to open Ship scene and immediately hit play without needing to place an environment scene above that first.  To do this, right click in your Projects tab and select `Create -> Zenject -> Default Scene Contract Config`.  Note that you will have to do this by right clicking on a folder named Resources for this to work.
+
+After adding this you can click on the `ZenjectDefaultSceneContractConfig` object and add any number of defaults by typing in contract names and then dragging in scene files from the Project tab into the Scene property.  After doing this, you should be able to directly run the Ship scene and the default environment scene will automatically be loaded above that.
+
+Note that this is an editor only feature.  The default contract names will not be used in builds.  In those cases you will have to explicitly load the correct parent scenes yourself in code.
 
 ## <a id="zenautoinjector"></a>ZenAutoInjecter
 

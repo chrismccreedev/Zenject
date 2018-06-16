@@ -9,7 +9,9 @@ NOTE: If you are upgrading from zenject 5.x and want to continue using that vers
     * <a href="#theory">Theory</a>
     * <a href="#quick-start">Signals Quick Start</a>
     * <a href="#declaration">Signals Declaration</a>
+    * <a href="#declaration-syntax">Declaration Binding Syntax</a>
     * <a href="#firing">Signal Firing</a>
+    * <a href="#signalbusinstaller">SignalBusInstaller</a>
     * <a href="#when-to-use-signals">When To Use Signals</a>
 * Advanced
     * <a href="#use-with-subcontainers">Signals With Subcontainers</a>
@@ -73,7 +75,7 @@ public class GameInstaller : MonoInstaller<GameInstaller>
 {
     public override void InstallBindings()
     {
-        SignalRootInstaller.Install(Container);
+        SignalBusInstaller.Install(Container);
 
         Container.DeclareSignal<UserJoinedSignal>();
 
@@ -126,7 +128,7 @@ public class GameInstaller : MonoInstaller<GameInstaller>
 {
     public override void InstallBindings()
     {
-        SignalRootInstaller.Install(Container);
+        SignalBusInstaller.Install(Container);
 
         Container.DeclareSignal<UserJoinedSignal>();
 
@@ -230,12 +232,15 @@ public override void InstallBindings()
 }
 ```
 
+## <a id="declaration-syntax"></a>Declaration Binding Syntax
+
 The format of the DeclareSignal statement is the following:
 
 <pre>
 Container.DeclareSignal&lt;<b>SignalType</b>&gt;()
     .<b>(RequiredSubscriber|OptionalSubscriber|OptionalSubscriberWithWarning)</b>()
     .<b>(RunAsync|RunSync)</b>()
+    .WithTickPriority(<b>TickPriority</b>)
     .(<b>Copy</b>|<b>Move</b>)Into(<b>All</b>|<b>Direct</b>)SubContainers();
 </pre>
 
@@ -252,6 +257,8 @@ Where:
     RunAsync - This means that when a signal is fired, the subscribed methods will not be invoked until later in the frame.  Internally, the signal is added to queue inside SignalBus, which is emptied at the end of every frame.
 
     Note that Unless It is over-ridden in <a href="#settings">ZenjectSettings</a>, the default value is to run synchronously.   See <a href="">here</a> for a discussion of asynchronous signals and why you might sometimes want to use that instead.
+
+* **TickPriority** = The tick priority to execute the signal handler methods at.  Note that this is only applicable when using RunAsync.
 
 * (**Copy**|**Move**)Into(**All**|**Direct**)SubContainers = Same as behaviour as described in <a href="../README.md#binding">main section on binding</a>.
 
@@ -436,6 +443,12 @@ Container.Bind<Greeter>().AsSingle();
 Container.BindSignal<UserJoinedSignal>().ToMethod<Greeter>((x, s) => x.SayHello(s.Username)).FromResolve()
 ```
 
+## <a id="signalbusinstaller"></a>SignalBusInstaller
+
+The zenject signal functionality is optional.  When importing zenject, if you do not want to include signals you can simply uncheck the `OptionalExtras/Signals` folder.  As a result of this, signals are not enabled automatically, so you have to explicitly install them yourself by calling `SignalBusInstaller.Install(Container)` in one of your installers.
+
+You could either do this just one time in a ProjectContext installer, or you could do this in each scene in a SceneContext installer.  Note that you only need to do this once, and then you can use signals in the container that you pass to SignalBusInstaller, as well as any subcontainers, which is why if you install to ProjectContext you do not need to install to SceneContext.
+
 ## <a id="when-to-use-signals"></a>When To Use Signals
 
 Signals are most appropriate as a communication mechanism when:
@@ -446,6 +459,8 @@ Signals are most appropriate as a communication mechanism when:
 4. The sender triggers the signal infrequently or at unpredictable times
 
 These are just rules of thumb, but useful to keep in mind when using signals.  The less logically coupled the sender is to the response behaviour of the receivers, the more appropriate it is compared to other forms of communication such as direct method calls, interfaces, C# event class members, etc.  This is also one reason you might consider using <a href="#async-vs-sync-signals">asynchronous signals</a>
+
+When event driven program is abused, it is possible to find yourself in "callback hell" where events are triggering other events etc. and which make the entire system impossible to understand.  So signals in general should be used with caution.  Personally I like to use signals for high level game-wide events and then use other forms of communication (unirx streams, c# events, direct method calls, interfaces) for most other things.
 
 ## <a id="use-with-subcontainers"></a>Signals With Subcontainers
 
@@ -468,8 +483,6 @@ This is not to say that asynchronous signals are superious to synchronous signal
 2. Some parts of the state can be out of sync with each other.   If a class A fires an async signal that requires a response from class B, then there will be some period between when the signal was fired and the handler method in class B was invoked, where B is out of sync with A, which can lead to some bugs.
 
 3. The overall system might be more complex than when using synchronous signals and therefore harder to understand.
-
-In both cases it is possible to find yourself in "callback hell" where signals are triggering other signals etc. and which make the entire system impossible to understand.  So signals in general should be used with caution for a narrow set of use cases.
 
 ## <a id="settings"></a>Signal Settings
 
