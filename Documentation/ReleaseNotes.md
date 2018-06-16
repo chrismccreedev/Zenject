@@ -1,7 +1,7 @@
 
 # <a id="release-notes"></a>Release Notes
 
-## Version 6.0 (June 4, 2018)
+## Version 6.0 (June 16, 2018)
 
 Large release with lots of new features, bug fixes, and performance improvements.  Some API changes to be aware of before upgrading.  See the <a href="../README.md#upgrading-from-zenject5">upgrade guide</a> for details
 
@@ -12,6 +12,7 @@ Significant:
 - Removed ability to use AsSingle with the same type across multiple bind statements.  If you want to map multiple contracts to the same AsSingle, you need to include multiple types in the Bind(..) or use FromResolve
 - Renamed Factory<> to PlaceholderFactory<>
 - Changed behaviour during OnApplicationQuit to not forcefully destroy all scenes and their contents.  This was added previously to force a reasonable destruction order, however it breaks things on android so was turned off by default.  However it can be re-enabled via ZenjectSettings for people that need a predictable destruction order
+- Changed validate keyboard shortcut from CTRL+SHIFT+V to CTRL+ALT+V to avoid conflict with Vuforia
 
 Notable:
 - Performance improvements - in some cases doubling the startup speed.  Also allocates a lot less garbage now by using memory pools internally
@@ -21,26 +22,23 @@ Notable:
 - Added new type of Test Fixture called SceneTestFixture to run tests on a given production scene
 - Added ability to use [Inject], IInitializable, etc. from within custom user DLLs by referencing Zenject-Usage.dll
 - Added ability to add user supplied validation logic by deriving from IValidatable
-- Also added a way to set global zenject settings to control things like validation behaviour, error output, etc.
+- Also added a way to set global zenject settings to control things like validation behaviour, error output, etc. through the ProjectContext inspector
 - Changed to use System.Lazy instead of Zenject.Lazy if building with .NET 4.6+
 - Fixed to automatically inject StateMachineBehaviour derived classes attached to Animator components
-- Misc. bug fixes
 - Changed the default value for includeInactive parameter to FromComponentX methods to be true, since this is very important when instantiating prefabs and therefore makes more sense as a default
 - Fixed some issues related to binding open generic types
 - Added documentation for ZenAutoInjecter to allow injection to occur when using GameObject.Instantiate
-- Exposed a collection of ZenjectSettings on ProjectContext to change default zenject behaviour
 - Added debugging window to monitor all active memory pools (aka Memory Pool Monitor Window)
 - Changed MonoMemoryPool to automatically revert to the original parents during despawn
 - Changed to automatically add profiling information for ITickable.Tick, IInitializable.Initialize, IDisposable.Dispose methods, when inside the unity editor and when the unity profiler is open.  This now functions similar to MonoBehaviours in that these methods will automatically be listed in Profiler.
+- Bind methods that involve a lookup now have a plural and non-plural versions (this includes FromComponentInChildren, FromComponentInParents, FromComponentSibling, FromComponentInNewPrefab, FromResource, FromResolveAll, and FromSubContainerResolveAll)
+- Misc. bug fixes
 
 Minor:
 - Updated the sample projects to use more modern techniques
 - Added missing bind methods to Container.Bind such as ByNewPrefabMethod, ByNewPrefabInstaller, ByNewPrefaResourceInstaller, and ByNewPrefabResourceMethod
-- Added FromComponentsInChildren bind method in addition to FromComponentInChildren (note the plural) and similarly for FromComponentInParents, FromComponentSibling, FromComponentInNewPrefab, and FromResource
 - Added events on SceneContext, GameObjectContext, and ProjectContext to hook into post-install / pre-install events
-- Changed validate keyboard shortcut from CTRL+SHIFT+V to CTRL+ALT+V to avoid conflict with Vuforia
 - Standardized the naming of the bind methods for custom interfaces for factories and memory pools.  BindFactoryContract was renamed to BindFactoryCustomInterface and the overload of BindMemoryPool taking a custom interface was renamed BindMemoryPoolCustomInterface
-- Added FromResolveAll, FromResolveAllGetter, and FromSubContainerResolveAll bind methods to make it explicit when you intend to match multiple dependencies (without the All it's assumed to just be one)
 - Added optional InjectSources argument for FromResolve and FromResolveGetter bind methods
 - Changed ZenjectEditorWindow to handle failures better
 - Added DisposeBlock class to make it easier to avoid unnecessary per frame memory allocations

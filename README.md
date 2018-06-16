@@ -35,7 +35,7 @@ Or, if you have found a bug, you are also welcome to create an issue on the [git
 
 * Injection
     * Supports both normal C# classes and MonoBehaviours
-    * Constructor injection (can tag constructor if there are multiple)
+    * Constructor injection
     * Field injection
     * Property injection
     * Method injection
@@ -51,6 +51,9 @@ Or, if you have found a bug, you are also welcome to create an issue on the [git
 * Automatic binding on components in the scene using the `ZenjectBinding` component
 * Auto-Mocking using the Moq library
 * Built-in support for memory pools
+* Support for decorator pattern using decorator bindings
+* Support for automatically mapping open generic types
+* Built in support for unit test, integration tests, and scene tests
 * Just-in-time resolving using the Lazy<> construct
 
 ## <a id="installation"></a>Installation
@@ -61,7 +64,7 @@ You can install Zenject using any of the following methods
 
     * **Zenject-WithAsteroidsDemo.vX.X.unitypackage** - This is equivalent to what you find in the Asset Store and contains both sample games "Asteroids" and "SpaceFighter" as part of the package.  All the source code for Zenject is included here.
     * **Zenject.vX.X.unitypackage** - Same as above except without the Sample projects.
-    * **Zenject-NonUnity.vX.X.zip** - Use this if you want to use Zenject outside of Unity (eg. just as a normal C# project)
+    * **Zenject-NonUnity.vX.X.zip** - Use this if you want to <a href="#using-outside-unity">use Zenject outside of Unity</a> (eg. just as a normal C# project)
 
 1. From the [Asset Store Page](http://u3d.as/content/modest-tree-media/zenject-dependency-injection/7ER)
 
@@ -72,13 +75,13 @@ You can install Zenject using any of the following methods
     * After syncing the git repo, note that you will have to build the `Zenject-Usage.dll` by building the solution at `AssemblyBuild\Zenject-usage\Zenject-usage.sln`.  Or, if you prefer you can get `Zenject-Usage.dll` from Releases section instead
     * Then you can copy the `UnityProject/Assets/Plugins/Zenject` directory to your own Unity3D project.
 
-Note that for when importing Zenject into your unity project, you can uncheck any folder underneath the OptionalExtras folder for cases where you don't want to include it, or if you just want the core zenject functionality, you can uncheck the entire OptionalExtras directory.
+Note that when importing Zenject into your unity project, you can uncheck any folder underneath the OptionalExtras folder for cases where you don't want to include it, or if you just want the core zenject functionality, you can uncheck the entire OptionalExtras directory.
 
 ## <a id="history"></a>History
 
 Unity is a fantastic game engine, however the approach that new developers are encouraged to take does not lend itself well to writing large, flexible, or scalable code bases.  In particular, the default way that Unity manages dependencies between different game components can often be awkward and error prone.
 
-This project was started because at the time there wasn't any DI frameworks for Unity, and having used DI frameworks outside of Unity and seeing the benefits, I felt it was important to remedy that.  The only thing google produced at the time was a <a href="http://blog.sebaslab.com/ioc-container-for-unity3d-part-1/">series of articles</a> by Sebastiano Mandalà explaining the problem.  Sebastiano even wrote a proof of concept DI framework and open sourced it, which became the basis for this library.  Zenject also takes a lot of inspiration from Ninject (as implied by the name).
+This project was started because at the time there wasn't any DI frameworks for Unity, and having used DI frameworks outside of Unity (eg. Ninject) and seeing the benefits, I felt it was important to remedy that.
 
 Finally, I will just say that if you don't have experience with DI frameworks, and are writing object oriented code, then trust me, you will thank me later!  Once you learn how to write properly loosely coupled code using DI, there is simply no going back.
 
@@ -88,11 +91,11 @@ The Zenject documentation is split up into the following sections.  It is split 
 
 You might also benefit from playing with the provided sample projects (which you can find by opening `Zenject/OptionalExtras/SampleGame1` or `Zenject/OptionalExtras/SampleGame2`).
 
-You may also find the <a href="#cheatsheet">cheatsheet</a> at the bottom of this page helpful in understanding some typical usage scenarios.
+If you are a DI veteran, then it might be worth taking a look at the <a href="#cheatsheet">cheatsheet</a> at the bottom of this page, which should give you an idea of the syntax, which might be all you need to get started.
 
 The tests may also be helpful to show usage for each specific feature (which you can find at `Zenject/OptionalExtras/UnitTests` and `Zenject/OptionalExtras/IntegrationTests`)
 
-Also, if you prefer video documentation, see the [youtube series on zenject](https://www.youtube.com/user/charlesamat/videos) created by Infallible Code.
+Also, if you prefer video documentation, you can watch [this youtube series on zenject](https://www.youtube.com/user/charlesamat/videos) created by Infallible Code.
 
 ## Table Of Contents
 
@@ -158,6 +161,7 @@ Also, if you prefer video documentation, see the [youtube series on zenject](htt
     * <a href="#auto-mocking-using-moq">Auto-Mocking using Moq</a>
     * <a href="#editor-windows">Creating Unity EditorWindow's with Zenject</a>
     * <a href="#optimization_notes">Optimization Notes</a>
+    * <a href="#zenject-philophy">Philosophy Of Zenject</a>
     * <a href="#upgrading-from-zenject5">Upgrade Guide for Zenject 6</a>
 * <a href="#questions">Frequently Asked Questions</a>
     * <a href="#isthisoverkill">Isn't this overkill?  I mean, is using statically accessible singletons really that bad?</a>
@@ -280,7 +284,7 @@ Other benefits include:
 * Encourages modular code - When using a DI framework you will naturally follow better design practices, because it forces you to think about the interfaces between classes.
 * Testability - Writing automated unit tests or user-driven tests becomes very easy, because it is just a matter of writing a different 'composition root' which wires up the dependencies in a different way.  Want to only test one subsystem?  Simply create a new composition root.  Zenject also has some support for avoiding code duplication in the composition root itself (using Installers - described below).
 
-Also see <a href="#isthisoverkill">here</a> for further justification for using a DI framework.
+Also see <a href="#isthisoverkill">here</a> and <a href="#zenject-philophy">here</a> for further justification for using a DI framework.
 
 ## <a id="hello-world-example"></a>Hello World Example
 
@@ -2957,6 +2961,16 @@ If performance is really important, then we recommend that you use memory pools 
 
 You can also get minor gains in speed and minor reductions in memory allocations by defining `ZEN_STRIP_ASSERTS_IN_BUILDS` in build settings.  This will cause all asserts to be stripped out of builds.  However, note that debugging any zenject related errors within builds will be made significantly more difficult by doing this.
 
+## <a id="zenject-philophy"></a>Philosophy Of Zenject
+
+One thing that is helpful to be aware of in terms of understanding the design of Zenject is that unlike many other frameworks it is **not opinionated**.  Many frameworks, such as ROR, ECS, ASP.NET MVC, etc. make rigid design choices for you that you have to follow.  The only assumption that Zenject makes is that you are writing object oriented code and otherwise, how you design your code is entirely up to you.
+
+In my view, dependency injection is pretty fundamental to object oriented programming.  And without a dependency injection framework, the composition root quickly becomes a headache to maintain.  Therefore dependency injection frameworks are fairly fundamental as well.
+
+And that's all Zenject strives to be - a dependency injection framework that targets Unity.  There are certainly quite a few features in Zenject, but they are all optional.  If you want, you can follow traditional unity development and use MonoBehaviours for every class, with the one exception that you use `[Inject]` instead of `[SerializeField]`.  Or you can abandon MonoBehaviours's completely and use the included interfaces such as ITickable and IInitializable.  It is up to you which design you want to use.
+
+Of course, using a DI framework has some disadvantages compared to more rigid frameworks.  The main drawback is that it can be more challenging for new developers to get up and running quickly in a code base, because they need to understand the specific architecture chosen by the previous developers.  Whereas with rigid frameworks developers are given a very clear pathway to follow and so can be productive more quickly.  It is more difficult to make huge design mistakes when using a rigid framework.  However, with this rigidity also comes limitations, because whatever design decisions that are enforced by the framework might not necessarily be ideal for every single problem.
+
 ## <a id="upgrading-from-zenject5"></a>Upgrade Guide for Zenject 6
 
 The biggest backwards-incompatible change in Zenject 6 is that the signals system was re-written from scratch and works quite differently now.  However - if you want to continue using the previous signals implementation you can get a zenject-6-compatible version of that <a href="https://github.com/svermeulen/ZenjectSignalsOld">here</a>. So to use that, just import zenject 6 and make sure to uncheck the `OptionalExtras/Signals` folder, and then add the ZenjectSignalsOld folder to your project from that link.
@@ -3129,6 +3143,7 @@ There were also a few things that were renamed:
 * **<a id="more-samples"></a>Are there any more sample projects to look at?**
 
 Complete examples (with source) using zenject:
+
     * [Zenject Hero](https://github.com/Mathijs-Bakker/Zenject-Hero) - Remake of the classic Atari game H.E.R.O.   Based on Zenject 6
     * [Quick Golf](https://assetstore.unity.com/packages/templates/packs/quick-golf-67900) - Mini-golf game
     * [EcsRx Roguelike 2D](https://github.com/grofit/ecsrx.roguelike2d) - An example of a Roguelike 2d game using EcsRx and Zenject
