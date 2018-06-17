@@ -54,7 +54,7 @@ Or, if you have found a bug, you are also welcome to create an issue on the [git
 * Support for decorator pattern using decorator bindings
 * Support for automatically mapping open generic types
 * Built in support for unit test, integration tests, and scene tests
-* Just-in-time resolving using the Lazy<> construct
+* Just-in-time injection using the LazyInject<> construct
 
 ## <a id="installation"></a>Installation
 
@@ -139,18 +139,11 @@ Also, if you prefer video documentation, you can watch [this youtube series on z
     * <a href="#injecting-data-across-scenes">Injecting data across scenes</a>
     * <a href="#scene-parenting">Scene Parenting Using Contract Names</a>
     * <a href="#just-in-time-resolve">Just-In-Time Resolving Using Lazy&lt;&gt;</a>
-    * <a href="#dicontainer-methods">DiContainer Methods</a>
-        * <a href="#dicontainer-methods-instantiate">DiContainer.Instantiate</a>
-        * <a href="#binding">DiContainer.Bind</a>
-        * <a href="#dicontainer-methods-resolve">DiContainer.Resolve</a>
-        * <a href="#dicontainer-methods-inject">DiContainer.Inject</a>
-        * <a href="#dicontainer-methods-queueforinject">DiContainer.QueueForInject</a>
-        * <a href="#dicontainer-methods-rebind">DiContainer Unbind / Rebind</a>
-        * <a href="#dicontainer-methods-other">Other DiContainer methods</a>
     * <a href="#scenes-decorator">Scene Decorators</a>
     * <a href="#zenautoinjector">ZenAutoInjecter</a>
     * <a href="#sub-containers-and-facades">Sub-Containers And Facades</a>
     * <a href="#writing-tests">Writing Automated Unit Tests / Integration Tests</a>
+    * <a href="#zenject-philophy">Philosophy Of Zenject</a>
     * <a href="#using-outside-unity">Using Zenject Outside Unity Or For DLLs</a>
     * <a href="#zenjectsettings">Zenject Settings</a>
     * <a href="#signals">Signals</a>
@@ -161,8 +154,15 @@ Also, if you prefer video documentation, you can watch [this youtube series on z
     * <a href="#auto-mocking-using-moq">Auto-Mocking using Moq</a>
     * <a href="#editor-windows">Creating Unity EditorWindow's with Zenject</a>
     * <a href="#optimization_notes">Optimization Notes</a>
-    * <a href="#zenject-philophy">Philosophy Of Zenject</a>
     * <a href="#upgrading-from-zenject5">Upgrade Guide for Zenject 6</a>
+    * <a href="#dicontainer-methods">DiContainer Methods</a>
+        * <a href="#dicontainer-methods-instantiate">DiContainer.Instantiate</a>
+        * <a href="#binding">DiContainer.Bind</a>
+        * <a href="#dicontainer-methods-resolve">DiContainer.Resolve</a>
+        * <a href="#dicontainer-methods-inject">DiContainer.Inject</a>
+        * <a href="#dicontainer-methods-queueforinject">DiContainer.QueueForInject</a>
+        * <a href="#dicontainer-methods-rebind">DiContainer Unbind / Rebind</a>
+        * <a href="#dicontainer-methods-other">Other DiContainer methods</a>
 * <a href="#questions">Frequently Asked Questions</a>
     * <a href="#isthisoverkill">Isn't this overkill?  I mean, is using statically accessible singletons really that bad?</a>
     * <a href="#aot-support">Does this work on AOT platforms such as iOS and WebGL?</a>
@@ -2065,9 +2065,19 @@ See <a href="Documentation/SubContainers.md">here</a>.
 
 See <a href="Documentation/WritingAutomatedTests.md">here</a>.
 
+## <a id="zenject-philophy"></a>Philosophy Of Zenject
+
+One thing that is helpful to be aware of in terms of understanding the design of Zenject is that unlike many other frameworks it is **not opinionated**.  Many frameworks, such as ROR, ECS, ASP.NET MVC, etc. make rigid design choices for you that you have to follow.  The only assumption that Zenject makes is that you are writing object oriented code and otherwise, how you design your code is entirely up to you.
+
+In my view, dependency injection is pretty fundamental to object oriented programming.  And without a dependency injection framework, the composition root quickly becomes a headache to maintain.  Therefore dependency injection frameworks are fairly fundamental as well.
+
+And that's all Zenject strives to be - a dependency injection framework that targets Unity.  There are certainly quite a few features in Zenject, but they are all optional.  If you want, you can follow traditional unity development and use MonoBehaviours for every class, with the one exception that you use `[Inject]` instead of `[SerializeField]`.  Or you can abandon MonoBehaviours's completely and use the included interfaces such as ITickable and IInitializable.  It is up to you which design you want to use.
+
+Of course, using a DI framework has some disadvantages compared to more rigid frameworks.  The main drawback is that it can be more challenging for new developers to get up and running quickly in a code base, because they need to understand the specific architecture chosen by the previous developers.  Whereas with rigid frameworks developers are given a very clear pathway to follow and so can be productive more quickly.  It is more difficult to make huge design mistakes when using a rigid framework.  However, with this rigidity also comes limitations, because whatever design decisions that are enforced by the framework might not necessarily be ideal for every single problem.
+
 ## <a id="just-in-time-resolve"></a>Just-In-Time Resolving Using Lazy&lt;&gt;
 
-In some cases it can be useful to delay the creation of certain dependencies until after startup.  You can use the `Lazy<>` construct for this.
+In some cases it can be useful to delay the creation of certain dependencies until after startup.  You can use the `LazyInject<>` construct for this.
 
 For example, let's imagine a scenario like this:
 
@@ -2105,14 +2115,14 @@ public class TestInstaller : MonoInstaller<TestInstaller>
 }
 ```
 
-Let's also imagine that we would only like to create an instance of Foo if it's actually used (that is, when the Bar.Run method is called).  As it stands above, Foo would always be created every time that Bar is created, even if Bar.Run is never called.  We can fix this by changing Bar to the following:
+Let's also imagine that we would only like to create an instance of Foo if it's actually used (that is, when the `Bar.Run` method is called).  As it stands above, `Foo` would always be created every time that `Bar` is created, even if `Bar.Run` is never called.  We can fix this by changing `Bar` to the following:
 
 ```csharp
 public class Bar
 {
-    Lazy<Foo> _foo;
+    LazyInject<Foo> _foo;
 
-    public Bar(Lazy<Foo> foo)
+    public Bar(LazyInject<Foo> foo)
     {
         _foo = foo;
     }
@@ -2124,9 +2134,485 @@ public class Bar
 }
 ```
 
-Now, by using `Lazy<>` instead, the Foo class will not be created until Bar.Run is first called.  After that, it will use the same instance of Foo.
+Now, by using `LazyInject<>` instead, the Foo class will not be created until Bar.Run is first called.  After that, it will use the same instance of Foo.
 
-Note that the installers remain the same in both cases.  Any injected dependency can be made lazy by simply wrapping it in `Lazy<>`.
+Note that the installers remain the same in both cases.  Any injected dependency can be made lazy by simply wrapping it in `LazyInject<>`.
+
+## <a id="non-generic-bindings"></a>Non Generic bindings
+
+In some cases you may not know the exact type you want to bind at compile time.  In these cases you can use the overload of the `Bind` method which takes a `System.Type` value instead of a generic parameter.
+
+```csharp
+// These two lines will result in the same behaviour
+Container.Bind(typeof(Foo));
+Container.Bind<Foo>();
+```
+
+Note also that when using non generic bindings, you can pass multiple arguments:
+
+```csharp
+Container.Bind(typeof(Foo), typeof(Bar), typeof(Qux)).AsSingle();
+
+// The above line is equivalent to these three:
+Container.Bind<Foo>().AsSingle();
+Container.Bind<Bar>().AsSingle();
+Container.Bind<Qux>().AsSingle();
+```
+
+The same goes for the To method:
+
+```csharp
+Container.Bind<IFoo>().To(typeof(Foo), typeof(Bar)).AsSingle();
+
+// The above line is equivalent to these two:
+Container.Bind<IFoo>().To<Foo>().AsSingle();
+Container.Bind<IFoo>().To<Bar>().AsSingle();
+```
+
+You can also do both:
+
+```csharp
+Container.Bind(typeof(IFoo), typeof(IBar)).To(typeof(Foo1), typeof(Foo2)).AsSingle();
+
+// The above line is equivalent to these:
+Container.Bind<IFoo>().To<Foo>().AsSingle();
+Container.Bind<IFoo>().To<Bar>().AsSingle();
+Container.Bind<IBar>().To<Foo>().AsSingle();
+Container.Bind<IBar>().To<Bar>().AsSingle();
+```
+
+This can be especially useful when you have a class that implements multiple interfaces:
+
+```csharp
+Container.Bind(typeof(ITickable), typeof(IInitializable), typeof(IDisposable)).To<Foo>().AsSingle();
+```
+
+Though in this particular example there is already a built-in shortcut method for this:
+
+```csharp
+Container.BindInterfacesTo<Foo>().AsSingle();
+```
+
+## <a id="convention-based-bindings"></a>Convention Based Binding
+
+Convention based binding can come in handy in any of the following scenarios:
+
+- You want to define a naming convention that determines how classes are bound to the container (eg. using a prefix, suffix, or regex)
+- You want to use custom attributes to determine how classes are bound to the container
+- You want to automatically bind all classes that implement a given interface within a given namespace or assembly
+
+Using "convention over configuration" can allow you to define a framework that other programmers can use to quickly and easily get things done, instead of having to explicitly add every binding within installers.  This is the philosophy that is followed by frameworks like Ruby on Rails, ASP.NET MVC, etc.  Of course, there are both advantages and disadvantages to this approach.
+
+They are specified in a similar way to <a href="#non-generic-bindings">Non Generic bindings</a>, except instead of giving a list of types to the `Bind()` and `To()` methods, you describe the convention using a Fluent API.  For example, to bind `IFoo` to every class that implements it in the entire codebase:
+
+```csharp
+Container.Bind<IFoo>().To(x => x.AllTypes().DerivingFrom<IFoo>());
+```
+
+Note that you can use the same Fluent API in the `Bind()` method as well, and you can also use it in both `Bind()` and `To()` at the same time.
+
+For more examples see the <a href="#convention-binding-examples">examples</a> section below.  The full format is as follows:
+
+<pre>
+x.<b>InitialList</b>().<b>Conditional</b>().<b>AssemblySources</b>()
+</pre>
+
+### Where:
+
+* **InitialList** = The initial list of types to use for our binding.  This list will be filtered by the given **Conditional**s.  It can be one of the following (fairly self explanatory) methods:
+
+    1. **AllTypes**
+    1. **AllNonAbstractClasses**
+    1. **AllAbstractClasses**
+    1. **AllInterfaces**
+    1. **AllClasses**
+
+* **Conditional** = The filter to apply to the list of types given by **InitialList**.  Note that you can chain as many of these together as you want, and they will all be applied to the initial list in sequence.  It can be one of the following:
+
+    1. **DerivingFrom**<T> - Only match types deriving from `T`
+    1. **DerivingFromOrEqual**<T> - Only match types deriving from or equal to `T`
+    1. **WithPrefix**(value) - Only match types with names that start with `value`
+    1. **WithSuffix**(value) - Only match types with names that end with `value`
+    1. **WithAttribute**<T> - Only match types that have the attribute `[T]` above their class declaration
+    1. **WithoutAttribute**<T> - Only match types that do not have the attribute `[T]` above their class declaration
+    1. **WithAttributeWhere**<T>(predicate) - Only match types that have the attribute `[T]` above their class declaration AND in which the given predicate returns true when passed the attribute.  This is useful so you can use data given to the attribute to create bindings
+    1. **InNamespace**(value) - Only match types that are in the given namespace
+    1. **InNamespaces**(value1, value2, etc.) - Only match types that are in any of the given namespaces
+    1. **MatchingRegex**(pattern) - Only match types that match the given regular expression
+    1. **Where**(predicate) - Finally, you can also add any kind of conditional logic you want by passing in a predicate that takes a `Type` parameter
+
+* **AssemblySources** = The list of assemblies to search for types when populating **InitialList**.  It can be one of the following:
+
+    1. **FromAllAssemblies** - Look up types in all loaded assemblies.  This is the default when unspecified.
+    1. **FromAssemblyContaining**<T> - Look up types in whatever assembly the type `T` is in
+    1. **FromAssembliesContaining**(type1, type2, ..) - Look up types in all assemblies that contains any of the given types
+    1. **FromThisAssembly** - Look up types only in the assembly in which you are calling this method
+    1. **FromAssembly**(assembly) - Look up types only in the given assembly
+    1. **FromAssemblies**(assembly1, assembly2, ...) - Look up types only in the given assemblies
+    1. **FromAssembliesWhere**(predicate) - Look up types in all assemblies that match the given predicate
+
+### <a id="convention-binding-examples"></a>Examples:
+
+Note that you can chain together any combination of the below conditionals in the same binding.  Also note that since we aren't specifying an assembly here, Zenject will search within all loaded assemblies.
+
+1. Bind `IFoo` to every class that implements it in the entire codebase:
+
+    ```csharp
+    Container.Bind<IFoo>().To(x => x.AllTypes().DerivingFrom<IFoo>());
+    ```
+
+    Note that this will also have the same result:
+
+    ```csharp
+    Container.Bind<IFoo>().To(x => x.AllNonAbstractTypes());
+    ```
+
+    This is because Zenject will skip any bindings in which the concrete type does not actually derive from the base type.  Also note that in this case we have to make sure we use `AllNonAbstractTypes` instead of just `AllTypes`, to ensure that we don't bind `IFoo` to itself
+
+1. Bind an interface to all classes implementing it within a given namespace
+
+    ```csharp
+    Container.Bind<IFoo>().To(x => x.AllTypes().DerivingFrom<IFoo>().InNamespace("MyGame.Foos"));
+    ```
+
+1. Auto-bind `IController` every class that has the suffix "Controller" (as is done in ASP.NET MVC):
+
+    ```csharp
+    Container.Bind<IController>().To(x => x.AllNonAbstractTypes().WithSuffix("Controller"));
+    ```
+
+    You could also do this using `MatchingRegex`:
+
+    ```csharp
+    Container.Bind<IController>().To(x => x.AllNonAbstractTypes().MatchingRegex("Controller$"));
+    ```
+
+1. Bind all types with the prefix "Widget" and inject into Foo
+
+    ```csharp
+    Container.Bind<object>().To(x => x.AllNonAbstractTypes().WithPrefix("Widget")).WhenInjectedInto<Foo>();
+    ```
+
+1. Auto-bind the interfaces that are used by every type in a given namespace
+
+    ```csharp
+    Container.Bind(x => x.AllInterfaces())
+        .To(x => x.AllNonAbstractClasses().InNamespace("MyGame.Things"));
+    ```
+
+    This is equivalent to calling `Container.BindInterfacesTo<T>()` for every type in the namespace "MyGame.Things".  This works because, as touched on above, Zenject will skip any bindings in which the concrete type does not actually derive from the base type.  So even though we are using `AllInterfaces` which matches every single interface in every single loaded assembly, this is ok because it will not try and bind an interface to a type that doesn't implement this interface.
+
+## <a id="decorator-bindings"></a>Decorator Bindings
+
+See <a href="Documentation/DecoratorBindings.md">here</a>.
+
+## <a id="open-generic-types"></a>Open Generic Types
+
+Zenject also has a feature that allow you to automatically fill in open generic arguments during injection.  For example:
+
+```csharp
+public class Bar<T>
+{
+    public int Value
+    {
+        get; set;
+    }
+}
+
+public class Foo
+{
+    public Foo(Bar<int> bar)
+    {
+    }
+}
+
+public class TestInstaller : MonoInstaller<TestInstaller>
+{
+    public override void InstallBindings()
+    {
+        Container.Bind(typeof(Bar<>)).AsSingle();
+        Container.Bind<Foo>().AsSingle().NonLazy();
+    }
+}
+```
+
+Note that when binding a type with open generic arguments, you must use the non generic version of the Bind() method.  As you can see in the example, when binding an open generic type, it will match whatever the injected parameter/field/property requires.  You can also bind one open generic type to another open generic type like this
+
+```csharp
+public interface IBar<T>
+{
+    int Value
+    {
+        get; set;
+    }
+}
+
+public class Bar<T> : IBar<T>
+{
+    public int Value
+    {
+        get; set;
+    }
+}
+
+public class Foo
+{
+    public Foo(IBar<int> bar)
+    {
+    }
+}
+
+public class TestInstaller : MonoInstaller<TestInstaller>
+{
+    public override void InstallBindings()
+    {
+        Container.Bind(typeof(IBar<>)).To(typeof(Bar<>)).AsSingle();
+        Container.Bind<Foo>().AsSingle().NonLazy();
+    }
+}
+```
+
+This can sometimes open up some interesting design possibilities so good to be aware of.
+
+## <a id="destruction-order"></a>Notes About Destruction/Dispose Order
+
+If you add bindings for classes that implement `IDisposable`, then you can control the order that they are disposed in by setting the <a href="#update--initialization-order">execution order</a>.  However this is not the case for GameObjects in the scene.
+
+Unity has a concept of "script execution order" however this value does not affect the order that OnDestroy is executed.  The root-level game objects might be destroyed in any order and this includes the SceneContext as well.
+
+One way to make this more predictable is to place everything underneath SceneContext.   For cases where a deterministic destruction order is needed this can be very helpful, because it will at least guarantee that the bound IDisposables get disposed of first before any of the game objects in the scene.  You can also toggle the setting on SceneContext "Parent New Objects Under Root" to automatically parent all dynamically instantiated objects under SceneContext as well.
+
+Another issue that can sometimes arise in terms of destruction order is the order that the scenes are unloaded in and also the order that the DontDestroyOnLoad objects (including ProjectContext) are unloaded in.
+
+Unfortunately, Unity does not guarantee a deterministic destruction order in this case either, and you will find that sometimes when exiting your application, the DontDestroyOnLoad objects are actually destroyed before the scenes, or you will find that a scene that was loaded first was also the first to be destroyed which is usually not what you want.
+
+If the scene destruction order is important to you, then you might consider also changing the ZenjectSetting `Ensure Deterministic Destruction Order On Application Quit` to true.  When this is set to true, this will cause all scenes to be forcefully destroyed during the OnApplicationQuit event, using a more sensible order than what unity does by default.  It will first destroy all scenes in the reverse order that they were loaded in (so that earlier loaded scenes are destroyed later) and will finish by destroying the DontDestroyOnLoad objects which include project context.
+
+The reason this setting is not set to true by default is because it can cause crashes on Android as discussed <a href="https://github.com/modesttree/Zenject/issues/301">here</a>.
+
+## <a id="unirx-integration"></a>UniRx Integration
+
+<a href="https://github.com/neuecc/UniRx">UniRx</a> is a library that brings Reactive Extensions to Unity.  It can greatly simplify your code by thinking of some kinds of communication between classes as 'streams' of data.  For more details see the <a href="https://github.com/neuecc/UniRx">UniRx docs</a>.
+
+Zenject integration with UniRx is disabled by default.  To enable, you must add the define `ZEN_SIGNALS_ADD_UNIRX` to your project, which you can do by selecting Edit -> Project Settings -> Player and then adding `ZEN_SIGNALS_ADD_UNIRX` in the "Scripting Define Symbols" section
+
+With `ZEN_SIGNALS_ADD_UNIRX` enabled, you can observe zenject signals via UniRx streams as explained in the <a href="Documentation/Signals.md">signals docs</a>, and you can also observe zenject events such as Tick, LateTick, and FixedTick etc. on the `TickableManager` class.  One example usage is to ensure that certain events are only handled a maximum of once per frame:
+
+```csharp
+public class User
+{
+    public string Username;
+}
+
+public class UserManager
+{
+    readonly List<User> _users = new List<User>();
+    readonly Subject<User> _userAddedStream = new Subject<User>();
+
+    public IReadOnlyList<User> Users
+    {
+        get { return _users; }
+    }
+
+    public IObservableRx<User> UserAddedStream
+    {
+        get { return _userAddedStream; }
+    }
+
+    public void AddUser(User user)
+    {
+        _users.Add(user);
+        _userAddedStream.OnNext(user);
+    }
+}
+
+public class UserDisplayWindow : IInitializable, IDisposable
+{
+    readonly TickableManager _tickManager;
+    readonly CompositeDisposable _disposables = new CompositeDisposable();
+    readonly UserManager _userManager;
+
+    public UserDisplayWindow(
+        UserManager userManager,
+        TickableManager tickManager)
+    {
+        _tickManager = tickManager;
+        _userManager = userManager;
+    }
+
+    public void Initialize()
+    {
+        _userManager.UserAddedStream.Sample(_tickManager.TickStream)
+            .Subscribe(x => SortView()).AddTo(_disposables);
+    }
+
+    void SortView()
+    {
+        // Sort the displayed user list
+    }
+
+    public void Dispose()
+    {
+        _disposables.Dispose();
+    }
+}
+```
+
+In this case we have some costly operation that we want to run every time some data changes (in this case, sorting), and all it does is affect how something is rendered (in this case, a displayed list of user names).  We could implement ITickable and then set a boolean flag every time the data changes, then perform the update inside Tick(), but this isn't really the reactive way of doing things, so we use Sample() instead.
+
+## <a id="auto-mocking-using-moq"></a>Auto-Mocking using Moq
+
+See <a href="Documentation/AutoMocking.md">here</a>.
+
+## <a id="editor-windows"></a>Creating Unity EditorWindow's with Zenject
+
+If you need to add your own Unity plugin, and you want to create your own EditorWindow derived class, then you might consider using Zenject to help manage this code as well.  Let's go through an example of how you might do this:
+
+1. Right click underneath an Editor folder in your project view then select `Create -> Zenject -> Editor Window`.  Let's call it TimerWindow.
+2. Open your new editor window by selecting the menu item `Window -> TimerWindow`.
+3. Right now it is empty, so let's add some content to it.  Open it up and replace the contents with the following:
+
+```csharp
+public class TimerWindow : ZenjectEditorWindow
+{
+    TimerController.State _timerState = new TimerController.State();
+
+    [MenuItem("Window/TimerWindow")]
+    public static TimerWindow GetOrCreateWindow()
+    {
+        var window = EditorWindow.GetWindow<TimerWindow>();
+        window.titleContent = new GUIContent("TimerWindow");
+        return window;
+    }
+
+    public override void InstallBindings()
+    {
+        Container.BindInstance(_timerState);
+        Container.BindInterfacesTo<TimerController>().AsSingle();
+    }
+}
+
+class TimerController : IGuiRenderable, ITickable, IInitializable
+{
+    readonly State _state;
+
+    public TimerController(State state)
+    {
+        _state = state;
+    }
+
+    public void Initialize()
+    {
+        Debug.Log("TimerController initialized");
+    }
+
+    public void GuiRender()
+    {
+        GUI.Label(new Rect(25, 25, 200, 200), "Tick Count: " + _state.TickCount);
+
+        if (GUI.Button(new Rect(25, 50, 200, 50), "Restart"))
+        {
+            _state.TickCount = 0;
+        }
+    }
+
+    public void Tick()
+    {
+        _state.TickCount++;
+    }
+
+    [Serializable]
+    public class State
+    {
+        public int TickCount;
+    }
+}
+```
+
+In the InstallBindings method for your ZenjectEditorWindow, you can add IInitializable, ITickable, and IDisposable bindings just like you do within your scenes.  There is also a new interface called `IGuiRenderable` that you can use to draw content to the window by using Unity's immediate mode gui.
+
+Note that every time your code is compiled again within Unity, your editor window is reloaded.  InstallBindings is called again and all your classes are created again from scratch.  This means that any state information you may have stored in member variables will be reset.  However, the member fields in EditorWindow derived class itself is serialized, so you can take advantage of this to have state persist across re-compiles.  In the example above, we are able to have the current tick count persist by wrapping it in a Serializable class and including this as a member inside our EditorWindow.
+
+Something else to note is that the rate at which the ITickable.Tick method gets fired can change depending on what you have on focus.  If you run our timer window, then select another window other than Unity, you can see what I mean.  (Tick Count increments much more slowly)
+
+## <a id="optimization_notes"></a>Optimization Notes
+
+DI can affect start-up time when it builds the initial object graph. However it can also affect performance any time you instantiate new objects at run time.
+
+Zenject uses C# reflection which is typically slow, but in Zenject this work is cached so any performance hits only occur once for each class type.  In other words, Zenject avoids costly reflection operations by making a trade-off between performance and memory to ensure good performance.
+
+You can also force Zenject to populate this cache by calling `Zenject.TypeAnalyzer.GetInfo` for each type you want Zenject to cache the reflection information for.
+
+For some benchmarks on Zenject versus other DI frameworks, see [here](https://github.com/svermeulen/IocPerformance/tree/Zenject).
+
+Zenject should also produce zero per-frame heap allocations.
+
+If performance is really important, then we recommend that you use memory pools (and also specify an initial size) and also cache reflection by calling `Zenject.TypeAnalyzer.GetInfo`.  By doing this, you should be able to restrict all the costly operations to the initialization time and avoid any performance issues once your game starts.
+
+You can also get minor gains in speed and minor reductions in memory allocations by defining `ZEN_STRIP_ASSERTS_IN_BUILDS` in build settings.  This will cause all asserts to be stripped out of builds.  However, note that debugging any zenject related errors within builds will be made significantly more difficult by doing this.
+
+## <a id="upgrading-from-zenject5"></a>Upgrade Guide for Zenject 6
+
+The biggest backwards-incompatible change in Zenject 6 is that the signals system was re-written from scratch and works quite differently now.  However - if you want to continue using the previous signals implementation you can get a zenject-6-compatible version of that <a href="https://github.com/svermeulen/ZenjectSignalsOld">here</a>. So to use that, just import zenject 6 and make sure to uncheck the `OptionalExtras/Signals` folder, and then add the ZenjectSignalsOld folder to your project from that link.
+
+Another backwards-incompatible change in zenject 6 is that AsSingle can no longer be used across multiple bind statements when mapping to the same instance.  In Zenject 5.x and earlier, you could do the following:
+
+```csharp
+public interface IFoo
+{
+}
+
+public class Foo : IFoo
+{
+}
+
+public void InstallBindings()
+{
+    Container.Bind<Foo>().AsSingle();
+    Container.Bind<IFoo>().To<Foo>().AsSingle();
+}
+```
+
+However, if you attempt this in Zenject 6, you will get runtime errors.  The zenject 6 way of doing this is now this:
+
+```csharp
+public void InstallBindings()
+{
+    Container.Bind(typeof(Foo), typeof(IFoo)).To<Foo>().AsSingle();
+}
+```
+
+Or, alternatively you could do it this way as well:
+
+```csharp
+public void InstallBindings()
+{
+    Container.Bind<Foo>().AsSingle();
+    Container.Bind<IFoo>().To<Foo>().FromResolve();
+}
+```
+
+The reason this was changed was because supporting the previous way of using AsSingle had large implementation costs and was unnecessary given these other ways of doing things.
+
+Another change that may cause issues is that for every binding that is a lookup there is both a plural form and a non plural form.  This includes the following:
+
+- FromResource / FromResources
+- FromResolve / FromResolveAll
+- FromComponentInNewPrefab / FromComponentsInNewPrefab
+- FromComponentInNewPrefabResource / FromComponentsInNewPrefabResource
+- FromComponentInHierarchy / FromComponentsInHierarchy
+- FromComponentSibling / FromComponentsSibling
+- FromComponentInParents / FromComponentsInParents
+- FromComponentInChildren / FromComponentsInChildren
+
+So if you were previously using one of these methods to match multiple values you will have to change to use the plural version instead.
+
+There were also a few things that were renamed:
+
+- `Factory<>` is now called `PlaceholderFactory<>` (in this case you should just get warnings about it however)
+- BindFactoryContract is now called BindFactoryCustomInterface.  BindMemoryPool has a similar method called BindMemoryPoolCustomInterface
+- Zenject.Lazy was renamed to Zenject.LazyInject to address a naming conflict with System.Lazy  (We'd like to use System.Lazy directly but this causes issues on IL2CPP)
+- ByNewPrefab bind method was renamed to ByNewContextPrefab
 
 ## <a id="dicontainer-methods"></a>DiContainer Methods
 
@@ -2308,7 +2794,7 @@ See <a href="#binding">here</a>
     Container.InjectGameObject(gameObject);
     ```
 
-    Note that it will inject in a bottom-up fashion.  So the root transforms in the given game object will always be injected last.
+    Note that it will inject all the components in their dependency order.  So if A is injected into B and B is injected into C, then A will be injected first, then B, then C, regardless of where in the hierarchy they are all placed
 
 1.  **DiContainer.InjectGameObjectForComponent** - Same as InjectGameObject except it will return the given component after injection completes.
 
@@ -2424,7 +2910,7 @@ It is possible to remove or replace bindings that were added in a previous bind 
 
 ### <a id="dicontainer-methods-other"></a>Other DiContainer methods
 
-1.  **DiContainer.ParentContainer** - The parent container for the given DiContainer.  For example, for the DiContainer associated with SceneContext, this will usually be the DiContainer associated with the ProjectContext (unless you're using Scene Parenting in which case it will be another SceneContext)
+1.  **DiContainer.ParentContainers** - The parent containers for the given DiContainer.  For example, for the DiContainer associated with SceneContext, this will usually be the DiContainer associated with the ProjectContext (unless you're using Scene Parenting in which case it will be another SceneContext)
 1.  **DiContainer.IsValidating** - Returns true if the container is being run for validation.  This can be useful in some edge cases where special logic needs to be added during the validation step only.
 1.  **DiContainer.CreateSubContainer** - Creates a new container as a child of the current container.  This might be useful for custom factories that involve creating objects with complex inter-dependencies.  For example:
 
@@ -2450,527 +2936,6 @@ It is possible to remove or replace bindings that were added in a previous bind 
     ```
 
 1.  **DiContainer.GetDependencyContracts** - Returns a list of all the types that the given type depends on.  This might be useful, for example, if you wanted to do some static analysis of your project, or if you wanted to automatically generate a dependency diagram, etc.
-
-## <a id="non-generic-bindings"></a>Non Generic bindings
-
-In some cases you may not know the exact type you want to bind at compile time.  In these cases you can use the overload of the `Bind` method which takes a `System.Type` value instead of a generic parameter.
-
-```csharp
-// These two lines will result in the same behaviour
-Container.Bind(typeof(Foo));
-Container.Bind<Foo>();
-```
-
-Note also that when using non generic bindings, you can pass multiple arguments:
-
-```csharp
-Container.Bind(typeof(Foo), typeof(Bar), typeof(Qux)).AsSingle();
-
-// The above line is equivalent to these three:
-Container.Bind<Foo>().AsSingle();
-Container.Bind<Bar>().AsSingle();
-Container.Bind<Qux>().AsSingle();
-```
-
-The same goes for the To method:
-
-```csharp
-Container.Bind<IFoo>().To(typeof(Foo), typeof(Bar)).AsSingle();
-
-// The above line is equivalent to these two:
-Container.Bind<IFoo>().To<Foo>().AsSingle();
-Container.Bind<IFoo>().To<Bar>().AsSingle();
-```
-
-You can also do both:
-
-```csharp
-Container.Bind(typeof(IFoo), typeof(IBar)).To(typeof(Foo1), typeof(Foo2)).AsSingle();
-
-// The above line is equivalent to these:
-Container.Bind<IFoo>().To<Foo>().AsSingle();
-Container.Bind<IFoo>().To<Bar>().AsSingle();
-Container.Bind<IBar>().To<Foo>().AsSingle();
-Container.Bind<IBar>().To<Bar>().AsSingle();
-```
-
-This can be especially useful when you have a class that implements multiple interfaces:
-
-```csharp
-Container.Bind(typeof(ITickable), typeof(IInitializable), typeof(IDisposable)).To<Foo>().AsSingle();
-```
-
-Though in this particular example there is already a built-in shortcut method for this:
-
-```csharp
-Container.BindInterfacesTo<Foo>().AsSingle();
-```
-
-## <a id="convention-based-bindings"></a>Convention Based Binding
-
-Convention based binding can come in handy in any of the following scenarios:
-
-- You want to define a naming convention that determines how classes are bound to the container (eg. using a prefix, suffix, or regex)
-- You want to use custom attributes to determine how classes are bound to the container
-- You want to automatically bind all classes that implement a given interface within a given namespace or assembly
-
-Using "convention over configuration" can allow you to define a framework that other programmers can use to quickly and easily get things done, instead of having to explicitly add every binding within installers.  This is the philosophy that is followed by frameworks like Ruby on Rails, ASP.NET MVC, etc.  Of course, there are both advantages and disadvantages to this approach.
-
-They are specified in a similar way to <a href="#non-generic-bindings">Non Generic bindings</a>, except instead of giving a list of types to the `Bind()` and `To()` methods, you describe the convention using a Fluent API.  For example, to bind `IFoo` to every class that implements it in the entire codebase:
-
-```csharp
-Container.Bind<IFoo>().To(x => x.AllTypes().DerivingFrom<IFoo>());
-```
-
-Note that you can use the same Fluent API in the `Bind()` method as well, and you can also use it in both `Bind()` and `To()` at the same time.
-
-For more examples see the <a href="#convention-binding-examples">examples</a> section below.  The full format is as follows:
-
-<pre>
-x.<b>InitialList</b>().<b>Conditional</b>().<b>AssemblySources</b>()
-</pre>
-
-###Where:
-
-* **InitialList** = The initial list of types to use for our binding.  This list will be filtered by the given **Conditional**s.  It can be one of the following (fairly self explanatory) methods:
-
-    1. **AllTypes**
-    1. **AllNonAbstractClasses**
-    1. **AllAbstractClasses**
-    1. **AllInterfaces**
-    1. **AllClasses**
-
-* **Conditional** = The filter to apply to the list of types given by **InitialList**.  Note that you can chain as many of these together as you want, and they will all be applied to the initial list in sequence.  It can be one of the following:
-
-    1. **DerivingFrom**<T> - Only match types deriving from `T`
-    1. **DerivingFromOrEqual**<T> - Only match types deriving from or equal to `T`
-    1. **WithPrefix**(value) - Only match types with names that start with `value`
-    1. **WithSuffix**(value) - Only match types with names that end with `value`
-    1. **WithAttribute**<T> - Only match types that have the attribute `[T]` above their class declaration
-    1. **WithoutAttribute**<T> - Only match types that do not have the attribute `[T]` above their class declaration
-    1. **WithAttributeWhere**<T>(predicate) - Only match types that have the attribute `[T]` above their class declaration AND in which the given predicate returns true when passed the attribute.  This is useful so you can use data given to the attribute to create bindings
-    1. **InNamespace**(value) - Only match types that are in the given namespace
-    1. **InNamespaces**(value1, value2, etc.) - Only match types that are in any of the given namespaces
-    1. **MatchingRegex**(pattern) - Only match types that match the given regular expression
-    1. **Where**(predicate) - Finally, you can also add any kind of conditional logic you want by passing in a predicate that takes a `Type` parameter
-
-* **AssemblySources** = The list of assemblies to search for types when populating **InitialList**.  It can be one of the following:
-
-    1. **FromAllAssemblies** - Look up types in all loaded assemblies.  This is the default when unspecified.
-    1. **FromAssemblyContaining**<T> - Look up types in whatever assembly the type `T` is in
-    1. **FromAssembliesContaining**(type1, type2, ..) - Look up types in all assemblies that contains any of the given types
-    1. **FromThisAssembly** - Look up types only in the assembly in which you are calling this method
-    1. **FromAssembly**(assembly) - Look up types only in the given assembly
-    1. **FromAssemblies**(assembly1, assembly2, ...) - Look up types only in the given assemblies
-    1. **FromAssembliesWhere**(predicate) - Look up types in all assemblies that match the given predicate
-
-###<a id="convention-binding-examples"></a>Examples:
-
-Note that you can chain together any combination of the below conditionals in the same binding.  Also note that since we aren't specifying an assembly here, Zenject will search within all loaded assemblies.
-
-1. Bind `IFoo` to every class that implements it in the entire codebase:
-
-    ```csharp
-    Container.Bind<IFoo>().To(x => x.AllTypes().DerivingFrom<IFoo>());
-    ```
-
-    Note that this will also have the same result:
-
-    ```csharp
-    Container.Bind<IFoo>().To(x => x.AllNonAbstractTypes());
-    ```
-
-    This is because Zenject will skip any bindings in which the concrete type does not actually derive from the base type.  Also note that in this case we have to make sure we use `AllNonAbstractTypes` instead of just `AllTypes`, to ensure that we don't bind `IFoo` to itself
-
-1. Bind an interface to all classes implementing it within a given namespace
-
-    ```csharp
-    Container.Bind<IFoo>().To(x => x.AllTypes().DerivingFrom<IFoo>().InNamespace("MyGame.Foos"));
-    ```
-
-1. Auto-bind `IController` every class that has the suffix "Controller" (as is done in ASP.NET MVC):
-
-    ```csharp
-    Container.Bind<IController>().To(x => x.AllNonAbstractTypes().WithSuffix("Controller"));
-    ```
-
-    You could also do this using `MatchingRegex`:
-
-    ```csharp
-    Container.Bind<IController>().To(x => x.AllNonAbstractTypes().MatchingRegex("Controller$"));
-    ```
-
-1. Bind all types with the prefix "Widget" and inject into Foo
-
-    ```csharp
-    Container.Bind<object>().To(x => x.AllNonAbstractTypes().WithPrefix("Widget")).WhenInjectedInto<Foo>();
-    ```
-
-1. Auto-bind the interfaces that are used by every type in a given namespace
-
-    ```csharp
-    Container.Bind(x => x.AllInterfaces())
-        .To(x => x.AllNonAbstractClasses().InNamespace("MyGame.Things"));
-    ```
-
-    This is equivalent to calling `Container.BindInterfacesTo<T>()` for every type in the namespace "MyGame.Things".  This works because, as touched on above, Zenject will skip any bindings in which the concrete type does not actually derive from the base type.  So even though we are using `AllInterfaces` which matches every single interface in every single loaded assembly, this is ok because it will not try and bind an interface to a type that doesn't implement this interface.
-
-## <a id="singleton-identifiers"></a>Singleton Identifiers
-
-In addition to <a href="#identifiers">normal identifiers</a>, you can also assign an identifer to a given singleton.
-
-This allows you to force Zenject to create multiple singletons instead of just one, since otherwise the singleton is uniquely identified based on the type given as generic argument to the `To<>` method.  So for example:
-
-```csharp
-Container.Bind<IFoo>().To<Foo>().AsSingle();
-Container.Bind<IBar>().To<Foo>().AsSingle();
-Container.Bind<IQux>().To<Qux>().AsSingle();
-```
-
-In the above code, both `IFoo` and `IBar` will be bound to the same instance.  Only one instance of Foo will be created.
-
-```csharp
-Container.Bind<IFoo>().To<Foo>().AsSingle("foo1");
-Container.Bind<IBar>().To<Foo>().AsSingle("foo2");
-```
-
-In this case however, two instances will be created.
-
-Another use case for this is to allow creating multiple singletons from the same prefab.  For example, Given the following:
-
-```csharp
-Container.Bind<Foo>().FromComponentInNewPrefab(MyPrefab).AsSingle();
-Container.Bind<Bar>().FromComponentInNewPrefab(MyPrefab).AsSingle();
-```
-
-It will only instantiate the prefab MyPrefab once, since the singleton is identified solely by the prefab when using `FromComponentInNewPrefab`.  The concrete type given can be interpreted as "Search the instantiated prefab for this component".  But, if instead you want Zenject to instantiate a new instance of the prefab for each `FromComponentInNewPrefab` binding, then you can do that as well by supplying an identifier to the `AsSingle` function like this:
-
-```csharp
-Container.Bind<Foo>().FromComponentInNewPrefab(MyPrefab).AsSingle("foo");
-Container.Bind<Bar>().FromComponentInNewPrefab(MyPrefab).AsSingle("bar");
-```
-
-Now two instances of the prefab will be created.
-
-## <a id="decorator-bindings"></a>Decorator Bindings
-
-See <a href="Documentation/DecoratorBindings.md">here</a>.
-
-## <a id="open-generic-types"></a>Open Generic Types
-
-Zenject also has a feature that allow you to automatically fill in open generic arguments during injection.  For example:
-
-```csharp
-public class Bar<T>
-{
-    public int Value
-    {
-        get; set;
-    }
-}
-
-public class Foo
-{
-    public Foo(Bar<int> bar)
-    {
-    }
-}
-
-public class TestInstaller : MonoInstaller<TestInstaller>
-{
-    public override void InstallBindings()
-    {
-        Container.Bind(typeof(Bar<>)).AsSingle();
-        Container.Bind<Foo>().AsSingle().NonLazy();
-    }
-}
-```
-
-Note that when binding a type with open generic arguments, you must use the non generic version of the Bind() method.  As you can see in the example, when binding an open generic type, it will match whatever the injected parameter/field/property requires.  You can also bind one open generic type to another open generic type like this
-
-```csharp
-public interface IBar<T>
-{
-    int Value
-    {
-        get; set;
-    }
-}
-
-public class Bar<T> : IBar<T>
-{
-    public int Value
-    {
-        get; set;
-    }
-}
-
-public class Foo
-{
-    public Foo(IBar<int> bar)
-    {
-    }
-}
-
-public class TestInstaller : MonoInstaller<TestInstaller>
-{
-    public override void InstallBindings()
-    {
-        Container.Bind(typeof(IBar<>)).To(typeof(Bar<>)).AsSingle();
-        Container.Bind<Foo>().AsSingle().NonLazy();
-    }
-}
-```
-
-This can sometimes open up some interesting design possibilities so good to be aware of.
-
-## <a id="destruction-order"></a>Notes About Destruction/Dispose Order
-
-If you add bindings for classes that implement `IDisposable`, then you can control the order that they are disposed in by setting the <a href="#update--initialization-order">execution order</a>.  However this is not the case for GameObjects in the scene.
-
-Unity has a concept of "script execution order" however this value does not affect the order that OnDestroy is executed.  The root-level game objects might be destroyed in any order and this includes the SceneContext as well.
-
-One way to make this more predictable is to place everything underneath SceneContext.   For cases where a deterministic destruction order is needed this can be very helpful, because it will at least guarantee that the bound IDisposables get disposed of first before any of the game objects in the scene.  You can also toggle the setting on SceneContext "Parent New Objects Under Root" to automatically parent all dynamically instantiated objects under SceneContext as well.
-
-Another issue that can sometimes arise in terms of destruction order is the order that the scenes are unloaded in and also the order that the DontDestroyOnLoad objects (including ProjectContext) are unloaded in.
-
-Unfortunately, Unity does not guarantee a deterministic destruction order in this case either, and you will find that sometimes when exiting your application, the DontDestroyOnLoad objects are actually destroyed before the scenes, or you will find that a scene that was loaded first was also the first to be destroyed which is usually not what you want.
-
-If the scene destruction order is important to you, then you might consider also changing the ZenjectSetting `Ensure Deterministic Destruction Order On Application Quit` to true.  When this is set to true, this will cause all scenes to be forcefully destroyed during the OnApplicationQuit event, using a more sensible order than what unity does by default.  It will first destroy all scenes in the reverse order that they were loaded in (so that earlier loaded scenes are destroyed later) and will finish by destroying the DontDestroyOnLoad objects which include project context.
-
-The reason this setting is not set to true by default is because it can cause crashes on Android as discussed <a href="https://github.com/modesttree/Zenject/issues/301">here</a>.
-
-## <a id="unirx-integration"></a>UniRx Integration
-
-<a href="https://github.com/neuecc/UniRx">UniRx</a> is a library that brings Reactive Extensions to Unity.  It can greatly simplify your code by thinking of some kinds of communication between classes as 'streams' of data.  For more details see the <a href="https://github.com/neuecc/UniRx">UniRx docs</a>.
-
-Zenject integration with UniRx is disabled by default.  To enable, you must add the define `ZEN_SIGNALS_ADD_UNIRX` to your project, which you can do by selecting Edit -> Project Settings -> Player and then adding `ZEN_SIGNALS_ADD_UNIRX` in the "Scripting Define Symbols" section
-
-With `ZEN_SIGNALS_ADD_UNIRX` enabled, you can observe zenject signals via UniRx streams as explained here, and you can also observe zenject events such as Tick, LateTick, and FixedTick etc. on the `TickableManager` class.  One example usage for this class is to ensure that certain events are only handled a maximum of once per frame:
-
-```csharp
-public class User
-{
-    public string Username;
-}
-
-public class UserManager
-{
-    readonly List<User> _users = new List<User>();
-    readonly Subject<User> _userAddedStream = new Subject<User>();
-
-    public IReadOnlyList<User> Users
-    {
-        get { return _users; }
-    }
-
-    public IObservableRx<User> UserAddedStream
-    {
-        get { return _userAddedStream; }
-    }
-
-    public void AddUser(User user)
-    {
-        _users.Add(user);
-        _userAddedStream.OnNext(user);
-    }
-}
-
-public class UserDisplayWindow : IInitializable, IDisposable
-{
-    readonly TickableManager _tickManager;
-    readonly CompositeDisposable _disposables = new CompositeDisposable();
-    readonly UserManager _userManager;
-
-    public UserDisplayWindow(
-        UserManager userManager,
-        TickableManager tickManager)
-    {
-        _tickManager = tickManager;
-        _userManager = userManager;
-    }
-
-    public void Initialize()
-    {
-        _userManager.UserAddedStream.Sample(_tickManager.TickStream)
-            .Subscribe(x => SortView()).AddTo(_disposables);
-    }
-
-    void SortView()
-    {
-        // Sort the displayed user list
-    }
-
-    public void Dispose()
-    {
-        _disposables.Dispose();
-    }
-}
-```
-
-In this case we have some costly operation that we want to run every time some data changes (in this case, sorting), and all it does is affect how something is rendered (in this case, a displayed list of user names).  We could implement ITickable and then set a boolean flag every time the data changes, then perform the update inside Tick(), but this isn't really the reactive way of doing things, so we use Sample() instead.
-
-## <a id="auto-mocking-using-moq"></a>Auto-Mocking using Moq
-
-See <a href="Documentation/AutoMocking.md">here</a>.
-
-## <a id="editor-windows"></a>Creating Unity EditorWindow's with Zenject
-
-If you need to add your own Unity plugin, and you want to create your own EditorWindow derived class, then you might consider using Zenject to help manage this code as well.  Let's go through an example of how you might do this:
-
-1. Right click underneath an Editor folder in your project view then select `Create -> Zenject -> Editor Window`.  Let's call it TimerWindow.
-2. Open your new editor window by selecting the menu item `Window -> TimerWindow`.
-3. Right now it is empty, so let's add some content to it.  Open it up and replace the contents with the following:
-
-```csharp
-public class TimerWindow : ZenjectEditorWindow
-{
-    TimerController.State _timerState = new TimerController.State();
-
-    [MenuItem("Window/TimerWindow")]
-    public static TimerWindow GetOrCreateWindow()
-    {
-        var window = EditorWindow.GetWindow<TimerWindow>();
-        window.titleContent = new GUIContent("TimerWindow");
-        return window;
-    }
-
-    public override void InstallBindings()
-    {
-        Container.BindInstance(_timerState);
-        Container.BindInterfacesTo<TimerController>().AsSingle();
-    }
-}
-
-class TimerController : IGuiRenderable, ITickable, IInitializable
-{
-    readonly State _state;
-
-    public TimerController(State state)
-    {
-        _state = state;
-    }
-
-    public void Initialize()
-    {
-        Debug.Log("TimerController initialized");
-    }
-
-    public void GuiRender()
-    {
-        GUI.Label(new Rect(25, 25, 200, 200), "Tick Count: " + _state.TickCount);
-
-        if (GUI.Button(new Rect(25, 50, 200, 50), "Restart"))
-        {
-            _state.TickCount = 0;
-        }
-    }
-
-    public void Tick()
-    {
-        _state.TickCount++;
-    }
-
-    [Serializable]
-    public class State
-    {
-        public int TickCount;
-    }
-}
-```
-
-In the InstallBindings method for your ZenjectEditorWindow, you can add IInitializable, ITickable, and IDisposable bindings just like you do within your scenes.  There is also a new interface called `IGuiRenderable` that you can use to draw content to the window by using Unity's immediate mode gui.
-
-Note that every time your code is compiled again within Unity, your editor window is reloaded.  InstallBindings is called again and all your classes are created again from scratch.  This means that any state information you may have stored in member variables will be reset.  However, the member fields in EditorWindow derived class itself is serialized, so you can take advantage of this to have state persist across re-compiles.  In the example above, we are able to have the current tick count persist by wrapping it in a Serializable class and including this as a member inside our EditorWindow.
-
-Something else to note is that the rate at which the ITickable.Tick method gets fired can change depending on what you have on focus.  If you run our timer window, then select another window other than Unity, you can see what I mean.  (Tick Count increments much more slowly)
-
-## <a id="optimization_notes"></a>Optimization Notes
-
-DI can affect start-up time when it builds the initial object graph. However it can also affect performance any time you instantiate new objects at run time.
-
-Zenject uses C# reflection which is typically slow, but in Zenject this work is cached so any performance hits only occur once for each class type.  In other words, Zenject avoids costly reflection operations by making a trade-off between performance and memory to ensure good performance.
-
-You can also force Zenject to populate this cache by calling `Zenject.TypeAnalyzer.GetInfo` for each type you want Zenject to cache the reflection information for.
-
-For some benchmarks on Zenject versus other DI frameworks, see [here](https://github.com/svermeulen/IocPerformance/tree/Zenject).
-
-Zenject should also produce zero per-frame heap allocations.
-
-If performance is really important, then we recommend that you use memory pools (and also specify an initial size) and also cache reflection by calling `Zenject.TypeAnalyzer.GetInfo`.  By doing this, you should be able to restrict all the costly operations to the initialization time and avoid any performance issues once your game starts.
-
-You can also get minor gains in speed and minor reductions in memory allocations by defining `ZEN_STRIP_ASSERTS_IN_BUILDS` in build settings.  This will cause all asserts to be stripped out of builds.  However, note that debugging any zenject related errors within builds will be made significantly more difficult by doing this.
-
-## <a id="zenject-philophy"></a>Philosophy Of Zenject
-
-One thing that is helpful to be aware of in terms of understanding the design of Zenject is that unlike many other frameworks it is **not opinionated**.  Many frameworks, such as ROR, ECS, ASP.NET MVC, etc. make rigid design choices for you that you have to follow.  The only assumption that Zenject makes is that you are writing object oriented code and otherwise, how you design your code is entirely up to you.
-
-In my view, dependency injection is pretty fundamental to object oriented programming.  And without a dependency injection framework, the composition root quickly becomes a headache to maintain.  Therefore dependency injection frameworks are fairly fundamental as well.
-
-And that's all Zenject strives to be - a dependency injection framework that targets Unity.  There are certainly quite a few features in Zenject, but they are all optional.  If you want, you can follow traditional unity development and use MonoBehaviours for every class, with the one exception that you use `[Inject]` instead of `[SerializeField]`.  Or you can abandon MonoBehaviours's completely and use the included interfaces such as ITickable and IInitializable.  It is up to you which design you want to use.
-
-Of course, using a DI framework has some disadvantages compared to more rigid frameworks.  The main drawback is that it can be more challenging for new developers to get up and running quickly in a code base, because they need to understand the specific architecture chosen by the previous developers.  Whereas with rigid frameworks developers are given a very clear pathway to follow and so can be productive more quickly.  It is more difficult to make huge design mistakes when using a rigid framework.  However, with this rigidity also comes limitations, because whatever design decisions that are enforced by the framework might not necessarily be ideal for every single problem.
-
-## <a id="upgrading-from-zenject5"></a>Upgrade Guide for Zenject 6
-
-The biggest backwards-incompatible change in Zenject 6 is that the signals system was re-written from scratch and works quite differently now.  However - if you want to continue using the previous signals implementation you can get a zenject-6-compatible version of that <a href="https://github.com/svermeulen/ZenjectSignalsOld">here</a>. So to use that, just import zenject 6 and make sure to uncheck the `OptionalExtras/Signals` folder, and then add the ZenjectSignalsOld folder to your project from that link.
-
-Another backwards-incompatible change in zenject 6 is that AsSingle can no longer be used across multiple bind statements when mapping to the same instance.  In Zenject 5.x and earlier, you could do the following:
-
-```csharp
-public interface IFoo
-{
-}
-
-public class Foo : IFoo
-{
-}
-
-public void InstallBindings()
-{
-    Container.Bind<Foo>().AsSingle();
-    Container.Bind<IFoo>().To<Foo>().AsSingle();
-}
-```
-
-However, if you attempt this in Zenject 6, you will get runtime errors.  The zenject 6 way of doing this is now this:
-
-```csharp
-public void InstallBindings()
-{
-    Container.Bind(typeof(Foo), typeof(IFoo)).To<Foo>().AsSingle();
-}
-```
-
-Or, alternatively you could do it this way as well:
-
-```csharp
-public void InstallBindings()
-{
-    Container.Bind<Foo>().AsSingle();
-    Container.Bind<IFoo>().To<Foo>().FromResolve();
-}
-```
-
-The reason this was changed was because supporting the previous way of using AsSingle had large implementation costs and was unnecessary given these other ways of doing things.
-
-Another change that may cause issues is that for every binding that is a lookup there is both a plural form and a non plural form.  This includes the following:
-
-- FromResource / FromResources
-- FromResolve / FromResolveAll
-- FromComponentInNewPrefab / FromComponentsInNewPrefab
-- FromComponentInNewPrefabResource / FromComponentsInNewPrefabResource
-- FromComponentInHierarchy / FromComponentsInHierarchy
-- FromComponentSibling / FromComponentsSibling
-- FromComponentInParents / FromComponentsInParents
-- FromComponentInChildren / FromComponentsInChildren
-
-So if you were previously using one of these methods to match multiple values you will have to change to use the plural version instead.
-
-There were also a few things that were renamed:
-
-- `Factory<>` is now called `PlaceholderFactory<>` (in this case you should just get warnings about it however)
-- BindFactoryContract is now called BindFactoryCustomInterface.  BindMemoryPool has a similar method called BindMemoryPoolCustomInterface
 
 ## <a id="questions"></a>Frequently Asked Questions
 
@@ -3082,7 +3047,7 @@ There were also a few things that were renamed:
 
 * **<a id="more-samples"></a>Are there any more sample projects to look at?**
 
-Complete examples (with source) using zenject:
+    Complete examples (with source) using zenject:
 
     * [Zenject Hero](https://github.com/Mathijs-Bakker/Zenject-Hero) - Remake of the classic Atari game H.E.R.O.   Based on Zenject 6
     * [Quick Golf](https://assetstore.unity.com/packages/templates/packs/quick-golf-67900) - Mini-golf game
@@ -3128,7 +3093,7 @@ Complete examples (with source) using zenject:
 
 * **<a id="circular-dependency-error"></a>I keep getting errors complaining about circular reference!  How to address this?**
 
-If two classes are injected into each other and both classes use contructor injection, then obviously it is not possible for zenject to create both of these classes.  However, what you can do instead is switch to use method injection or field/property injection instead.  Or, alternatively, you could use the <a href="#just-in-time-resolve">Lazy<> construct</a>
+If two classes are injected into each other and both classes use contructor injection, then obviously it is not possible for zenject to create both of these classes.  However, what you can do instead is switch to use method injection or field/property injection instead.  Or, alternatively, you could use the <a href="#just-in-time-resolve">LazyInject<> construct</a>
 
 ## <a id="cheatsheet"></a>Cheat Sheet
 

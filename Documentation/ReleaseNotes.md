@@ -23,7 +23,7 @@ Notable:
 - Added ability to use [Inject], IInitializable, etc. from within custom user DLLs by referencing Zenject-Usage.dll
 - Added ability to add user supplied validation logic by deriving from IValidatable
 - Also added a way to set global zenject settings to control things like validation behaviour, error output, etc. through the ProjectContext inspector
-- Changed to use System.Lazy instead of Zenject.Lazy if building with .NET 4.6+
+- Renamed Zenject.Lazy class to Zenject.LazyInject to avoid name conflict with System.Lazy on .NET 4.6  (we cannot use System.Lazy directly because of issues with IL2CPP)
 - Fixed to automatically inject StateMachineBehaviour derived classes attached to Animator components
 - Changed the default value for includeInactive parameter to FromComponentX methods to be true, since this is very important when instantiating prefabs and therefore makes more sense as a default
 - Fixed some issues related to binding open generic types
