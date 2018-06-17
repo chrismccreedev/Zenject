@@ -1,5 +1,17 @@
 
-## <a id="sub-containers-and-facades"></a>Sub-Containers And Facades
+## Sub-Containers And Facades
+
+## Table Of Contents
+
+* <a href="#introduction">Introduction</a>
+* <a href="#hello-world-for-facades">Hello World Example For Sub-Containers/Facade</a>
+* <a href="#using-tickables-within-sub-containers">Using IInitializable / ITickable / IDisposable within Sub-Containers</a>
+* <a href="#using-game-object-contexts">Creating Sub-Containers on GameObject's by using Game Object Context</a>
+* <a href="#dynamic-game-object-contexts">Creating Game Object Context's Dynamically</a>
+* <a href="#dynamic-game-object-contexts">Creating Game Object Context's Dynamically With Parameters</a>
+* <a href="#using-game-object-contexts-no-monobehaviours">GameObjectContext Example Without MonoBehaviours</a>
+
+## <a id="introduction"></a>Introduction
 
 In some cases it can be very useful to use multiple containers in the same application.  For example, if you are creating a word processor it might be useful to have a sub-container for each tab that represents a separate document.  This way, you could bind a bunch of classes `AsSingle()` within the sub-container and they could all easily reference each other as if they were all singletons.  Then you could instantiate multiple sub-containers to be used for each document, with each sub-container having unique instances of all the classes that handle each specific document.
 
@@ -166,7 +178,7 @@ The reason this works is because we are now binding `IInitializable`, `IDisposab
 
 Another issue with the <a href="#hello-world-for-facades">sub-container hello world example</a> above is that it does not work very well for MonoBehaviour classes.  There is nothing preventing us from adding MonoBehaviour bindings such as FromComponentInNewPrefab, FromNewComponentOnNewGameObject, etc. to our sub-container, however these will cause these new game objects to be added to the root of the scene heirarchy, so we'll have to manually track the lifetime of these objects ourselves by calling GameObject.Destroy on them when the Facade is destroyed.  Also, there is no way to have GameObject's that exist in our scene at the start but also exist within our sub-container.  These problems can be solved by using Game Object Context.
 
-For this example, let's try to actually implement something similar to the open world space ship game described in <a href="#sub-containers-and-facades">the sub-container introduction</a>:
+For this example, let's try to actually implement something similar to the open world space ship game described in <a href="#introduction">the sub-container introduction</a>:
 
 * Create a new scene
 * Add the following files to your project:
