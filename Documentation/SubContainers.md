@@ -298,14 +298,27 @@ public class ShipInputHandler : MonoBehaviour
 * Validation should now pass successfully.
 * If you run the scene now, you should see a health display in the middle of the screen, and you should be able to press Space bar to apply damage, and the up/down arrows to move the ship
 
-Also note that we can add installers to our ship sub-container in the same way that we add installers to our Scene Context - just by dropping them into the Installers property of GameObjectContext.  In this example we used MonoBehaviour's for everything but we can also add however many plain C# classes we want here and have those classes available everywhere in the sub-container just like we do here for MonoBehaviour's by using ZenjectBinding.
+Also note that we can add installers to our ship sub-container in the same way that we add installers to our Scene Context - just by dropping them into the Installers property of GameObjectContext.
+
+In this example we used MonoBehaviour's for everything but this is just one of several ways to implement Facades/Subcontainers.  In the <a href="../README.md#zenject-philophy">spirit of not enforcing any one way of doing things on the user</a>, we also present <a href="#using-game-object-contexts-no-monobehaviours">another approach</a> below that doesn't use any MonoBehaviour's at all.
 
 ## <a id="dynamic-game-object-contexts"></a>Creating Game Object Context's Dynamically
 
 Continuing with the ship example <a href="#using-game-object-contexts">above</a>, let's pretend that we now want to create ships dynamically, after the game has started.
 
-* First, create a prefab for the entire `Ship` GameObject that we created above and then delete it from the Scene.
+* First, create a prefab for the entire `Ship` GameObject that we created above.
 * Then just add the following changes
+
+```csharp
+public class Ship : MonoBehaviour
+{
+    ...
+
+    public class Factory : PlaceholderFactory<Ship>
+    {
+    }
+}
+```
 
 ```csharp
 public class GameRunner : ITickable
@@ -349,8 +362,9 @@ public class GameInstaller : MonoInstaller
 }
 ```
 
-* After doing this, make sure to drag and drop the newly created Ship prefab into the ShipPrefab property of GameInstaller in the inspector
-* Now if we run our scene, we can hit Space to add multiple Ship's to our scene.
+After doing this, make sure to drag and drop the newly created Ship prefab into the ShipPrefab property of GameInstaller in the inspector
+
+Now if we run our scene, we can hit Space to add multiple Ship's to our scene.  You can also add ships directly to the scene at edit time just like before and they should work the same.   Note however that the ZenjectBinding component we added with the "Use Scene Context" flag checked will have no effect for the dynamically created ships, but will be used for the ships added at edit time.  So if you duplicate the ship in the scene hierarchy and then add a `List<Ship>` constructor parameter to one of your classes, you'll get the initial list of Ships but not the dynamically created ones that were added via the factory.
 
 ## <a id="dynamic-game-object-contexts"></a>Creating Game Object Context's Dynamically With Parameters
 
@@ -478,7 +492,7 @@ Note the changes that we made here:
 
 One important difference with creating a Sub-Container using a factory, is that the parameters you supply to the factory are not necessarily forwarded to the facade class.  In this example, the parameter is a float value for speed, which we want to forward to the ShipInputHandler class instead.  That is why these parameters are always forwarded to an installer for the sub-container, so that you can decide for yourself at install time what to do with the parameter.  Another reason for this is that in some cases the parameter might be used to choose different bindings.
 
-You might also want to be able to drop Ship prefabs into the scene at design time.  This way, you can have some Ships that start in the scene, but you can also create them dynamically.  One way to do that would be to change ShipInstaller to the following:
+One problem with the above is that it will not work with the ships that we add during edit time, since the injected `_speed` value in ShipInstaller will not be found.  We can address this by making it optional and then also exposing it to the inspector like this:
 
 ```csharp
 using System;
@@ -501,4 +515,8 @@ public class ShipInstaller : MonoInstaller
 This way, you can drop the Ship prefab into the scene and control the speed in the inspector, but you can also create them dynamically and pass the speed into the factory as a parameter.
 
 For a more real-world example see the SpaceFighter sample project which makes heavy use of Game Object Contexts.
+
+<a id="using-game-object-contexts-no-monobehaviours"></a>GameObjectContext Example Without MonoBehaviours
+
+If you're like me, then you might want to minimize all the use of MonoBehaviour in the above example.   It comes down to personal preference, but sometimes it's simpler to just use plain C# classes when possible.
 
