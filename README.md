@@ -1750,9 +1750,9 @@ See <a href="Documentation/MemoryPools.md">here</a>.
 
 ## <a id="update--initialization-order"></a>Update / Initialization Order
 
-In many cases, especially for small projects, the order that classes update or initialize in does not matter.  However, in larger projects update or initialization order can become an issue.  This can especially be an issue in Unity, since it is often difficult to predict in what order the Start(), Awake(), or Update() methods will be called in.  Unfortunately, Unity does not have an easy way to control this (besides in `Edit -> Project Settings -> Script Execution Order`, though that can be awkward to use)
+In many cases, especially for small projects, the order that classes update or initialize in does not matter.  However, in larger projects update or initialization order can become an issue.  This can especially be an issue in Unity, since it is often difficult to predict in what order the `Start()`, `Awake()`, or `Update()` methods will be called in.  Unfortunately, Unity does not have an easy way to control this (besides in `Edit -> Project Settings -> Script Execution Order`, though that can be awkward to use)
 
-In Zenject, by default, ITickables and IInitializables are called in the order that they are added, however for cases where the update or initialization order does matter, there is a much better way:  By specifying their priorities explicitly in the installer.  For example, in the sample project you can find this code in the scene installer:
+In Zenject, by default, ITickables and IInitializables are called in the order that they are added, however for cases where the update or initialization order does matter, there is another way that is sometimes better:  By specifying their priorities explicitly in the installer.  For example, in the sample project you can find this code in the scene installer:
 
 ```csharp
 public class AsteroidsInstaller : MonoInstaller
@@ -1786,7 +1786,7 @@ public class AsteroidsInstaller : MonoInstaller
 
 This way, you won't hit a wall at the end of the project due to some unforeseen order-dependency.
 
-Note here that the value given to BindExecutionOrder will apply to ITickable / IInitializable and IDisposable (with the order reversed for IDisposable's).
+Note here that the value given to `BindExecutionOrder` will apply to `ITickable` / `IInitializable` and `IDisposable` (with the order reversed for `IDisposable`'s).
 
 You can also assign priorities for each specific interface separately like this:
 
@@ -1798,7 +1798,7 @@ Container.BindTickableExecutionOrder<Foo>(10);
 Container.BindTickableExecutionOrder<Bar>(-80);
 ```
 
-Any ITickables, IInitializables, or `IDisposable`'s that are not assigned a priority are automatically given the priority of zero.  This allows you to have classes with explicit priorities executed either before or after the unspecified classes.  For example, the above code would result in 'Foo.Initialize' being called before 'Bar.Initialize'.
+Any ITickables, IInitializables, or IDisposables that are not assigned a priority are automatically given the priority of zero.  This allows you to have classes with explicit priorities executed either before or after the unspecified classes.  For example, the above code would result in `Foo.Initialize` being called before `Bar.Initialize`.
 
 ## <a id="zenject-order-of-operations"></a>Zenject Order Of Operations
 
@@ -1808,23 +1808,23 @@ What follows below is a more detailed view of what happens when running a scene 
     * SceneContext.Awake() method is called.  This should always be the first thing executed in your scene.  It should work this way by default (see <a href="#bad-execution-order">here</a> if you are noticing otherwise).
     * Project Context is initialized. Note that this only happens once per play session.  If a previous scene already initialized the ProjectContext, then this step is skipped
         * All injectable MonoBehaviour's on the ProjectContext prefab are passed to the container via <a href="#dicontainer-methods-queueforinject">DiContainer.QueueForInject</a>
-        * ProjectContext iterates through all the Installers that have been added to its prefab via the Unity Inspector, updates them to point to its DiContainer, then calls InstallBindings() on each.  Each Installer calls some number of Bind methods on the DiContainer.
-        * All instances that were added via <a href="#dicontainer-methods-queueforinject">DiContainer.QueueForInject</a> are injected
+        * ProjectContext iterates through all the Installers that have been added to its prefab via the Unity Inspector, runs injects on them, then calls InstallBindings() on each.  Each Installer calls some number of Bind methods on the DiContainer.
         * ProjectContext then constructs all the non-lazy root objects, which includes any classes that derive from ITickable / IInitializable or IDisposable, as well as those classes that are added with a `NonLazy()` binding.
+        * All instances that were added via <a href="#dicontainer-methods-queueforinject">DiContainer.QueueForInject</a> are injected
     * Scene Context is initialized.
         * All injectable MonoBehaviour's in the entire scene are passed to the SceneContext container via <a href="#dicontainer-methods-queueforinject">DiContainer.QueueForInject</a>
-        * SceneContext iterates through all the Installers that have been added to it via the Unity Inspector, updates them to point to its DiContainer, then calls InstallBindings() on each.  Each Installer calls some number of Bind<> methods on the DiContainer.
-        * All instances that were added via <a href="#dicontainer-methods-queueforinject">DiContainer.QueueForInject</a> are injected
+        * SceneContext iterates through all the Installers that have been added to it via the Unity Inspector, runs injects on them, then calls InstallBindings() on each.  Each Installer calls some number of Bind<> methods on the DiContainer.
         * SceneContext then constructs all the non-lazy root objects, which includes any classes that derive from ITickable / IInitializable or IDisposable, as well as those classes that are added with a `NonLazy()` binding.
+        * All instances that were added via <a href="#dicontainer-methods-queueforinject">DiContainer.QueueForInject</a> are injected
     * If any required dependencies cannot be resolved, a ZenjectResolveException is thrown
     * All other MonoBehaviour's in the scene have their Awake() method called
 * Unity Start() phase begins
-    * ProjectContext.Start() method is called.  This will trigger the Initialize() method on all `IInitializable` objects in the order specified in the ProjectContext installers.
-    * SceneContext.Start() method is called.  This will trigger the Initialize() method on all `IInitializable` objects in the order specified in the SceneContext installers.
+    * ProjectKernel.Start() method is called.  This will trigger the Initialize() method on all `IInitializable` objects in the order specified in the ProjectContext installers.
+    * SceneKernel.Start() method is called.  This will trigger the Initialize() method on all `IInitializable` objects in the order specified in the SceneContext installers.
     * All other MonoBehaviour's in your scene have their Start() method called
 * Unity Update() phase begins
-    * ProjectContext.Update() is called, which results in Tick() being called for all `ITickable` objects (in the order specified in the ProjectContext installers)
-    * SceneContext.Update() is called, which results in Tick() being called for all `ITickable` objects (in the order specified in the SceneContext installers)
+    * ProjectKernel.Update() is called, which results in Tick() being called for all `ITickable` objects (in the order specified in the ProjectContext installers)
+    * SceneKernel.Update() is called, which results in Tick() being called for all `ITickable` objects (in the order specified in the SceneContext installers)
     * All other MonoBehaviour's in your scene have their Update() method called
 * These same steps repeated for LateUpdate and ILateTickable
 * At the same time, These same steps are repeated for FixedUpdate according to the physics timestep
@@ -1958,7 +1958,7 @@ public class Foo
 }
 ```
 
-The `ZenjectSceneLoader` class also allows for more complex scenarios, such as loading a scene as a "child" of the current scene, which would cause the new scene to inherit all the dependencies in the current scene.  However, it is often better to use 'Scene Contract Names' for this instead.  See <a href="#scene-parenting">here</a> for details.
+The `ZenjectSceneLoader` class also allows for more complex scenarios, such as loading a scene as a "child" of the current scene, which would cause the new scene to inherit all the dependencies in the current scene.  However, it is often better to use <a href="#scene-parenting">Scene Contract Names</a> for this instead.
 
 ## <a id="scene-parenting"></a>Scene Parenting Using Contract Names
 
@@ -1986,6 +1986,8 @@ To take our example from <a href="#scene-parenting">above</a>, we'd like to be a
 
 After adding this you can click on the `ZenjectDefaultSceneContractConfig` object and add any number of defaults by typing in contract names and then dragging in scene files from the Project tab into the Scene property.  After doing this, you should be able to directly run the Ship scene and the default environment scene will automatically be loaded above that.
 
+Note that the default scene for a given contract will also be used when using <a href="#scenes-decorator">scene decorators</a>
+
 Note that this is an editor only feature.  The default contract names will not be used in builds.  In those cases you will have to explicitly load the correct parent scenes yourself in code.
 
 ## <a id="zenautoinjector"></a>ZenAutoInjecter
@@ -1994,7 +1996,7 @@ As explained in the <a href="#creating-objects-dynamically">section on factories
 
 However, this is sometimes problematic especially when using other third party libraries.  For example, some networking libraries work by automatically instantiating prefabs to sync state across multiple clients.  And it is still desirable in these cases to execute zenject injection.
 
-So to solve these cases, we've added a helper MonoBehaviour that you can add to these kinds of objects called ZenAutoInjecter.  If you add this MonoBehaviour to your prefab, then you should be able to call `GameObject.Instantiate` and injection should happen automatically.
+So to solve these cases, we've added a helper MonoBehaviour that you can add to these kinds of objects called `ZenAutoInjecter`.  If you add this MonoBehaviour to your prefab, then you should be able to call `GameObject.Instantiate` and injection should happen automatically.
 
 After adding this component you might notice that there is a field on it called 'Container Source'.  This value will determine how it calculates which container to use for the injection and has the following options:
 
@@ -2043,13 +2045,17 @@ public class TestHotKeysAdder : ITickable
 }
 ```
 
-If you run your scene it should now behave exactly like the main scene except with the added functionality in your decorator installer.  Also note that while not shown here, both scenes can access each other's bindings as if everything was in the same scene.
+Note the following:
 
-Also note that the Validate command (`CTRL+ALT+V`) can be used to quickly verify the different multi-scene setups.  If you find that scenes are unloaded when you do this see <a href="https://github.com/modesttree/Zenject/issues/168">here</a>.
+- If you run your scene it should now behave exactly like the main scene except with the added functionality in your decorator installer.  Also note that while not shown here, both scenes can access each other's bindings as if everything was in the same scene.
 
-Also, note that decorator scenes must be loaded before the scenes that they are decorating.
+- The Validate command (`CTRL+ALT+V`) can be used to quickly verify the different multi-scene setups.  If you find that scenes are unloaded when you do this see <a href="https://github.com/modesttree/Zenject/issues/168">here</a>.
 
-Also, I should mention that Unity currently doesn't have a built-in way to save and restore multi-scene setups.  We use a simple editor script for this that you can find <a href="https://gist.github.com/svermeulen/8927b29b2bfab4e84c950b6788b0c677">here</a> if interested.
+- Decorator scenes must be loaded before the scenes that they are decorating.
+
+- Unity currently doesn't have a built-in way to save and restore multi-scene setups.  We use a simple editor script for this that you can find <a href="https://gist.github.com/svermeulen/8927b29b2bfab4e84c950b6788b0c677">here</a> if interested.
+
+- Finally, if you want to save yourself some time you could add a <a id="#default-scene-parents">default scene</a> for the contract name that you are using above
 
 ## <a id="sub-containers-and-facades"></a>Sub-Containers And Facades
 

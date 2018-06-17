@@ -213,6 +213,7 @@ And similarly if you want to instantiate your dynamic object via `FromMethod`, `
 
 Using `FromSubContainerResolve` can be particularly useful if your dynamically created object has a lot of its own dependencies.  You can have it behave like a "Facade"  (see the <a href="SubContainers.md">subcontainers section</a> for details on nested containers / facades)
 
+<a id="using-factories-directly"></a>
 There is no requirement that the `Enemy.Factory` class be a nested class within `Enemy,` however we have found this to be a very useful convention.  In both of the above examples we could install it like this instead, and bypass the need for a nested factory class:
 
 ```
@@ -249,13 +250,13 @@ Container.BindFactory&lt;<b>ContractType</b>, <b>PlaceholderFactoryType</b>&gt;(
     .(<b>Copy</b>|<b>Move</b>)Into(<b>All</b>|<b>Direct</b>)SubContainers();
 </pre>
 
-The binding syntax is almost identical to <a href="../README.md#binding">normal bindings</a>, with the exception of the following:
+Where:
 
-* **ContractType** = The contract type returned from the factory Create method
+* **ContractType** = The contract type returned from the factory `Create` method
 
-* **PlaceholderFactoryType** = The class deriving from `PlaceholderFactory`
+* **PlaceholderFactoryType** = The class deriving from `PlaceholderFactory<>`
 
-* **WithFactoryArguments** = If you want to inject extra argumentsinto your placeholder factory derived class, you can include them here.  Note that WithArguments applies to the actual instantiated type and not the factory.
+* **WithFactoryArguments** = If you want to inject extra arguments into your placeholder factory derived class, you can include them here.  Note that `WithArguments` applies to the actual instantiated type and not the factory.
 
 ## <a id="abstract-factories"></a>Abstract Factories
 
@@ -418,9 +419,9 @@ In other words, create a new class that derives from `IFactory<Enemy>` and then 
 
 You could also directly call `new Dog()` and `new Demon()` here instead of using the DiContainer (though in that case `Dog` and `Demon` would not have their members injected).
 
-Note that `FromFactory<CustomEnemyFactory>()` is really shorthand for `FromIFactory(b => b.To<CustomEnemyFactory>().AsCached());` as explained in <a href="../README.md#binding">binding section</a>.  Using FromIFactory instead of FromFactory is a more powerful way of specifying custom factories because the custom factory can be created using any construction method you want, including `FromSubContainerResolve`, `FromInstance`, `FromComponentInNewPrefab`, etc.
+Note that `FromFactory<CustomEnemyFactory>()` is really shorthand for `FromIFactory(b => b.To<CustomEnemyFactory>().AsCached());` as explained in <a href="../README.md#binding">binding section</a>.  Using `FromIFactory` instead of `FromFactory` is a more powerful way of specifying custom factories because the custom factory can be created using any construction method you want, including `FromSubContainerResolve`, `FromInstance`, `FromComponentInNewPrefab`, etc.
 
-One problem with our CustomEnemyFactory above is that it doesn't get validated correctly.  If we add dependencies to the `Demon` or `Dog` classes, and those dependencies are not bound in any installers, then we will not find out until runtime.  So unless we test every difficulty level, it might take some time before becoming aware of this problem.
+One problem with our `CustomEnemyFactory` above is that it doesn't get validated correctly.  If we add dependencies to the `Demon` or `Dog` classes, and those dependencies are not bound in any installers, then we will not find out until runtime.  So unless we test every difficulty level, it might take some time before becoming aware of this problem.
 
 So a better way to do this would be the following:
 
@@ -453,7 +454,7 @@ public class CustomEnemyFactory : IFactory<IEnemy>
 
 With the above change, any dependencies that are missing from the demon or dog constructor parameter list will be caught during validation, instead of at runtime.
 
-Note that if you insist on using the DiContainer methods directly, you can still validate the dependencies you require by making your factory implement IValidatable as explained <a href="#implementing-validatable">here</a>.
+Note that if you insist on using the DiContainer methods directly, you can still validate the dependencies you require by making your factory implement `IValidatable` as explained <a href="#implementing-validatable">here</a>.
 
 ## <a id="ifactory"></a>Using IFactory directly
 
@@ -498,11 +499,11 @@ public class GameInstaller : MonoInstaller
 }
 ```
 
-This can be simpler than deriving from `PlaceholderFactory` in some cases, however, it has the same problems that are mentioned above when using PlaceholderFactory directly (that is, it is more error prone when changing the parameter list, and it can be more verbose in some cases)
+This can be simpler than deriving from `PlaceholderFactory` in some cases, however, it has the <a href="#using-factories-directly">same problems</a> that are mentioned above when using `PlaceholderFactory` directly (that is, it is more error prone when changing the parameter list, and it can be more verbose in some cases)
 
 ## <a id="custom-interface"></a>Custom Factory Interface
 
-In some cases, you might want to avoid becoming directly coupled to the factory class, and would prefer to use a base class or a custom interface instead.  You can do that by using the `BindFactoryInterface` method instead of `BindFactory` like this:
+In some cases, you might want to avoid becoming directly coupled to the factory class, and would prefer to use a base class or a custom interface instead.  You can do that by using the `BindFactoryCustomInterface` method instead of `BindFactory` like this:
 
 ```csharp
 
@@ -546,7 +547,7 @@ Note that there is an equivalent method for memory pools called `BindMemoryPoolC
 
 ## <a id="implementing-validatable"></a>Implementing IValidatable
 
-If you do need to use the DiContainer instantiate methods directly, but you still want to validate the dynamically created object graphs, you can still do that, by implementing the IValidatable interface.  To re-use the same example from above, that would look like this:
+If you do need to use the DiContainer instantiate methods directly, but you still want to validate the dynamically created object graphs, you can still do that, by implementing the `IValidatable` interface.  To re-use the same example from above, that would look like this:
 
 ```csharp
 public class CustomEnemyFactory : IFactory<IEnemy>, IValidatable
@@ -586,7 +587,7 @@ public class TestInstaller : MonoInstaller
 }
 ```
 
-Note that it is not necessary to bind the `IValidatable` interface to our factory.  Simply by implementing the IValidatable interface, and also having our factory be part of the object graph, is enough for the Validate method to get called.
+Note that it is not necessary to bind the `IValidatable` interface to our factory.  Simply by implementing the `IValidatable` interface, and also having our factory be part of the object graph, is enough for the `Validate` method to get called.
 
-Within the Validate method, to manually validate dynamic object graphs, you simply instantiate them.  Note that this will not actually instantiate these objects (these calls actually return null here).  The point is to do a "dry run" without actually instantiating anything, to prove out the full object graph.  For more details on validation see the <a href="../README.md#object-graph-validation">validation section</a>.
+Within the `Validate` method, to manually validate dynamic object graphs, you simply instantiate them.  Note that this will not actually instantiate these objects (these calls actually return null here).  The point is to do a "dry run" without actually instantiating anything, to prove out the full object graph.  For more details on validation see the <a href="../README.md#object-graph-validation">validation section</a>.
 

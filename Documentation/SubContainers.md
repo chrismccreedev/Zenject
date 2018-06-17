@@ -1,11 +1,11 @@
 
 ## <a id="sub-containers-and-facades"></a>Sub-Containers And Facades
 
-In some cases it can be very useful to use multiple containers in the same application.  For example, if you are creating a word processor it may be useful to have a sub-container for each tab that represents a separate document.  This way, you could bind a bunch of classes `AsSingle()` within the sub-container and they could all easily reference each other as if they were all singletons.  Then you could instantiate multiple sub-containers to be used for each document, with each sub-container having unique instances of all the classes that handle each specific document.
+In some cases it can be very useful to use multiple containers in the same application.  For example, if you are creating a word processor it might be useful to have a sub-container for each tab that represents a separate document.  This way, you could bind a bunch of classes `AsSingle()` within the sub-container and they could all easily reference each other as if they were all singletons.  Then you could instantiate multiple sub-containers to be used for each document, with each sub-container having unique instances of all the classes that handle each specific document.
 
 Another example might be if you are designing an open-world space ship game, you might want each space ship to have it's own container that contains all the class instances responsible for running that specific spaceship.
 
-This is actually how ProjectContext bindings work.  There is one container for the entire project, and when a unity scene starts up, it container within each SceneContext is created "underneath" the ProjectContext container.  All the bindings that you add in your scene MonoInstaller are bound to your SceneContext container.  This allows the dependencies in your scene to automatically get injected with ProjectContext bindings, because sub-containers automatically inherit all the bindings in their parent (and grandparent, etc.).
+This is actually how ProjectContext bindings work.  There is one container for the entire project, and when a unity scene starts up, the container within each SceneContext is created "underneath" the ProjectContext container.  All the bindings that you add in your scene MonoInstaller are bound to your SceneContext container.  This allows the dependencies in your scene to automatically get injected with ProjectContext bindings, because sub-containers automatically inherit all the bindings in their parent (and grandparent, etc.).
 
 A common design pattern that we like to use in relation to sub-containers is the <a href="https://en.wikipedia.org/wiki/Facade_pattern">Facade pattern</a>.  This pattern is used to abstract away a related group of dependencies so that it can be used at a higher level when used by other modules in the code base.  This is relevant here because often when you are defining sub-containers in your application it is very useful to also define a Facade class that is used to interact with this sub-container as a whole.  So, to apply it to the spaceship example above, you might have a SpaceshipFacade class that represents very high-level operations on a spaceship such as "Start Engine", "Take Damage", "Fly to destination", etc.  And then internally, the SpaceshipFacade class can delegate the specific handling of all the parts of these requests to the relevant single-responsibility dependencies that exist within the sub-container.
 
@@ -160,7 +160,7 @@ public class TestInstaller : MonoInstaller
 
 Now if we run it, we should see the Hello message, then if we stop playing we should see the Goodbye message.
 
-The reason this works is because we are now binding IInitializable, IDisposable, and ITickable on the root container to the Greeter class given by `Container.BindInterfacesAndSelfTo<Greeter>()`.  Greeter now inherits from Kernel, which inherits from all these interfaces and also handles forwarding these calls to the IInitializable's / ITickable's / IDisposable's in our sub container.  Note that we use AsSingle() here, which is important otherwise it will create a new sub-container for every interface which is not what we want.
+The reason this works is because we are now binding `IInitializable`, `IDisposable`, and `ITickable` on the root container to the Greeter class by executing `Container.BindInterfacesAndSelfTo<Greeter>()`.  Greeter now inherits from Kernel, which inherits from all these interfaces and also handles forwarding these calls to the IInitializable's / ITickable's / IDisposable's in our sub container.  Note that we use AsSingle() here, which is important otherwise it will create a new sub-container for every interface which is not what we want.
 
 ## <a id="using-game-object-contexts"></a>Creating Sub-Containers on GameObject's by using Game Object Context
 
@@ -286,16 +286,16 @@ public class ShipInputHandler : MonoBehaviour
 <img src="../UnityProject/Assets/Plugins/Zenject/Documentation/ShipFacadeExample1.png?raw=true" alt="Ship Facade Example"/>
 
 * The idea here is that everything at or underneath the Ship game object should be considered inside it's own sub-container.  When we're done, we should be able to add multiple ships to our scene, each with their own components ShipHealthHandler, ShipInputHandler, etc. that can treat each other as singletons.
-* Try to validate your scene by pressing CTRL+SHIFT+V.  You should get an error that looks like this: `Unable to resolve type 'ShipHealthHandler' while building object with type 'Ship'.`
+* Try to validate your scene by pressing `CTRL+ALT+V`.  You should get an error that looks like this: `Unable to resolve type 'ShipHealthHandler' while building object with type 'Ship'.`
 * This is because the ShipHealthHandler component has not been added to our sub-container.  To address this:
-    * Click on the HealthHandler game object and then click Add Component and type Zenject Binding (if you don't know what that is read the scene bindings section on the main page)
+    * Click on the HealthHandler game object and then click Add Component and type Zenject Binding (see <a href="../README.md#scene-bindings">here</a> for details on this feature)
     * Drag the Ship Health Handler Component to the Components field of Zenject Binding
-* Validate again by pressing CTRL+SHIFT+V.  You should now get this error instead: `Unable to resolve type 'Ship' while building object with type 'GameRunner'.` 
+* Validate again by pressing `CTRL+ALT+V`.  You should now get this error instead: `Unable to resolve type 'Ship' while building object with type 'GameRunner'.` 
 * Our Ship component also needs to be added to the container.  To address this, once again:
     * Click on the Ship game object and then click Add Component and type Zenject Binding
     * Drag the Ship Component to the Components field of Zenject Binding
-* If we attempt to validate again you should notice the same error occurs.  This is because by default, ZenjectBinding only adds its components to the nearest container - in this case Ship.  This is not what we want though.  We want Ship to be added to the scene container because we want to use it as the Facade for our sub-container.  To address this we can explicitly tell ZenjectBinding which context to apply the binding to by dragging the SceneContext game object and dropping it on to the Context property of the Zenject binding
-* Validation should now pass succesfully.
+* If we attempt to validate again you should notice the same error occurs.  This is because by default, ZenjectBinding only adds its components to the nearest container - in this case Ship.  This is not what we want though.  We want Ship to be added to the scene container because we want to use it as the Facade for our sub-container.  We can do this just by checking the "Use Scene Context" flag on the ZenjectBinding.  We can also explicitly choose the context to use by using the Context property but it is easier to use this flag if we're only interested in using the scene context.
+* Validation should now pass successfully.
 * If you run the scene now, you should see a health display in the middle of the screen, and you should be able to press Space bar to apply damage, and the up/down arrows to move the ship
 
 Also note that we can add installers to our ship sub-container in the same way that we add installers to our Scene Context - just by dropping them into the Installers property of GameObjectContext.  In this example we used MonoBehaviour's for everything but we can also add however many plain C# classes we want here and have those classes available everywhere in the sub-container just like we do here for MonoBehaviour's by using ZenjectBinding.

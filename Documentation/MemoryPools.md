@@ -9,7 +9,7 @@
     * <a href="#resetting">Resetting Items In Pool</a>
     * <a href="#runtime-parameters">Runtime Parameters</a>
     * <a href="#disposepattern">Factories, Pools, and the Dispose Pattern</a>
-    * <a href="#monomemorypool">Memory Pools for MonoBehaviours</a>
+    * <a href="#monomemorypool">Memory Pools for GameObjects</a>
 * Advanced
     * <a href="#static-memory-pool">Static Memory Pools</a>
     * <a href="#usingstatement">Using statements and dispose pattern</a>
@@ -69,7 +69,7 @@ public class TestInstaller : MonoInstaller<TestInstaller>
 }
 ```
 
-Here, every time we call Bar.AddFoo it will always allocate new heap memory. And every time we call Bar.RemoveFoo, the Bar class will stop referencing one of the instances of Foo, and therefore the memory for that instance will be marked for garbage collection.  If this happens enough times, then eventually the garbage collector will kick in and you will get a (sometimes very noticeable) spike in your game.
+Here, every time we call `Bar.AddFoo` it will always allocate new heap memory. And every time we call `Bar.RemoveFoo`, the `Bar` class will stop referencing one of the instances of `Foo,` and therefore the memory for that instance will be marked for garbage collection.  If this happens enough times, then eventually the garbage collector will kick in and you will get a (sometimes very noticeable) spike in your game.
 
 We can fix this spike by using memory pools instead:
 
@@ -114,9 +114,9 @@ public class TestInstaller : MonoInstaller<TestInstaller>
 }
 ```
 
-As you can see, this works very similarly to factories, except that the terminology is a bit different (Pool instead of Factory, Spawn instead of Create) and unlike factories, you have to return the instance to the pool rather than just stop referencing it.
+As you can see, this works very similarly to factories, except that the terminology is a bit different (`Pool` instead of `Factory`, `Spawn` instead of `Create`) and unlike factories, you have to return the instance to the pool rather than just stop referencing it.
 
-With this new implementation above, there will be some initial heap allocation with every call to AddFoo(), but if you call RemoveFoo() then AddFoo() in sequence this will re-use the previous instance and therefore save you a heap allocation.
+With this new implementation above, there will be some initial heap allocation with every call to `AddFoo()`, but if you call `RemoveFoo()` then `AddFoo()` in sequence this will re-use the previous instance and therefore save you a heap allocation.
 
 This is better, but we might still want to avoid the spikes from the initial heap allocations as well.  One way to do this is to do all the heap allocations all at once as your game is starting up:
 
@@ -131,7 +131,7 @@ public class TestInstaller : MonoInstaller<TestInstaller>
 }
 ```
 
-When we use WithInitialSize like this in the Bind statement for our pool, 10 instances of Foo will be created immediately on startup to seed the pool.
+When we use `WithInitialSize` like this in the Bind statement for our pool, 10 instances of `Foo` will be created immediately on startup to seed the pool.
 
 ### <a id="binding-syntax"></a>Binding Syntax
 
@@ -163,13 +163,14 @@ The full format of the binding is the following:
 
 <pre>
 Container.BindMemoryPool&lt;<b>ObjectType, MemoryPoolType</b>&gt;()
-    .With<b>(InitialSize|FixedSize)</b>()
+    .With<b>(InitialSize|FixedSize)</b>
     .WithMaxSize(<b>MaxSize</b>)
     .ExpandBy<b>(OneAtATime|Doubling)</b>()
     .To&lt;<b>ResultType</b>&gt;()
     .WithId(<b>Identifier</b>)
     .From<b>ConstructionMethod</b>()
     .WithArguments(<b>Arguments</b>)
+    .WithFactoryArguments(<b>Factory Arguments</b>)
     .When(<b>Condition</b>)
     .CopyIntoAllSubContainers()
     .NonLazy();
@@ -177,9 +178,9 @@ Container.BindMemoryPool&lt;<b>ObjectType, MemoryPoolType</b>&gt;()
 
 Where:
 
-* **InitialSize** - This will determine how many items to seed the initial pool with on startup.   It can be helpful to set a value here to avoid spikes caused by allocations during gameplay.
+* **InitialSize** - This will determine how many items are seeded to the pool on startup.   It can be helpful to set a value here to avoid spikes caused by allocations during gameplay.
 
-* **FixedSize** - When set, the pool will initially be seed with the amount given here, and if that amount is exceeded then exceptions will be thrown.
+* **FixedSize** - When set, the pool will initially be seeded with the amount given here, and if that amount is exceeded then exceptions will be thrown.
 
 * **MaxSize** - When set, if enough items are returned to the pool that the pool size exceeds this value, then the remaining items will be destroyed. This can be useful to ensure that the pool takes a maximum amount of memory.
 
@@ -187,15 +188,12 @@ Where:
 
 * **MemoryPoolType** = The type of the MemoryPool derived class, which is often a nested class of `ObjectType`.
 
-* **With** = Determines the number of instances that the pool is seeded with.  When not specified, the pool starts with zero instances.  The options are:
+* **ExpandBy** = Determines the behaviour to invoke when the pool reaches its maximum size.  Note that when specifying `WithFixedSize`, this option is not available.  The options are:
 
-    * WithInitializeSize(x) - Create x instances immediately when the pool is created.  The pool is also allowed to grow as necessary if it exceeds that amount
-    * WithFixedSize(x) - Create x instances immediately when the pool is created.  If the pool size is exceeded then an exception is thrown.
+    * **ExpandByOneAtATime** - Only allocate new instances one at a time as necessary
+    * **ExpandByDoubling** - When the pool is full and a new instance is requested, the pool will double in size before returning the requested instance.  This approach can be useful if you prefer having large infrequent allocations to many small frequent allocations
 
-* **ExpandBy** = Determines the behaviour to invoke when the pool reaches its maximum size.  Note that when specifying WithFixedSize, this option is not available.  The options are:
-
-    * ExpandByOneAtATime - Only allocate new instances one at a time as necessary
-    * ExpandByDoubling - When the pool is full and a new instance is requested, the pool will double in size before returning the requested instance.  This approach can be useful if you prefer having large infrequent allocations to many small frequent allocations
+* **WithFactoryArguments** = If you want to inject extra arguments into your MemoryPool derived class, you can include them here.  Note that `WithArguments` applies to the actual instantiated type and not the memory pool.
 
 The rest of the bind methods behave the same as the normal bind methods documented <a href="../README.md#binding">here</a>
 
@@ -242,7 +240,7 @@ public class Foo
 }
 ```
 
-In most cases, you will probably only have to implement the Reinitialize method.   For example, let's introduce some state to our first example by adding a Position value to Foo:
+In most cases, you will probably only have to implement the Reinitialize method.   For example, let's introduce some state to our first example by adding a Position value to `Foo`:
 
 ```csharp
 public class Foo
@@ -264,9 +262,9 @@ public class Foo
 }
 ```
 
-Note that our pool class is free to access private variables inside Foo because of the fact that it is a nested class.
+Note that our pool class is free to access private variables inside `Foo` because of the fact that it is a nested class.
 
-Or, if we wanted to avoid the duplication in Foo and Foo.Pool, we could do it this way:
+Or, if we wanted to avoid the duplication in `Foo` and `Foo.Pool`, we could do it this way:
 
 ```csharp
 public class Foo
@@ -300,7 +298,7 @@ public class Foo
 
 ### <a id="runtime-parameters"></a>Runtime Parameters
 
-Just like Factories, you can also pass runtime parameters when spawning new instances of your pooled classes.  The difference is, instead of the parameters being injected into the class, they are passed to the Reinitialize method:
+Just like Factories, you can also pass runtime parameters when spawning new instances of your pooled classes.  The difference is, instead of the parameters being injected into the class, they are passed to the `Reinitialize` method:
 
 ```csharp
 public class Foo
@@ -365,11 +363,11 @@ public class Bar
 
 The approach that is outlined above works fairly well but has the following drawbacks:
 
-- Every time we make a class poolable we always need to add boilerplate code where we have to subclass `MemoryPool` and then call an instance method 'Reset' on our object, passing along any parameters to it.  It would be easier if this was automated somehow insted of duplicated for every pooled object.
+- Every time we make a class poolable we always need to add boilerplate code where we have to subclass `MemoryPool` and then call an instance method 'Reset' on our object, passing along any parameters to it.  It would be easier if this was automated somehow instead of duplicated for every pooled object.
 
 - Any code that is spawning pooled objects has to maintain a reference to the pool class so that it can call the Despawn method.  This code doesn't really care about whether the object is pooled or not.  The fact that the object is pooled is more of an implementation detail, and therefore it would be better if this was abstracted away from the code that is using it.
 
-- Every time we want to convert some non-pooled objects to use a pool we have to change a lot of code.  We have to remove the `PlaceholderFactory` derived class, and then change every where to call `Spawn` instead of `Create`, and then also remember to call `Despawn`
+- Every time we want to convert some non-pooled objects to use a pool we have to change a lot of code.  We have to remove the `PlaceholderFactory` derived class, and then change all the using code to call `Spawn` instead of `Create`, and then also remember to call `Despawn`
 
 We can solve these problems by using `PlaceholderFactory` and the Dispose Pattern.  Any code can call the factory Create method just like for non-pooled objects and then call Dispose to automatically return the object to the pool.
 
@@ -413,9 +411,28 @@ To accomplish this, we use a nested PlaceholderFactory derived class just like f
 
 We can then also implement `IDisposable` and then return ourselves to the given pool whenever `Dispose` is called.
 
-Then when binding the factory, we can use the `FromPoolableMemoryPool` method to configure the pool with an initial seed value, max size, and expand method as well as the method that is used to construct the obejct.
+Then when binding the factory, we can use the `FromPoolableMemoryPool` method to configure the pool with an initial seed value, max size, and expand method as well as the method that is used to construct the object.
 
-### <a id="monomemorypool"></a>Memory Pools for MonoBehaviours
+<a id="aot-error"></a>
+Note: If you encounter IL2CPP AOT issues with the above approach, you may have to make the memory pool class more explicit by doing the following instead:
+
+```csharp
+public class TestInstaller : MonoInstaller<TestInstaller>
+{
+    public override void InstallBindings()
+    {
+        Container.BindFactory<Foo, Foo.Factory>().FromPoolableMemoryPool<Foo, FooPool>(x => x.WithInitialSize(2));
+    }
+
+    public class FooPool : PoolableMemoryPool<IMemoryPool, Foo>
+    {
+    }
+}
+```
+
+This occurs because sometimes IL2CPP will not include the `PoolableMemoryPool` automatically
+
+### <a id="monomemorypool"></a>Memory Pools for GameObjects
 
 Memory pools for GameObjects works similarly.  For example:
 
@@ -499,9 +516,13 @@ The main difference here is that `Foo.Pool` now derives from `MonoMemoryPool` in
 public abstract class MonoMemoryPool<TParam1, TValue> : MemoryPool<TParam1, TValue>
     where TValue : Component
 {
+    Transform _originalParent;
+
     protected override void OnCreated(TValue item)
     {
         item.gameObject.SetActive(false);
+        // Record the original parent which will be set to whatever is used in the UnderTransform method
+        _originalParent = item.transform.parent;
     }
 
     protected override void OnDestroyed(TValue item)
@@ -517,6 +538,11 @@ public abstract class MonoMemoryPool<TParam1, TValue> : MemoryPool<TParam1, TVal
     protected override void OnDespawned(TValue item)
     {
         item.gameObject.SetActive(false);
+
+        if (item.transform.parent != _originalParent)
+        {
+            item.transform.SetParent(_originalParent, false);
+        }
     }
 }
 ```
@@ -525,7 +551,7 @@ Therefore, if you override one of these methods you will have to make sure to ca
 
 Also, worth noting is the fact that for this logic to work, our MonoBehaviour must be at the root of the prefab, since otherwise only the transform associated with `Foo` and any children will be disabled.
 
-You can also use the Dispose Pattern here using a similar approach outlined above for non-MonoBehaviours, which would look like this:
+You can also use the `Dispose` Pattern here using a similar approach outlined above for non-MonoBehaviours, which would look like this:
 
 ```csharp
 public class Foo : MonoBehaviour, IPoolable<Vector3, IMemoryPool>, IDisposable
@@ -609,7 +635,7 @@ public class TestInstaller : MonoInstaller<TestInstaller>
 }
 ```
 
-Note that unlike in other examples, we derive from `PlaceholderFactory`, implement `IDisposable`, and we use `FromMonoPoolableMemoryPool` instead of `FromPoolableMemoryPool`.
+Note that unlike in other examples, we derive from `PlaceholderFactory`, implement `IDisposable`, and we use `FromMonoPoolableMemoryPool` instead of `FromPoolableMemoryPool`.  Also be careful of potential <a href="#aot-error">AOT errors</a> with this approach.
 
 ### <a id="static-memory-pool"></a>Static Memory Pools
 
@@ -647,7 +673,7 @@ public class PoolExample : MonoBehaviour
 
 In this case, the pool is accessed directly as a static member of the `Foo` class.   This approach can be useful for objects that do not have dependencies, or for cases where you don't want to bother with always needing to install it everywhere.   However, something to be aware of is that unlike with normal memory pools, the objects in the pool will remain in memory even after changing scenes, unless the pool is cleared manually by calling `Foo.Pool.Clear`.
 
-You can also use the Dispose Pattern for this approach as well.  For example:
+Once again you can also use the `Dispose` Pattern for this approach as well.  For example:
 
 ```csharp
 public class Foo : IDisposable
@@ -766,7 +792,7 @@ public class PoolExample : MonoBehaviour
 
 1.  If we want to have multiple return statements within the function, we have to duplicate the cleanup code for each case, which can be even more error prone
 
-1.  If an exception occurs in between the Spawn and Dispose, then the object will not be returned to the pool.
+1.  If an exception occurs in between the `Spawn` and `Dispose`, then the object will not be returned to the pool.
 
 An easy way to solve these problems would be to add a try-finally block:
 
@@ -805,11 +831,11 @@ public class PoolExample : MonoBehaviour
 }
 ```
 
-These approaches guarantee that the Foo object will be returned to the pool, regardless of whether an exception is thrown or the method exits early.  This is another reason why using the Dispose pattern for memory pooled objects is useful.
+These approaches guarantee that the Foo object will be returned to the pool, regardless of whether an exception is thrown or the method exits early.  This is another reason why using the `Dispose` pattern for memory pooled objects is useful.
 
 ### <a id="listpool"></a>List Pool
 
-Static memory pools are especially useful for common data structures such as lists or dictionaries.  Zenject includes some standard memory pools for this exact purpose which you can use.  For example, let's say you are writing a MonoBehaviour that needs to iterate over every component on a game object every frame.  You might implement it like this:
+Static memory pools are especially useful for common data structures such as lists or dictionaries.  Zenject includes some standard memory pools for this exact purpose which you can use.  For example, let's say you are writing a `MonoBehaviour` that needs to iterate over every component on a game object every frame.  You might implement it like this:
 
 ```csharp
 public class PoolExample : MonoBehaviour
@@ -851,7 +877,7 @@ Zenject also includes `DictionaryPool` and `HashSetPool` classes that can be use
 
 ### <a id="disposeblock"></a>Dispose Block
 
-Zenject also provides the DisposeBlock class which is simply a collection of IDisposable objects that are disposed of all at once when DisposeBlock.Dispose is called.  It can also be useful when combined with the using statement for cases where you are allocating multiple temporary instances from the same pool or multiple pools.  For example, let's say we needed to spawn multiple temporary objects in our PoolExample class.  We could do it this way:
+Zenject also provides the `DisposeBlock` class which is simply a collection of `IDisposable` objects that are disposed of all at once when `DisposeBlock.Dispose` is called.  It can also be useful when combined with the using statement for cases where you are allocating multiple temporary instances from the same pool or multiple pools.  For example, let's say we needed to spawn multiple temporary objects in our `PoolExample` class.  We could do it this way:
 
 ```csharp
 public class PoolExample : MonoBehaviour
@@ -881,25 +907,6 @@ public class PoolExample : MonoBehaviour
 
             block.Add(foo);
             block.Add(bar);
-
-            // Some logic
-        }
-    }
-}
-```
-
-Or, equivalently:
-
-
-```csharp
-public class PoolExample : MonoBehaviour
-{
-    public void Update()
-    {
-        using (var block = DisposeBlock.Spawn())
-        {
-            var foo = block.Spawn(Foo.Pool);
-            var bar = block.Spawn(Bar.Pool);
 
             // Some logic
         }
@@ -949,7 +956,7 @@ public class PoolExample : MonoBehaviour
 
 ### <a id="poolable-memorypools"></a>PoolableMemoryPool
 
-If you prefer not to follow the dispose pattern explained above, but would also like to avoid the boilerplate code from the original approach using a Reset method, then you can do that too by using `PoolableMemoryPool` or `MonoPoolableMemoryPool`.
+If you prefer not to follow the dispose pattern explained above, but would also like to avoid the boilerplate code from the original approach using a `Reset` method, then you can do that too by using `PoolableMemoryPool` or `MonoPoolableMemoryPool`.
 
 For example:
 
@@ -995,7 +1002,7 @@ public class PoolableMemoryPool<TParam1, TValue> : MemoryPool<TParam1, TValue>
 }
 ```
 
-If you prefer, you could also make the OnSpawned and OnDespawned methods private by using the c# feature 'explicit interface implementation' which will only allow calling the `OnSpawned` and `OnDespawned` methods via the IPoolable interface:
+If you prefer, you could also make the `OnSpawned` and `OnDespawned` methods private by using the c# feature 'explicit interface implementation' which will only allow calling the `OnSpawned` and `OnDespawned` methods via the `IPoolable` interface:
 
 ```csharp
 public class Foo : IPoolable<string>
@@ -1085,11 +1092,11 @@ public class TestInstaller : MonoInstaller<TestInstaller>
 }
 ```
 
-We might also want to add a Reset() method to the IFoo interface as well here, and call that on Reinitialize()
+We might also want to add a `Reset()` method to the `IFoo` interface as well here, and call that on `Reinitialize()`
 
 ### <a id="subcontainersandpools"></a>Subcontainers/Facades And Memory Pools
 
-You might wonder, if you are using dynamic subcontainers and facades, what is the best way to put the entire subcontainer in a pool?   Let's take the following example to work from:
+You might wonder, if you are using dynamic subcontainers and facades, what is the best way to put the entire subcontainer in a pool?   Consider the following example:
 
 ```csharp
 public class EnemyFacade : MonoBehaviour, IPoolable<IMemoryPool>, IDisposable
@@ -1196,11 +1203,13 @@ public class TestInstaller : MonoInstaller<TestInstaller>
 }
 ```
 
-If we add this code to a project, then we should have a scene where the user can press space to spawn an instance of Enemy, and hit escape to despawn it.  Then, once spawned, the user can hit up arrow to apply some velocity to the enemy object.  It doesn't matter what you use for the `EnemyPrefab` setting on TestInstaller to represent our enemy.  I just added a cube by selecting `GameObject -> 3D Object -> Cube` from the menu and created a prefab directly from that.
+If we add this code to a project, then we should have a scene where the user can press space to spawn an instance of Enemy, and hit escape to despawn it.  Then, once spawned, the user can hit up arrow to apply some velocity to the enemy object.
+
+If you are re-creating this example, note that it doesn't matter what you use for the `EnemyPrefab` setting on `TestInstaller` to represent our enemy.  I just added a cube by selecting `GameObject -> 3D Object -> Cube` from the menu and created a prefab directly from that.
 
 This works but as you will see if you run it, there is a problem with it.  After spawning a new enemy, adding a velocity to it, despawning it, and then spawning it again, the velocity remains unchanged.  When we spawn something from a pool, we always want the state to be set to default values.  In this example it is quite simple and there is only two classes in our subcontainer, but in a real world application, there could be many classes, all with their own state that needs to be reset by the despawn event.
 
-We can fix this by adding the `PoolableManager` to our subcontainer and then implementing the `IPoolable` interface in the classes that need to be reset:
+We could fix this by having the reset methods on the `EnemyFacade` explicitly call other reset methods on other objects, but it would be nice if there was a more generic way to do this.  So instead of that, what you can do is add the built-in `PoolableManager` class to the subcontainer and then implement the `IPoolable` interface on any classes that need to be reset:
 
 ```csharp
 public class EnemyMoveHandler : MonoBehaviour, IPoolable
@@ -1307,7 +1316,7 @@ Note the following:
 - We've installed `PoolableManager` in our subcontainer
 - In EnemyFacade, we have to call the `TriggerOnSpawned` and `TriggerOnDespawned` methods on PoolableManager to trigger the `OnSpawned` and `OnDespawned` methods for the rest of the subcontainer classes
 
-Note also that the order that the `IPoolable` classes are triggered will use the same execution order that is set with the `BindExecutionOrder` method, just like the other standard interfaces.  Also note that the OnDespawned methods are called in the reverse order compared to OnSpawned.
+Note also that the order that the `IPoolable` classes are triggered will use the same execution order that is set with the `BindExecutionOrder` method, just like the other standard interfaces.  Also note that the `OnDespawned` methods are called in the reverse order compared to `OnSpawned`.
 
 ### <a id="instantiating-directory"></a>Instantiating Memory Pools Directly
 
@@ -1324,12 +1333,12 @@ public class BarFactory : IFactory<Bar>
     }
 }
 
-var settings = new MemoryPoolSettings()
-{
-    InitialSize = 1,
-    MaxSize = int.MaxValue,
-    ExpandMethod = PoolExpandMethods.Double,
-};
+var settings = new MemoryPoolSettings(
+    // Initial size
+    1, 
+    // Max size
+    int.MaxValue, 
+    PoolExpandMethods.Double);
 
 var pool = _container.Instantiate<MemoryPool<Bar>>(
     new object[] { settings, new MyBarFactory<Bar>() });
@@ -1337,9 +1346,11 @@ var pool = _container.Instantiate<MemoryPool<Bar>>(
 
 ## <a id="poolcleanupchecker"></a>Pool Cleanup Checker
 
-One mistake that can sometimes occur when using memory pools is that the spawned objects are not returned to the pool properly.  This can happen if the Spawn method is called but then the programmer forgets to add a matching Despawn/Dispose.
+One mistake that can sometimes occur when using memory pools is that the spawned objects are not returned to the pool properly.  This can happen if the `Spawn` method is called but then the programmer forgets to add a matching `Despawn`/`Dispose`.
 
-This isn't always a problem and can sometimes even be intentional.  Assuming the spawned object is not a MonoBehaviours, once the object is no longer used it will be automatically destroyed by the C# garbage collector, so forgetting a Despawn in that case will not produce a memory leak.  The only drawback is that when the object is not returned to the pool, it means the pool has to spawn more objects next time which can be slightly less efficient.
+This isn't always a problem and can sometimes even be intentional.  Assuming the spawned object is not a MonoBehaviour, once the object is no longer used it will be automatically destroyed by the C# garbage collector anyway, so forgetting a `Despawn` in that case will not produce a memory leak.  The only drawback is that when the object is not returned to the pool, it means the pool has to spawn more objects next time which can be slightly less efficient.
+
+Also, of course, if you object has custom dispose logic that is important to run then that will be missed as well which could be a problem.
 
 To detect these mistakes, Zenject includes an optional class that you can install that will throw exceptions when there are actively spawned objects when the scene is closed.  Just add the following to one of your scene installers:
 
@@ -1347,7 +1358,7 @@ To detect these mistakes, Zenject includes an optional class that you can instal
 Container.BindInterfacesTo<PoolCleanupChecker>().AsSingle()
 ```
 
-And then any time you forget to call Despawn, you will get errors reported in the console after ending play mode in Unity.  All this class does is check that each pool has zero active items during the LateDispose event.
+And then any time you forget to call `Despawn`, you will get errors reported in the console after ending play mode in Unity.  All this class does is check that each pool has zero active items during the `LateDispose` event.
 
 Also, since this is intentional in some cases, you can suppress the error reporting for specific pools by passing in a list of types as an argument to PoolCleanupChecker:
 
