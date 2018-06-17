@@ -1377,7 +1377,7 @@ Container.BindInstance(
 
 Zenject also includes an experimental editor window that can be used to monitor the sizes of all the memory pools in the scene.  You can open it by clicking `Window -> Zenject Pool Monitor` inside Unity and should look like this:
 
-<img src="../UnityProject/Assets/Plugins/Zenject/Documentation/PoolMonitor.png?raw=true" alt="Memory Pool Monitor"/>
+<img src="Images/PoolMonitor.png?raw=true" alt="Memory Pool Monitor"/>
 
 This can be useful if you want to make sure that the pools you're using are all reasonable sizes.   It can also be useful as a way to choose a good size to use with the `WithInitializeSize` method to ensure that all allocations occur at once during a loading screen rather than incrementally during gameplay.
 

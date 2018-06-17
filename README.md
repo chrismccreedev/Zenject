@@ -1,5 +1,5 @@
 
-<img src="UnityProject/Assets/Plugins/Zenject/Documentation/ZenjectLogo.png?raw=true" alt="Zenject" width="600px" height="134px"/>
+<img src="Documentation/Images/ZenjectLogo.png?raw=true" alt="Zenject" width="600px" height="134px"/>
 
 ## Dependency Injection Framework for Unity3D
 
@@ -841,7 +841,7 @@ Container.Bind<Foo>().AsSingle().MoveIntoDirectSubContainers()
     1. **ByNewPrefab** - Initialize subcontainer by instantiating a new prefab.  Note that the prefab must contain a `GameObjectContext` component attached to the root game object.  For details on `GameObjectContext` see <a href="#sub-containers-and-facades">this section</a>.
 
         ```csharp
-        Container.Bind<Foo>().FromSubContainerResolve().ByNewPrefab(MyPrefab);
+        Container.Bind<Foo>().FromSubContainerResolve().ByNewContextPrefab(MyPrefab);
 
         // Assuming here that this installer is added to the GameObjectContext at the root
         // of the prefab.  You could also use a ZenjectBinding in the case where Foo is a MonoBehaviour
@@ -1261,7 +1261,7 @@ So another way to do this is to use the `ZenjectBinding` component.  You can do 
 
 For example, if I have a MonoBehaviour of type `Foo` in my scene, I can just add `ZenjectBinding` alongside it, and then drag the Foo component into the Component property of the ZenjectBinding component.
 
-<img src="UnityProject/Assets/Plugins/Zenject/Documentation/AutoBind1.png?raw=true" alt="ZenjectBinding"/>
+<img src="Documentation/Images/AutoBind1.png?raw=true" alt="ZenjectBinding"/>
 
 Then our installer becomes:
 
