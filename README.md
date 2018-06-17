@@ -3005,41 +3005,43 @@ It is possible to remove or replace bindings that were added in a previous bind 
 
     One solution here is to use a dedicated class and just call `StartCoroutine` on that instead.  For example:
 
-        public class AsyncProcessor : MonoBehaviour
+    ```csharp
+    public class AsyncProcessor : MonoBehaviour
+    {
+        // Purposely left empty
+    }
+
+    public class Foo : IInitializable
+    {
+        AsyncProcessor _asyncProcessor;
+
+        public Foo(AsyncProcessor asyncProcessor)
         {
-            // Purposely left empty
+            _asyncProcessor = asyncProcessor;
         }
 
-        public class Foo : IInitializable
+        public void Initialize()
         {
-            AsyncProcessor _asyncProcessor;
-
-            public Foo(AsyncProcessor asyncProcessor)
-            {
-                _asyncProcessor = asyncProcessor;
-            }
-
-            public void Initialize()
-            {
-                _asyncProcessor.StartCoroutine(RunAsync());
-            }
-
-            public IEnumerator RunAsync()
-            {
-                Debug.Log("Foo started");
-                yield return new WaitForSeconds(2.0f);
-                Debug.Log("Foo finished");
-            }
+            _asyncProcessor.StartCoroutine(RunAsync());
         }
 
-        public class TestInstaller : MonoInstaller
+        public IEnumerator RunAsync()
         {
-            public override void InstallBindings()
-            {
-                Container.Bind<IInitializable>().To<Foo>().AsSingle();
-                Container.Bind<AsyncProcessor>().FromNewComponentOnNewGameObject().AsSingle();
-            }
+            Debug.Log("Foo started");
+            yield return new WaitForSeconds(2.0f);
+            Debug.Log("Foo finished");
         }
+    }
+
+    public class TestInstaller : MonoInstaller
+    {
+        public override void InstallBindings()
+        {
+            Container.Bind<IInitializable>().To<Foo>().AsSingle();
+            Container.Bind<AsyncProcessor>().FromNewComponentOnNewGameObject().AsSingle();
+        }
+    }
+    ```
 
     Another solution to this problem which I highly recommend is [UniRx](https://github.com/neuecc/UniRx).
 

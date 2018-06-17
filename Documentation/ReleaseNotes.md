@@ -50,6 +50,9 @@ Minor:
 - Added FromComponentOnRoot bind method for game object contexts
 - Added ZenjectStreams class for easier integration with UniRx
 - Added FromMethodMultipleUntyped bind method
+- Renamed ByNewPrefab to ByNewContextPrefab
+- Added FromComponentOn/FromComponentsOn bind methods
+- Added FromComponentOnRoot/FromComponentsOnRoot bind methods
 
 ## Version 5.5.1 (March 12, 2017)
 
