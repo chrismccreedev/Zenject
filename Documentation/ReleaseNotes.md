@@ -1,7 +1,7 @@
 
 # <a id="release-notes"></a>Release Notes
 
-## Version 6.0 (June 16, 2018)
+## Version 6.0 (June 17, 2018)
 
 Large release with lots of new features, bug fixes, and performance improvements.  Some API changes to be aware of before upgrading.  See the <a href="../README.md#upgrading-from-zenject5">upgrade guide</a> for details
 
