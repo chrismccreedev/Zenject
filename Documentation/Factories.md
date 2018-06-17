@@ -1,7 +1,7 @@
 
 ## Creating Objects Dynamically Using Factories
 
-One of the things that often confuses people new to dependency injection is the question of how to create new objects dynamically, after the app/game has fully started up.  For example, if you are writing a game in which you are spawning new enemies throughout the game, then you will want to construct a new object for the 'enemy' class, and you will want to ensure that this object gets injected with dependencies just like all the objects that are part of the initial object graph.  How to do this?  The answer: Factories.
+One of the things that often confuses people new to dependency injection is the question of how to create new objects dynamically, after the app/game has fully started up.  For example, if you are writing a game in which you are spawning new enemies throughout the game, then you will want to construct new instances of the 'Enemy' class, and you will want to ensure that this object gets injected with dependencies just like all the objects that are part of the initial object graph.  The recommended way to achieve this is to use Factories.
 
 Similar to the main documentation, I recommend at least reading the Introduction section and then skipping around in Advanced if necessary
 
@@ -20,7 +20,7 @@ Similar to the main documentation, I recommend at least reading the Introduction
 
 ## <a id="theory"></a>Theory
 
-Remember that an important part of dependency injection is to reserve use of the container to strictly the "Composition Root Layer".  The container class (DiContainer) is included as a dependency in itself automatically so there is nothing stopping you from ignoring this rule and injecting the container into any classes that you want.  For example, the following code will work:
+Remember that an important part of dependency injection is to reserve use of the container to strictly the "Composition Root Layer".  The container class `(DiContainer)` is included as a dependency in itself automatically so there is nothing stopping you from ignoring this rule and injecting the container into any classes that you want.  For example, the following code will work:
 
 ```csharp
 public class Enemy
@@ -45,6 +45,8 @@ public class Enemy
 
 However, the above code is an example of an anti-pattern.  This will work, and you can use the container to get access to all other classes in your app, however if you do this you will not really be taking advantage of the power of dependency injection.  This is known, by the way, as [Service Locator Pattern](http://blog.ploeh.dk/2010/02/03/ServiceLocatorisanAnti-Pattern/).
 
+Note that the only exception to this rule is within factories and installers.  Again, factories and installers make up what we refer to as the "composition root layer".
+
 Of course, the dependency injection way of doing this would be the following:
 
 ```csharp
@@ -66,27 +68,7 @@ public class Enemy
 }
 ```
 
-The only exception to this rule is within factories and installers.  Again, factories and installers make up what we refer to as the "composition root layer".
-
-For example, if you have a class responsible for spawning new enemies, before DI you might do something like this:
-
-```csharp
-public class EnemySpawner
-{
-    List<Enemy> _enemies = new List<Enemy>();
-
-    public void Update()
-    {
-        if (ShouldSpawnNewEnemy())
-        {
-            var enemy = new Enemy();
-            _enemies.Add(enemy);
-        }
-    }
-}
-```
-
-This will not work however, since in our case the Enemy class requires a reference to the Player class in its constructor.  We could add a dependency to the Player class to the EnemySpawner class, but then we have the problem described <a href="../README.md#theory">above</a>.  The EnemySpawner class doesn't care about filling in the dependencies for the Enemy class.  All the EnemySpawner class cares about is getting a new Enemy instance.
+But now, every place that needs to create a new `Enemy` instance needs to also supply an instance of `Player`, and we are back at the problem mentioned <a href="../README.md#theory">in the main theory section</a>.  So to address this, factories must be used to create every dynamic instance to ensure that these extra dependencies are filled in my zenject.
 
 ## <a id="example"></a>Example
 
@@ -141,7 +123,9 @@ public class TestInstaller : MonoInstaller
 }
 ```
 
-By using `Enemy.Factory` above instead of `new Enemy`, all the dependencies for the Enemy class (such as the Player) will be automatically filled in.  We can also add runtime parameters to our factory.  For example, let's say we want to randomize the speed of each Enemy to add some interesting variation to our game.  Our enemy class becomes:
+By using `Enemy.Factory` above instead of `new Enemy`, all the dependencies for the Enemy class (such as the Player) will be automatically filled in.
+
+We can also add runtime parameters to our factory.  For example, let's say we want to randomize the speed of each Enemy to add some interesting variation to our game.  Our enemy class becomes:
 
 ```csharp
 public class Enemy
@@ -191,11 +175,9 @@ public class TestInstaller : MonoInstaller
 }
 ```
 
-The dynamic parameters that are provided to the Enemy constructor are declared by using generic arguments to the `PlaceholderFactory<>` base class of `Enemy`.Factory.  This will add a method to `Enemy.Factory` that takes the parameters with the given types, which is called by `EnemySpawner`.
+The dynamic parameters that are provided to the `Enemy` constructor are declared by providing extra generic arguments to the `PlaceholderFactory<>` base class of `Enemy.Factory`.  `PlaceholderFactory<>` contains a `Create` method with the given parameter types, which can then be called by other classes such `EnemySpawner`.
 
-There is no requirement that the `Enemy.Factory` class be a nested class within Enemy, however we have found this to be a very useful convention for the reasons explained below.  `Enemy.Factory` is always intentionally left empty and simply derives from the built-in Zenject `PlaceholderFactory<>` class, which handles the work of using the DiContainer to construct a new instance of Enemy.
-
-It is called `PlaceholderFactory` because it doesn't actually control how the object is created directly.  The way that the object is created is declared in an installer in the same way it is declared for non-factory dependencies.  For example, if our Enemy class was a MonoBehaviour on a prefab, we could install it like this instead:
+`Enemy.Factory` is always intentionally left empty and simply derives from the built-in Zenject `PlaceholderFactory<>` class, which handles the work of using the DiContainer to construct a new instance of `Enemy`.  It is called `PlaceholderFactory` because it doesn't actually control how the object is created directly.  The way that the object is created is declared in an installer in the same way it is declared for non-factory dependencies.  For example, if our `Enemy` class was a MonoBehaviour on a prefab, we could install it like this instead:
 
 ```csharp
 public class Enemy : MonoBehaviour
@@ -229,9 +211,9 @@ public class TestInstaller : MonoInstaller
 
 And similarly if you want to instantiate your dynamic object via `FromMethod`, `FromNewComponentOnNewGameObject`, `FromInstance`, `FromSubContainerResolve`, etc. (see <a href="../README.md#binding">binding section</a> for full details)
 
-Using FromSubContainerResolve can be particularly useful if your dynamically created object has a lot of its own dependencies.  You can have it behave like a "Facade"  (see the <a href="SubContainers.md">subcontainers section</a> for details on nested containers / facades)
+Using `FromSubContainerResolve` can be particularly useful if your dynamically created object has a lot of its own dependencies.  You can have it behave like a "Facade"  (see the <a href="SubContainers.md">subcontainers section</a> for details on nested containers / facades)
 
-Note that in both of the above examples we could install it like this instead, and bypass the need for a nested factory class:
+There is no requirement that the `Enemy.Factory` class be a nested class within `Enemy,` however we have found this to be a very useful convention.  In both of the above examples we could install it like this instead, and bypass the need for a nested factory class:
 
 ```
 Container.BindFactory<Enemy, PlaceholderFactory<Enemy>>()
@@ -239,7 +221,7 @@ Container.BindFactory<Enemy, PlaceholderFactory<Enemy>>()
 
 However, this comes with several drawbacks:
 
-1.  Changing the parameter list is not detected at compile time.  If the `PlaceholderFactory<Enemy>` is injected directly all over the code base, when we add a speed parameter and therefore change it to `PlaceholderFactory<float, Enemy>`, then we will get runtime errors when zenject fails to find the `PlaceholderFactory<Enemy>` dependency (or validation errors if you use validation).   However, if we use a derived `Enemy.Factory` class, then if we later decide to derive from `PlaceholderFactory<float, Enemy>` instead, we will get compiler errors in every place that attempts to call `Enemy.Factory.Create`.
+1.  Changing the parameter list is not detected at compile time.  If the `PlaceholderFactory<Enemy>` is injected directly all over the code base, when we add a speed parameter and therefore change it to `PlaceholderFactory<float, Enemy>`, then we will get runtime errors when zenject fails to find the `PlaceholderFactory<Enemy>` dependency (or validation errors if you use validation).   However, if we use a derived `Enemy.Factory` class, then if we later decide to derive from `PlaceholderFactory<float, Enemy>` instead, we will get compiler errors instead (at every place that calls the `Create` method) which is easier to catch
 
 2.  It's less verbose.  Injecting `Enemy.Factory` everywhere is much more readable than `PlaceholderFactory<float, Enemy>`, especially as the parameter list grows.
 
@@ -249,7 +231,7 @@ Other things to be aware of:
 
 - Validation can be especially useful for dynamically created objects, because otherwise you may not catch the error until the factory is invoked at some point during runtime  (see the <a href="../README.md#object-graph-validation">validation section</a> for more details on validation)
 
-- Note that you for dynamically instantiated MonoBehaviours (for example when using FromComponentInNewPrefab with BindFactory) injection should always occur before Awake and Start, so a common convention we recommend is to use Awake/Start for initialization logic and use the inject method strictly for saving dependencies (ie. similar to constructors for non-monobehaviours)
+- Note that for dynamically instantiated MonoBehaviours (for example when using `FromComponentInNewPrefab` with `BindFactory)` injection should always occur before `Awake` and `Start`, so a common convention we recommend is to use `Awake`/`Start` for initialization logic and use the inject method strictly for saving dependencies (ie. similar to constructors for non-monobehaviours)
 
 - Unlike non-factory injection, you can have multiple runtime parameters declared with the same type.  In this case, the order that the values are given to the factory will be matched to the parameter order - assuming that you are using constructor or method injection.  However, note that this is not the case with field or property injection.  In those cases the order that values are injected is not guaranteed to follow the declaration order, since these fields are retrieved using `Type.GetFields` which does not guarantee order as described <a href="https://msdn.microsoft.com/en-us/library/ch9714z3.aspx">here</a>
 
@@ -260,7 +242,6 @@ Container.BindFactory&lt;<b>ContractType</b>, <b>PlaceholderFactoryType</b>&gt;(
     .WithId(<b>Identifier</b>)
     .To&lt;<b>ResultType</b>&gt;()
     .From<b>ConstructionMethod</b>()
-    .As<b>Scope</b>()
     .WithArguments(<b>Arguments</b>)
     .WithFactoryArguments(<b>Factory Arguments</b>)
     .When(<b>Condition</b>)
@@ -270,13 +251,11 @@ Container.BindFactory&lt;<b>ContractType</b>, <b>PlaceholderFactoryType</b>&gt;(
 
 The binding syntax is almost identical to <a href="../README.md#binding">normal bindings</a>, with the exception of the following:
 
-Where:
+* **ContractType** = The contract type returned from the factory Create method
 
-    * **ContractType** = The contract type returned from the factory Create method
+* **PlaceholderFactoryType** = The class deriving from `PlaceholderFactory`
 
-    * **PlaceholderFactoryType** = The class deriving from `PlaceholderFactory`
-
-    * **WithFactoryArguments** = If you want to inject extra argumentsinto your placeholder factory derived class, you can include them here.  Note that WithArguments applies to the actual instantiated type and not the factory.
+* **WithFactoryArguments** = If you want to inject extra argumentsinto your placeholder factory derived class, you can include them here.  Note that WithArguments applies to the actual instantiated type and not the factory.
 
 ## <a id="abstract-factories"></a>Abstract Factories
 

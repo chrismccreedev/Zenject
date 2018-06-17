@@ -1,7 +1,7 @@
 
 ## Signals
 
-NOTE: If you are upgrading from zenject 5.x and want to continue using that version of signals, you can find a zenject-6 compatible version of that [here](https://github.com/svermeulen/ZenjectSignalsOld).  So to use that, just import zenject and make sure to uncheck the `OptionalExtras/Signals` folder, and then add the `ZenjectSignalsOld` folder to your project.
+NOTE: If you are upgrading from zenject 5.x and want to continue using that version of signals, you can find a zenject-6 compatible version of that [here](https://github.com/svermeulen/ZenjectSignalsOld).  So to use that, just import zenject 6 making sure to uncheck the `OptionalExtras/Signals` folder, and then add the `ZenjectSignalsOld` folder from the linked repo to your project instead.
 
 ## Table Of Contents
 
@@ -11,6 +11,7 @@ NOTE: If you are upgrading from zenject 5.x and want to continue using that vers
     * <a href="#declaration">Signals Declaration</a>
     * <a href="#declaration-syntax">Declaration Binding Syntax</a>
     * <a href="#firing">Signal Firing</a>
+    * <a href="#bindsignal">Binding Signals with BindSignal</a>
     * <a href="#signalbusinstaller">SignalBusInstaller</a>
     * <a href="#when-to-use-signals">When To Use Signals</a>
 * Advanced
@@ -174,7 +175,7 @@ public class Greeter : IInitializable, IDisposable
 
 Note that if you go this route that you need to enable UniRx integration as described <a href="../README.md#unirx-integration">here</a>.
 
-As you can see in the the above examples, you can either directly bind a handler method to a signal in an installer using BindSignal (first example) or you can have your signal handler attach and detach itself to the signal (second and third examples)
+As you can see in the the above examples, you can either directly bind a handler method to a signal in an installer using `BindSignal` (first example) or you can have your signal handler attach and detach itself to the signal (second and third examples)
 
 Details of how this works are explained in the following sections.
 
@@ -232,6 +233,8 @@ public override void InstallBindings()
 }
 ```
 
+Any objects that are in the container where it's declared, or any sub container, can now listen on the signal and also fire it.
+
 ## <a id="declaration-syntax"></a>Declaration Binding Syntax
 
 The format of the DeclareSignal statement is the following:
@@ -248,21 +251,21 @@ Where:
 
 - **SignalType** - The custom class that represents the signal
 
-- **RequiredSubscriber**/**OptionalSubscriber**/**OptionalSubscriberWithWarning** - These values control how the signal should behave when it fired and yet there are no subscribers associated with it.  Unless it is over-ridden in <a href="#settings">ZenjectSettings</a>, the default is OptionalSubscriber, which will do nothing in this case.  When RequiredSubscriber is set, exceptions will be thrown in the case of zero subscribers.  OptionalSubscriberWithWarning is half way in between where it will issue a console log warning instead of an exception.  Which one you choose depends on how strict you prefer your application to be, and whether it matters if the given signal is actually handled or not.
+- **RequiredSubscriber**/**OptionalSubscriber**/**OptionalSubscriberWithWarning** - These values control how the signal should behave when it fired but there are no subscribers associated with it.  Unless it is over-ridden in <a href="#settings">ZenjectSettings</a>, the default is OptionalSubscriber, which will do nothing in this case.  When RequiredSubscriber is set, exceptions will be thrown in the case of zero subscribers.  OptionalSubscriberWithWarning is half way in between where it will issue a console log warning instead of an exception.  Which one you choose depends on how strict you prefer your application to be, and whether it matters if the given signal is actually handled or not.
 
 - **RunAsync**/**RunSync** - These values control whether the signal is fired synchronously or asynchronously:
 
-    RunSync - This means the that when the signal is fired by calling `SignalBus.Fire` that all the subscribed handler methods are immediately invoked.
+    **RunSync** - This means the that when the signal is fired by calling `SignalBus.Fire` that all the subscribed handler methods are immediately invoked.
 
-    RunAsync - This means that when a signal is fired, the subscribed methods will not be invoked until later in the frame.  Internally, the signal is added to queue inside SignalBus, which is emptied at the end of every frame.
+    **RunAsync** - This means that when a signal is fired, the subscribed methods will not be invoked until later (as specified by the TickPriority parameter).
 
-    Note that Unless It is over-ridden in <a href="#settings">ZenjectSettings</a>, the default value is to run synchronously.   See <a href="">here</a> for a discussion of asynchronous signals and why you might sometimes want to use that instead.
+    Note that Unless It is over-ridden in <a href="#settings">ZenjectSettings</a>, the default value is to run synchronously.   See <a href="#async-signals">here</a> for a discussion of asynchronous signals and why you might sometimes want to use that instead.
 
-* **TickPriority** = The tick priority to execute the signal handler methods at.  Note that this is only applicable when using RunAsync.
+* **TickPriority** = The tick priority to execute the signal handler methods at.  Note that this is only applicable when using **RunAsync**.
 
-* (**Copy**|**Move**)Into(**All**|**Direct**)SubContainers = Same as behaviour as described in <a href="../README.md#binding">main section on binding</a>.
+* (**Copy**|**Move**)Into(**All**|**Direct**)SubContainers = Same behaviour as described in <a href="../README.md#binding">main section on binding</a>.
 
-    Note that the default value for RunSync/RunAsync and RequiredSubscriber/OptionalSubscriber can be overridden by changing <a href="#settings">ZenjectSettings</a>
+    Note that the default value for **RunSync**/**RunAsync** and **RequiredSubscriber**/**OptionalSubscriber** can be overridden by changing <a href="#settings">ZenjectSettings</a>
 
 ## <a id="firing"></a>Signal Firing
 
@@ -321,7 +324,7 @@ public class UserManager
 }
 ```
 
-### Binding Signals with BindSignal
+## <a id="#bindsignal"></a>Binding Signals with BindSignal
 
 As mentioned above, in addition to being able to directly subscribe to signals on the signal bus (via `SignalBus.Subscribe` or `SignalBus.GetStream`) you can also directly bind a signal to a handling class inside an installer.  This approach has advantages and disadvantages compared to directly subscribing in a handling class so again comes down to personal preference.
 
@@ -340,7 +343,7 @@ Where:
 
 - **ConstructionMethod** - When binding to an instance method above, you also need to define where this instance comes from.  See the section on Handler below for more detail
 
-* (**Copy**|**Move**)Into(**All**|**Direct**)SubContainers = Same as behaviour as described in <a href="../README.md#binding">main section on binding</a>.
+* (**Copy**|**Move**)Into(**All**|**Direct**)SubContainers = Same behaviour as described in <a href="../README.md#binding">main section on binding</a>.
 
 - **Handler** - The method that should be triggered when the signal fires.  This has several variations:
 
@@ -417,10 +420,10 @@ public class Greeter
     }
 }
 
-Container.BindSignal<UserJoinedSignal>().ToMethod<Greeter>(x => x.SayHello).From(x => x.AsCached());
+Container.BindSignal<UserJoinedSignal>().ToMethod<Greeter>(x => x.SayHello).FromNew();
 ```
 
-This way, we don't need a separate binding for Greeter at all.   You can provide many other kinds of arguments to `From` as well, including binding to a lazily instantiated MonoBehaviour, a factory method, a custom factory, a facade in a subcontainer, etc.
+This way, we don't need a separate binding for Greeter at all.   You can provide many other kinds of arguments to `From` as well, including binding to a lazily instantiated `MonoBehaviour`, a factory method, a custom factory, a facade in a subcontainer, etc.
 
 **3. Instance method with mapping**
 
@@ -447,7 +450,7 @@ Container.BindSignal<UserJoinedSignal>().ToMethod<Greeter>((x, s) => x.SayHello(
 
 The zenject signal functionality is optional.  When importing zenject, if you do not want to include signals you can simply uncheck the `OptionalExtras/Signals` folder.  As a result of this, signals are not enabled automatically, so you have to explicitly install them yourself by calling `SignalBusInstaller.Install(Container)` in one of your installers.
 
-You could either do this just one time in a ProjectContext installer, or you could do this in each scene in a SceneContext installer.  Note that you only need to do this once, and then you can use signals in the container that you pass to SignalBusInstaller, as well as any subcontainers, which is why if you install to ProjectContext you do not need to install to SceneContext.
+You could either do this just one time in a `ProjectContext` installer, or you could do this in each scene in a `SceneContext` installer.  Note that you only need to do this once, and then you can use signals in the container that you pass to `SignalBusInstaller,` as well as any subcontainers, which is why if you install to `ProjectContext` you do not need to install to `SceneContext.`
 
 ## <a id="when-to-use-signals"></a>When To Use Signals
 
@@ -458,13 +461,13 @@ Signals are most appropriate as a communication mechanism when:
 3. The sender doesn't even really care if it gets received.  In other words, the sender should not rely on some state changing when the signal is called for subsequent sender logic to work correctly.  Ideally signals can be thought as "fire and forget" events
 4. The sender triggers the signal infrequently or at unpredictable times
 
-These are just rules of thumb, but useful to keep in mind when using signals.  The less logically coupled the sender is to the response behaviour of the receivers, the more appropriate it is compared to other forms of communication such as direct method calls, interfaces, C# event class members, etc.  This is also one reason you might consider using <a href="#async-vs-sync-signals">asynchronous signals</a>
+These are just rules of thumb, but useful to keep in mind when using signals.  The less logically coupled the sender is to the response behaviour of the receivers, the more appropriate it is compared to other forms of communication such as direct method calls, interfaces, C# event class members, etc.  This is also one reason you might consider using <a href="#async-signals">asynchronous signals</a>
 
 When event driven program is abused, it is possible to find yourself in "callback hell" where events are triggering other events etc. and which make the entire system impossible to understand.  So signals in general should be used with caution.  Personally I like to use signals for high level game-wide events and then use other forms of communication (unirx streams, c# events, direct method calls, interfaces) for most other things.
 
 ## <a id="use-with-subcontainers"></a>Signals With Subcontainers
 
-Signals are only visible at the container level where they are declared and below.  For example, you might use Unity's multi-scene support and split up your game into a GUI scene and an Environment scene.  In the GUI scene you might fire a signal indicating that the GUI popup overlay has been opened/closed, so that the Environment scene can pause/resume activity.  One way of achieving this would be to declare a signal in a ProjectContext installer, then subscribe to it in the Environment scene, and then fire it from the GUI scene.  Or, alternatively, you could use a scene that is the parent of both the Environment scene and the GUI scene and put the signal declaration there.
+Signals are only visible at the container level where they are declared and below.  For example, you might use Unity's multi-scene support and split up your game into a GUI scene and an Environment scene.  In the GUI scene you might fire a signal indicating that the GUI popup overlay has been opened/closed, so that the Environment scene can pause/resume activity.  One way of achieving this would be to declare a signal in a ProjectContext installer (or a shared <a href="../README.md#scene-parenting">scene parent</a>), then subscribe to it in the Environment scene, and then fire it from the GUI scene.
 
 ## <a id="async-signals"></a>Asynchronous Signals
 
@@ -472,7 +475,7 @@ In some cases it might be desirable to run a given signal asynchronously.  Async
 
 1. The update-order that the signal handlers are triggered might be more predictable.  When using synchronous signals, the signal handler methods are executed at the same time that the signal is fired, which could be triggered at any time during the frame, or in some cases multiple places if the signal is fired multiple times.  This can lead to some update-order issues.  With async signals, the signal handlers are always executed at the same time in the frame as configured by the TickPriority.
 
-2. Asynchronous signals can encourage less coupling between the sender and receiver, which is often what you want.  As explained <a href="#when-to-use-signals">above</a>, signals work best when they are used for "fire and forget" events where the sender doesn't care about the behaviour of any listeners.   By making a signal async, it can enforce this separation because the signal handler methods will be executed later, and therefore the sender can not make direct use of the result of the handlers behaviour.
+2. Asynchronous signals can encourage less coupling between the sender and receiver, which is often what you want.  As explained <a href="#when-to-use-signals">above</a>, signals work best when they are used for "fire and forget" events where the sender doesn't care about the behaviour of any listeners.   By making a signal async, it can enforce this separation because the signal handler methods will be executed later, and therefore the sender actually cannot make direct use of the result of the handlers behaviour.
 
 3. Unexpected state changes can occur while firing just one signal.  For example, an object A might trigger a signal which would trigger some logic that would eventually cause A to be deleted.  If the signal was executed synchronously, then the call stack could eventually return to object A where the signal was fired, and object A could then attempt to execute commands afterwards that causes problems (since object A will have already been deleted)
 
@@ -486,13 +489,13 @@ This is not to say that asynchronous signals are superious to synchronous signal
 
 ## <a id="settings"></a>Signal Settings
 
-Most of the default settings for signals can be overriden via a settings property that is on the ProjectContext.  It can also be configured on a per-container level by setting the `DiContainer.Settings` property.  For signals this includes the following:
+Most of the default settings for signals can be overriden via a settings property that is on the `ProjectContext`.  It can also be configured on a per-container level by setting the `DiContainer.Settings` property.  For signals this includes the following:
 
-Default Sync Mode - This value controls the default value for the `DeclareSignal` property `RunSync`/`RunAsync` when it is left unspecified.  By default it is set to synchronous so will assume `RunSync` when unspecified by a call to `DeclareSignal`
+**Default Sync Mode** - This value controls the default value for the `DeclareSignal` property `RunSync`/`RunAsync` when it is left unspecified.  By default it is set to synchronous so will assume `RunSync` when unspecified by a call to `DeclareSignal`.  So if you are a fan of async signals then you could set this to async to assume async instead.
 
-Missing Handler Default Response - This value controls the default value when **RequiredSubscriber**/**OptionalSubscriber**/**OptionalSubscriberWithWarning** is not specified for a call to `DeclareSignal`.  By default it is set to **OptionalSubscriber**.
+**Missing Handler Default Response** - This value controls the default value when **RequiredSubscriber**/**OptionalSubscriber**/**OptionalSubscriberWithWarning** is not specified for a call to `DeclareSignal`.  By default it is set to **OptionalSubscriber**.
 
-Require Strict Unsubscribe - When true, this will cause exceptions to be thrown if the scene ends and there are still signal handlers that have not yet unsubscribed yet.  By default it is false.
+**Require Strict Unsubscribe** - When true, this will cause exceptions to be thrown if the scene ends and there are still signal handlers that have not yet unsubscribed yet.  By default it is false.
 
-Default Async Tick Priority - This value controls the default tick priority when `RunAsync` is used with `DeclareSignal` but `WithTickPriority` is left unset.  By default it is set to 1, which will cause the signal handlers to be invoked right after all the normal tickables have been called.  This default is chosen because it will ensure that the signal is handled in the same frame that it is triggered, which can be important if the signal affects how the frame is rendered.
+**Default Async Tick Priority** - This value controls the default tick priority when `RunAsync` is used with `DeclareSignal` but `WithTickPriority` is left unset.  By default it is set to 1, which will cause the signal handlers to be invoked right after all the normal tickables have been called.  This default is chosen because it will ensure that the signal is handled in the same frame that it is triggered, which can be important if the signal affects how the frame is rendered.
 
