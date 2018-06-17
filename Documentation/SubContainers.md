@@ -516,7 +516,170 @@ This way, you can drop the Ship prefab into the scene and control the speed in t
 
 For a more real-world example see the SpaceFighter sample project which makes heavy use of Game Object Contexts.
 
-<a id="using-game-object-contexts-no-monobehaviours"></a>GameObjectContext Example Without MonoBehaviours
+## <a id="using-game-object-contexts-no-monobehaviours"></a>GameObjectContext Example Without MonoBehaviours
 
-If you're like me, then you might want to minimize all the use of MonoBehaviour in the above example.   It comes down to personal preference, but sometimes it's simpler to just use plain C# classes when possible.
+If you're like me, then you might want to minimize all the use of MonoBehaviour in the above example.   It comes down to personal preference, but sometimes it's simpler to just use plain C# classes when possible.  In this example, we'll change the example above so that the ship prefab is just the model used for the ship (which in this case is just a cube):
+
+
+```csharp
+using UnityEngine;
+using Zenject;
+
+public class GameInstaller : MonoInstaller
+{
+    [SerializeField]
+    GameObject ShipPrefab;
+
+    public override void InstallBindings()
+    {
+        Container.BindInterfacesTo<GameRunner>().AsSingle();
+
+        Container.BindFactory<float, ShipFacade, ShipFacade.Factory>()
+            .FromSubContainerResolve().ByNewPrefabInstaller<ShipInstaller>(ShipPrefab);
+    }
+}
+```
+
+```csharp
+using UnityEngine;
+using Zenject;
+
+public class GameRunner : ITickable
+{
+    readonly ShipFacade.Factory _shipFactory;
+
+    Vector3 lastShipPosition;
+
+    public GameRunner(ShipFacade.Factory shipFactory)
+    {
+        _shipFactory = shipFactory;
+    }
+
+    public void Tick()
+    {
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            var ship = _shipFactory.Create(Random.Range(2.0f, 20.0f));
+            ship.Transform.position = lastShipPosition;
+
+            lastShipPosition += Vector3.forward * 2;
+        }
+    }
+}
+```
+
+```csharp
+using UnityEngine;
+using Zenject;
+
+public class ShipFacade
+{
+    readonly ShipHealthHandler _healthHandler;
+
+    public ShipFacade(ShipHealthHandler healthHandler)
+    {
+        _healthHandler = healthHandler;
+    }
+
+    public void TakeDamage(float damage)
+    {
+        _healthHandler.TakeDamage(damage);
+    }
+
+    [Inject]
+    public Transform Transform
+    {
+        get; private set;
+    }
+
+    public class Factory : PlaceholderFactory<float, ShipFacade>
+    {
+    }
+}
+```
+
+```csharp
+using UnityEngine;
+
+public class ShipHealthHandler : MonoBehaviour
+{
+    float _health = 100;
+
+    public void OnGUI()
+    {
+        GUI.Label(new Rect(Screen.width / 2, Screen.height / 2, 200, 100), "Health: " + _health);
+    }
+
+    public void TakeDamage(float damage)
+    {
+        _health -= damage;
+    }
+}
+```
+
+```csharp
+using UnityEngine;
+using Zenject;
+
+public class ShipInputHandler : ITickable
+{
+    readonly Transform _transform;
+    readonly float _speed;
+
+    public ShipInputHandler(
+        float speed,
+        Transform transform)
+    {
+        _transform = transform;
+        _speed = speed;
+    }
+
+    public void Tick()
+    {
+        if (Input.GetKey(KeyCode.UpArrow))
+        {
+            _transform.position += Vector3.forward * _speed * Time.deltaTime;
+        }
+
+        if (Input.GetKey(KeyCode.DownArrow))
+        {
+            _transform.position -= Vector3.forward * _speed * Time.deltaTime;
+        }
+    }
+}
+```
+
+```csharp
+using UnityEngine;
+using Zenject;
+
+public class ShipInstaller : Installer<ShipInstaller>
+{
+    readonly float _speed;
+
+    public ShipInstaller(
+        [InjectOptional]
+        float speed)
+    {
+        _speed = speed;
+    }
+
+    public override void InstallBindings()
+    {
+        Container.Bind<ShipFacade>().AsSingle();
+        Container.Bind<Transform>().FromComponentOnRoot();
+        Container.BindInterfacesTo<ShipInputHandler>().AsSingle();
+        Container.BindInstance(_speed).WhenInjectedInto<ShipInputHandler>();
+        Container.Bind<ShipHealthHandler>().FromNewComponentOnRoot().AsSingle();
+    }
+}
+```
+
+Note the following changes:
+- In GameInstaller, we are now using ByNewPrefabInstaller instead of ByNewContextPrefab.  This will automatically add the GameObjectContext on to the given prefab, and then attach the given installer to it.  This allows us to make the ShipInstaller type Installer instead of MonoInstaller
+- Since we are no longer using MonoBehaviour's we no longer have access to the Transform, so we have to add a binding for this as well.  To do this we use FromComponentOnRoot, which will grab the transform from the root of the instantiated prefab
+- The only exception is ShipHealthHandler, which still needs to be a MonoBehaviour because it uses OnGUI to render to the screen, so we have to use FromNewComponentOnRoot in that case
+- We can now use constructor injection instead of field/method injection for all our classes
+
+Another benefit to this approach compared to the initial approach we took is that it can be easier to follow in some ways purely by reading the code.  You can read GameInstaller and see that it creates a subcontainer using ShipInstaller, and then you can read ShipInstaller to see all the dependencies that are inside the subcontainer.  When using ByNewContextPrefab, we would have to leave the code and go back to unity, then find the prefab and check which installers are on it, and also look through the hierarchy for ZenjectBinding components, which can be much more difficult to follow
 
