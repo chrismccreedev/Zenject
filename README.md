@@ -475,61 +475,11 @@ Where:
 
     * Default: AsTransient
     * It can be one of the following:
-        1. **AsTransient** - Will not re-use the instance at all.  Every time **ContractType** is requested, the DiContainer will return a brand new instance of type **ResultType**
+        1. **AsTransient** - Will not re-use the instance at all.  Every time **ContractType** is requested, the DiContainer will execute the given construction method again
         2. **AsCached** - Will re-use the same instance of **ResultType** every time **ContractType** is requested, which it will lazily generate upon first use
-        3. **AsSingle** - Will re-use the same instance of **ResultType** across the entire DiContainer, which it will lazily generate upon first use.  It can be thought of as a stronger version of AsCached, because it allows you to bind to the same instance across multiple bind commands.  It will also ensure that there is only ever exactly one instance of **ResultType** in the DiContainer (ie. it will enforce **ResultType** to be a 'Singleton' hence the name).  Note however that it will only guarantee that there is only one instance across the given container, which means that using AsSingle with the same binding in a sub-container could generate a second instance.
+        3. **AsSingle** - Exactly the same as AsCached, except that it will sometimes throw exceptions if there already exists a binding for **ResultType**.  It is simply a way to ensure that the given **ResultType** is unique within the container.  Note however that it will only guarantee that there is only one instance across the given container, which means that using AsSingle with the same binding in a sub-container could generate a second instance.
 
     * In most cases, you will likely want to just use AsSingle, however AsTransient and AsCached have their uses too.
-    * To illustrate the difference between the different scope types, see the following example:
-        ```csharp
-        public interface IBar
-        {
-        }
-
-        public class Bar : IBar
-        {
-        }
-
-        public class Foo()
-        {
-            public Foo(Bar bar)
-            {
-            }
-        }
-        ```
-
-        ```csharp
-        // This will cause every instance of Foo to be given a brand new instance of Bar
-        Container.Bind<Bar>().AsTransient();
-        ```
-
-        ```csharp
-        // This will cause every instance of Foo to be given the same instance of Bar
-        Container.Bind<Bar>().AsCached();
-        ```
-
-        ```csharp
-        public class Qux()
-        {
-            public Qux(IBar bar)
-            {
-            }
-        }
-        ```
-
-        ```csharp
-        // This will cause both Foo and Qux to get different instances of type Bar
-        // However, every instance of Foo will be given the the same instance of type Bar
-        // and similarly for Qux
-        Container.Bind<Bar>().AsCached();
-        Container.Bind<IBar>().To<Bar>().AsCached();
-        ```
-
-        ```csharp
-        // This will cause both Foo and Qux to get the same instance of type Bar
-        Container.Bind<Bar>().AsSingle();
-        Container.Bind<IBar>().To<Bar>().AsSingle();
-        ```
 
 * **Arguments** = A list of objects to use when constructing the new instance of type **ResultType**.  This can be useful as an alternative to adding other bindings for the arguments in the form `Container.BindInstance(arg).WhenInjectedInto<ResultType>()`
 * **Condition** = The condition that must be true for this binding to be chosen.  See <a href="#conditional-bindings">here</a> for more details.
@@ -595,7 +545,7 @@ Container.Bind<Foo>().AsSingle().MoveIntoDirectSubContainers()
     }
     ```
 
-1. **FromMethodMultiple** - Same as FromMethod except allows returning multiple instances at once.
+1. **FromMethodMultiple** - Same as FromMethod except allows returning multiple instances at once (or zero).
 
     ```csharp
     Container.Bind<Foo>().FromMethodMultiple(GetFoos);
@@ -683,7 +633,7 @@ Container.Bind<Foo>().AsSingle().MoveIntoDirectSubContainers()
 
     Note that if there are multiple matches for **ResultType** on the prefab it will only match the first one encountered just like how GetComponentInChildren works.  So if you are binding a prefab and there isn't a specific MonoBehaviour/Component that you want to bind to, you can just choose Transform and it will match the root of the prefab.
 
-1. **FromComponentsInNewPrefab** - Same as FromComponentInNewPrefab except will match multiple values or zero values.  You might use it for example and then inject **List<ContractType>** somewhere.  Can be thought of as similar to `GetComponentsInChildren`
+1. **FromComponentsInNewPrefab** - Same as FromComponentInNewPrefab except will match multiple values or zero values.  You might use it for example and then inject `List<ContractType>` somewhere.  Can be thought of as similar to `GetComponentsInChildren`
 
 1. **FromComponentInNewPrefabResource** - Instantiate the given prefab (found at the given resource path) as a new game object, inject any MonoBehaviour's on it, and then search the result for type **ResultType** in a similar way that `GetComponentInChildren` works (in that it will return the first matching value found)
 
@@ -693,7 +643,7 @@ Container.Bind<Foo>().AsSingle().MoveIntoDirectSubContainers()
 
     **ResultType** must either be an interface or derive from UnityEngine.MonoBehaviour / UnityEngine.Component in this case
 
-1. **FromComponentsInNewPrefabResource** - Same as FromComponentInNewPrefab except will match multiple values or zero values.  You might use it for example and then inject **List<ContractType>** somewhere.  Can be thought of as similar to `GetComponentsInChildren`
+1. **FromComponentsInNewPrefabResource** - Same as FromComponentInNewPrefab except will match multiple values or zero values.  You might use it for example and then inject `List<ContractType>` somewhere.  Can be thought of as similar to `GetComponentsInChildren`
 
 1. **FromNewComponentOnNewGameObject** - Create a new empty game object and then instantiate a new component of the given type on it.
 
@@ -753,7 +703,7 @@ Container.Bind<Foo>().AsSingle().MoveIntoDirectSubContainers()
 
     In the case where the context is ProjectContext, it will only search within the project context prefab
 
-1. **FromComponentsInHierarchy** - Same as FromComponentInHierarchy except will match multiple values or zero values.  You might use it for example and then inject **List<ContractType>** somewhere.  Can be thought of as similar to `GetComponentsInChildren`
+1. **FromComponentsInHierarchy** - Same as FromComponentInHierarchy except will match multiple values or zero values.  You might use it for example and then inject `List<ContractType>` somewhere.  Can be thought of as similar to `GetComponentsInChildren`
 
 1. **FromComponentSibling** - Look up the given component type by searching over the components that are attached to the current transform.  The current transform here is taken from the object being injected, which must therefore be a MonoBehaviour derived type. 
 
@@ -777,7 +727,7 @@ Container.Bind<Foo>().AsSingle().MoveIntoDirectSubContainers()
 
     Note that if a non-MonoBehaviour requests the given type, an exception will be thrown, since there is no current transform in that case.
 
-1. **FromComponentsInParents** - Same as FromComponentInParents except will match multiple values or zero values.  You might use it for example and then inject **List<ContractType>** somewhere
+1. **FromComponentsInParents** - Same as FromComponentInParents except will match multiple values or zero values.  You might use it for example and then inject `List<ContractType>` somewhere
 
 1. **FromComponentInChildren** - Look up the component by searching the current transform or any child transform for the given component type.  The current transform here is taken from the object being injected, which must therefore be a MonoBehaviour derived type.   Similar to `GetComponentInChildren` in that it will return the first matching value found
 
@@ -789,7 +739,7 @@ Container.Bind<Foo>().AsSingle().MoveIntoDirectSubContainers()
 
     Note that if a non-MonoBehaviour requests the given type, an exception will be thrown, since there is no current transform in that case.
 
-1. **FromComponentsInChildren** - Same as FromComponentInChildren except will match multiple values or zero values.  You might use it for example and then inject **List<ContractType>** somewhere.  Can be thought of as similar to `GetComponentsInChildren`
+1. **FromComponentsInChildren** - Same as FromComponentInChildren except will match multiple values or zero values.  You might use it for example and then inject `List<ContractType>` somewhere.  Can be thought of as similar to `GetComponentsInChildren`
 
 1. **FromNewComponentOnRoot** - Instantiate the given component on the root of the current context.  This is most often used with GameObjectContext.
 
@@ -805,7 +755,7 @@ Container.Bind<Foo>().AsSingle().MoveIntoDirectSubContainers()
     Container.Bind<Texture>().WithId("Glass").FromResource("Some/Path/Glass");
     ```
 
-1. **FromResources** - Same as FromResource except will match multiple values or zero values.  You might use it for example and then inject **List<ContractType>** somewhere
+1. **FromResources** - Same as FromResource except will match multiple values or zero values.  You might use it for example and then inject `List<ContractType>` somewhere
 
 1. **FromScriptableObjectResource** - Bind directly to the scriptable object instance at the given resource path.  NOTE:  Changes to this value while inside unity editor will be saved persistently.  If this is undesirable, use FromNewScriptableObjectResource.
 
@@ -961,8 +911,6 @@ Container.Bind<Foo>().AsSingle().MoveIntoDirectSubContainers()
         ```
 
 1. **FromSubContainerResolveAll** - Same as FromSubContainerResolve except will match multiple values or zero values.
-
-Note also that the "scope" here (eg. FromCached, FromSingle, or FromTransient) refers to the sub container itself and not the dependency in the subcontainer. For FromSingle, the 'singleton' subcontainer is identified by the method in the case of ByMethod, the installer type in the case of ByInstaller, and the prefab in the case of ByNewPrefab or ByNewPrefabResource.
 
 ## <a id="installers"></a>Installers
 
