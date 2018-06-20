@@ -38,15 +38,7 @@ If you just want to get up and running immediately, see the following example wh
 
 public class UserJoinedSignal
 {
-    public UserJoinedSignal(string username)
-    {
-        Username = username;
-    }
-
-    public string Username
-    {
-        get; private set;
-    }
+    public string Username;
 }
 
 public class GameInitializer : IInitializable
@@ -60,7 +52,7 @@ public class GameInitializer : IInitializable
 
     public void Initialize()
     {
-        _signalBus.Fire(new UserJoinedSignal("Bob"));
+        _signalBus.Fire(new UserJoinedSignal() { Username = "Bob" });
     }
 }
 
@@ -199,7 +191,7 @@ public class WeaponEquippedSignal
 }
 ```
 
-However - it is usually best practice to make the signal classes immutable, so our WeaponEquippedSignal might be better written as this instead:
+You might also consider making the signal classes immutable, so our WeaponEquippedSignal might be better written as this instead:
 
 ```csharp
 public class WeaponEquippedSignal
@@ -222,7 +214,7 @@ public class WeaponEquippedSignal
 }
 ```
 
-This isn't necessary but is good practice because it will ensure that any signal handlers do not attempt to change the signal parameter values, which could negatively affect other signal handler behaviour.
+This isn't necessary but you might consider doing this to ensure that any signal handlers do not attempt to change the signal parameter values, which could negatively affect other signal handler behaviour.
 
 After we have created our signal class we just need to declare it in an installer somewhere:
 
@@ -297,15 +289,7 @@ Or, if the signal has parameters then you will want to create a new instance of 
 ```csharp
 public class UserJoinedSignal
 {
-    public UserJoinedSignal(string username)
-    {
-        Username = username;
-    }
-
-    public string Username
-    {
-        get; private set;
-    }
+    public string Username;
 }
 
 public class UserManager
@@ -319,7 +303,7 @@ public class UserManager
 
     public void DoSomething()
     {
-        _signalBus.Fire(new UserJoinedSignal("Bob"));
+        _signalBus.Fire(new UserJoinedSignal() { Username = "Bob" });
     }
 }
 ```
