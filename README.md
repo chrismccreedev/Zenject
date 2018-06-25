@@ -138,7 +138,7 @@ Also, if you prefer video documentation, you can watch [this youtube series on z
     * <a href="#zenject-order-of-operations">Zenject Order Of Operations</a>
     * <a href="#injecting-data-across-scenes">Injecting data across scenes</a>
     * <a href="#scene-parenting">Scene Parenting Using Contract Names</a>
-    * <a href="#just-in-time-resolve">Just-In-Time Resolving Using Lazy&lt;&gt;</a>
+    * <a href="#just-in-time-resolve">Just-In-Time Resolving Using LazyInject&lt;&gt;</a>
     * <a href="#scenes-decorator">Scene Decorators</a>
     * <a href="#zenautoinjector">ZenAutoInjecter</a>
     * <a href="#sub-containers-and-facades">Sub-Containers And Facades</a>
@@ -2075,7 +2075,7 @@ And that's all Zenject strives to be - a dependency injection framework that tar
 
 Of course, using a DI framework has some disadvantages compared to more rigid frameworks.  The main drawback is that it can be more challenging for new developers to get up and running quickly in a code base, because they need to understand the specific architecture chosen by the previous developers.  Whereas with rigid frameworks developers are given a very clear pathway to follow and so can be productive more quickly.  It is more difficult to make huge design mistakes when using a rigid framework.  However, with this rigidity also comes limitations, because whatever design decisions that are enforced by the framework might not necessarily be ideal for every single problem.
 
-## <a id="just-in-time-resolve"></a>Just-In-Time Resolving Using Lazy&lt;&gt;
+## <a id="just-in-time-resolve"></a>Just-In-Time Resolving Using LazyInject&lt;&gt;
 
 In some cases it can be useful to delay the creation of certain dependencies until after startup.  You can use the `LazyInject<>` construct for this.
 
