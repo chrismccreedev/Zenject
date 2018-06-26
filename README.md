@@ -2607,6 +2607,8 @@ Another change that may cause issues is that for every binding that is a lookup 
 
 So if you were previously using one of these methods to match multiple values you will have to change to use the plural version instead.
 
+Another change worth mentioning is that the default value for the 'includeInactive' flag passed to the FromComponent methods was changed from false to true as discussed [here](https://github.com/modesttree/Zenject/issues/275#issuecomment-377619400)
+
 There were also a few things that were renamed:
 
 - `Factory<>` is now called `PlaceholderFactory<>` (in this case you should just get warnings about it however)
