@@ -85,6 +85,7 @@
     <Compile Include="ITickable.cs" />
     <Compile Include="ILateDisposable.cs" />
     <Compile Include="InjectAttributeBase.cs" />
+    <Compile Include="JetbrainsAnnotations.cs" />
     <Compile Include="PreserveAttribute.cs" />
     <Compile Include="ZenjectAllowDuringValidationAttribute.cs" />
   </ItemGroup>
