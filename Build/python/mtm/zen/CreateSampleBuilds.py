@@ -49,43 +49,50 @@ class Runner:
         self._log.heading("Clearing output directory")
         self._sys.clearDirectoryContents('[OutputRootDir]')
 
-        self._log.heading("Building windows 3.5")
-        self._platform = Platforms.Windows
-        self._enableNet35()
-        self._createBuild()
+        if self._args.buildType == 'all' or self._args.buildType == 'win35':
+            self._log.heading("Building windows 3.5")
+            self._platform = Platforms.Windows
+            self._enableNet35()
+            self._createBuild()
 
-        self._log.heading("Building windows 4.6")
-        self._platform = Platforms.Windows
-        self._enableNet46()
-        self._createBuild()
+        if self._args.buildType == 'all' or self._args.buildType == 'win46':
+            self._log.heading("Building windows 4.6")
+            self._platform = Platforms.Windows
+            self._enableNet46()
+            self._createBuild()
 
-        self._log.heading("Building WindowsStoreApp 3.5 .net")
-        self._platform = Platforms.WindowsStoreApp
-        self._enableNet35()
-        self._enableNetBackend()
-        self._createBuild()
+        if self._args.buildType == 'all' or self._args.buildType == 'wsa35':
+            self._log.heading("Building WindowsStoreApp 3.5 .net")
+            self._platform = Platforms.WindowsStoreApp
+            self._enableNet35()
+            self._enableNetBackend()
+            self._createBuild()
 
-        self._log.heading("Building WindowsStoreApp 4.6 .net")
-        self._platform = Platforms.WindowsStoreApp
-        self._enableNet46()
-        self._enableNetBackend()
-        self._createBuild()
+        if self._args.buildType == 'all' or self._args.buildType == 'wsa46':
+            self._log.heading("Building WindowsStoreApp 4.6 .net")
+            self._platform = Platforms.WindowsStoreApp
+            self._enableNet46()
+            self._enableNetBackend()
+            self._createBuild()
 
-        self._log.heading("Building WindowsStoreApp 4.6 il2cpp")
-        self._platform = Platforms.WindowsStoreApp
-        self._enableNet46()
-        self._enableIl2cpp()
-        self._createBuild()
+        if self._args.buildType == 'all' or self._args.buildType == 'wsa46il2cpp':
+            self._log.heading("Building WindowsStoreApp 4.6 il2cpp")
+            self._platform = Platforms.WindowsStoreApp
+            self._enableNet46()
+            self._enableIl2cpp()
+            self._createBuild()
 
-        self._log.heading("Building WindowsStoreApp 3.5 il2cpp")
-        self._platform = Platforms.WindowsStoreApp
-        self._enableNet35()
-        self._enableIl2cpp()
-        self._createBuild()
+        if self._args.buildType == 'all' or self._args.buildType == 'wsa35il2cpp':
+            self._log.heading("Building WindowsStoreApp 3.5 il2cpp")
+            self._platform = Platforms.WindowsStoreApp
+            self._enableNet35()
+            self._enableIl2cpp()
+            self._createBuild()
 
-        self._log.heading("Building WebGl")
-        self._platform = Platforms.WebGl
-        self._createBuild()
+        if self._args.buildType == 'all' or self._args.buildType == 'webgl':
+            self._log.heading("Building WebGl")
+            self._platform = Platforms.WebGl
+            self._createBuild()
 
         # TODO
         #self._log.heading("Building Ios")
@@ -146,6 +153,7 @@ class Runner:
     def _createBuild(self):
         self._log.info("Creating build")
         self._runEditorFunction('BuildRelease')
+        #self._runEditorFunction('BuildDebug')
 
     def _enableNet46(self):
         self._log.info("Changing runtime to .net 4.6")
@@ -213,6 +221,8 @@ if __name__ == '__main__':
     parser.add_argument('-ou', '--openUnity', action='store_true', help='')
     parser.add_argument('-rt', '--runTests', action='store_true', help='')
     parser.add_argument('-rb', '--runBuilds', action='store_true', help='')
+    parser.add_argument('-t', '--buildType', type=str, default='win35', choices=['win35', 'win46', 'wsa35', 'wsa46', 'wsa46il2cpp', 'wsa35il2cpp', 'webgl', 'all'], help='')
+
     args = parser.parse_args(sys.argv[1:])
 
     installBindings()
