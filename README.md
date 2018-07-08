@@ -129,7 +129,6 @@ Also, if you prefer video documentation, you can watch [this youtube series on z
         * <a href="#identifiers">Identifiers</a>
         * <a href="#non-generic-bindings">Non Generic bindings</a>
         * <a href="#convention-based-bindings">Convention Based Binding</a>
-        * <a href="#singleton-identifiers">Singleton Identifiers</a>
     * <a href="#scriptableobject-installer">Scriptable Object Installer</a>
     * <a href="#runtime-parameters-for-installers">Runtime Parameters For Installers</a>
     * <a href="#creating-objects-dynamically">Creating Objects Dynamically Using Factories</a>
@@ -1326,6 +1325,8 @@ The `ZenjectBinding` component has the following properties:
     ```csharp
     Container.BindInstance(_foo).WithId("Foo1");
     ```
+
+* **Use Scene Context** - This is optional but useful in cases where you want to bind a dependency that is inside a GameObjectContext to the SceneContext.  You could also drag the SceneContext to the Context properly but this flag is a bit easier.
 
 * **Context** - This is completely optional and in most cases should be left unset.  This will determine which `Context` to apply the binding to.  If left unset, it will use whatever context the GameObject is in.  In most cases this will be `SceneContext,` but if it's inside a `GameObjectContext` it will be bound into the `GameObjectContext` container instead.  One important use case for this field is to allow dragging the `SceneContext` into this field, for cases where the component is inside a `GameObjectContext.`  This allows you to treat this MonoBehaviour as a <a href="https://en.wikipedia.org/wiki/Facade_pattern">Facade</a> for the entire sub-container given by the `GameObjectContext.`
 
