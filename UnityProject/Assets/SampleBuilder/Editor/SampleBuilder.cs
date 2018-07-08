@@ -6,7 +6,7 @@ using ModestTree;
 using UnityEditor;
 using UnityEngine;
 
-#if UNITY_2018_OR_NEWER
+#if UNITY_2018_1_OR_NEWER
 using UnityEditor.Build.Reporting;
 #endif
 
@@ -137,7 +137,7 @@ namespace Zenject.Internal
 
             var buildResult = BuildPipeline.BuildPlayer(scenePaths.ToArray(), path, EditorUserBuildSettings.activeBuildTarget, options);
 
-#if UNITY_2018_OR_NEWER
+#if UNITY_2018_1_OR_NEWER
             bool succeeded = (buildResult.summary.result == BuildResult.Succeeded);
 #else
             bool succeeded = (buildResult.Length == 0);
