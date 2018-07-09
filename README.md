@@ -1715,6 +1715,8 @@ If you are building some code as DLLs and then including them in Unity, you can 
 
 You can also use Zenject for non-unity projects by downloading `Zenject-NonUnity.zip` from the [releases section](https://github.com/modesttree/Zenject/releases)
 
+Finally, if you are attempting to run unit tests outside of Unity using the Unity generated solution, you might encounter run time errors in the Zenject code when it attempts to access the Unity API.  You can disable this behaviour by adding a define for `ZEN_TESTS_OUTSIDE_UNITY` in the generates solution.
+
 ## <a id="zenjectsettings"></a>Zenject Settings
 
 A lot of the default behaviour in Zenject can be customized via a settings property on the ProjectContext.  This includes the following:
