@@ -227,6 +227,16 @@ public override void InstallBindings()
 
 Any objects that are in the container where it's declared, or any sub container, can now listen on the signal and also fire it.
 
+You might also consider making your signal classes a struct instead of a class like this:
+
+```csharp
+public struct PlayerDiedSignal
+{
+}
+```
+
+This has the advantage of not causing any heap allocations, and can be more efficient in general when the signal has zero parameters or only a few parameters.
+
 ## <a id="declaration-syntax"></a>Declaration Binding Syntax
 
 The format of the DeclareSignal statement is the following:
@@ -461,7 +471,7 @@ In some cases it might be desirable to run a given signal asynchronously.  Async
 
 2. Asynchronous signals can encourage less coupling between the sender and receiver, which is often what you want.  As explained <a href="#when-to-use-signals">above</a>, signals work best when they are used for "fire and forget" events where the sender doesn't care about the behaviour of any listeners.   By making a signal async, it can enforce this separation because the signal handler methods will be executed later, and therefore the sender actually cannot make direct use of the result of the handlers behaviour.
 
-3. Unexpected state changes can occur while firing just one signal.  For example, an object A might trigger a signal which would trigger some logic that would eventually cause A to be deleted.  If the signal was executed synchronously, then the call stack could eventually return to object A where the signal was fired, and object A could then attempt to execute commands afterwards that causes problems (since object A will have already been deleted)
+3. Unexpected state changes can occur while firing just one signal.  For example, an object A might trigger a signal which would trigger some logic that would eventually cause A to be deleted.  If the signal was executed synchronously, then the call stack could eventually return to object A where the signal was fired, and object A might then attempt to execute commands afterwards that causes problems (since object A will have already been deleted)
 
 This is not to say that asynchronous signals are superious to synchronous signals.  Asynchronous signals have their own risks as well.
 
