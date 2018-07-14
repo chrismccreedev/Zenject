@@ -46,8 +46,10 @@ class Runner:
             sys.exit(1)
 
     def _runBuilds(self):
-        self._log.heading("Clearing output directory")
-        self._sys.clearDirectoryContents('[OutputRootDir]')
+
+        if self._args.clearOutput:
+            self._log.heading("Clearing output directory")
+            self._sys.clearDirectoryContents('[OutputRootDir]')
 
         if self._args.buildType == 'all' or self._args.buildType == 'win35':
             self._log.heading("Building windows 3.5")
@@ -219,6 +221,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='Create Sample')
     parser.add_argument('-ou', '--openUnity', action='store_true', help='')
+    parser.add_argument('-c', '--clearOutput', action='store_true', help='')
     parser.add_argument('-rt', '--runTests', action='store_true', help='')
     parser.add_argument('-rb', '--runBuilds', action='store_true', help='')
     parser.add_argument('-t', '--buildType', type=str, default='win35', choices=['win35', 'win46', 'wsa35', 'wsa46', 'wsa46il2cpp', 'wsa35il2cpp', 'webgl', 'all'], help='')
