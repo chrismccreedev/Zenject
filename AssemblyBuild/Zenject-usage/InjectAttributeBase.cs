@@ -1,10 +1,18 @@
-using JetBrains.Annotations;
+using System;
+using Zenject.Internal;
 
 namespace Zenject
 {
-    [MeansImplicitUse(ImplicitUseKindFlags.Assign)]
-    public abstract class InjectAttributeBase : Zenject.Internal.PreserveAttribute
+    public abstract class InjectAttributeBase : Attribute
+    // TODO: Uncomment this once Unity 2018.2 fixes the IL2CPP bug that it causes
+    // If you uncomment this then you get NullReferenceException during IL2CPP build
+    //public abstract class InjectAttributeBase : PreserveAttribute
     {
+        [Preserve]
+        public InjectAttributeBase()
+        {
+        }
+
         public bool Optional
         {
             get;

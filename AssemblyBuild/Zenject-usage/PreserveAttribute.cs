@@ -7,6 +7,9 @@ namespace Zenject.Internal
     // that are explicitly marked [Inject]
     public class PreserveAttribute : Attribute
     {
+        public PreserveAttribute()
+        {
+        }
     }
 }
 

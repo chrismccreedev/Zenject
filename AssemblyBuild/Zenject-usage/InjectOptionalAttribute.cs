@@ -1,4 +1,5 @@
 using System;
+using Zenject.Internal;
 
 namespace Zenject
 {
@@ -6,6 +7,7 @@ namespace Zenject
         | AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false)]
     public class InjectOptionalAttribute : InjectAttributeBase
     {
+        [Preserve]
         public InjectOptionalAttribute()
         {
             Optional = true;
