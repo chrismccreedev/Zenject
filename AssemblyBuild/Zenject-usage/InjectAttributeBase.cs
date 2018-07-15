@@ -1,14 +1,9 @@
-using ModestTree.Util;
-#if !NOT_UNITY3D
 using JetBrains.Annotations;
-#endif
 
 namespace Zenject
 {
-#if !NOT_UNITY3D
     [MeansImplicitUse(ImplicitUseKindFlags.Assign)]
-#endif
-    public abstract class InjectAttributeBase : PreserveAttribute
+    public abstract class InjectAttributeBase : Zenject.Internal.PreserveAttribute
     {
         public bool Optional
         {
