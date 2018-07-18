@@ -104,6 +104,7 @@ class Runner:
 
         self._log.info('Copying Zenject dlls')
         self._sys.copyFile('{0}/Zenject.dll'.format(binDir), '{0}/Zenject.dll'.format(tempDir))
+        self._sys.copyFile('{0}/Zenject-Signals.dll'.format(binDir), '{0}/Zenject-Signals.dll'.format(tempDir))
         self._sys.copyFile('[ZenjectDir]/Source/Usage/Zenject-usage.dll', '{0}/Zenject-usage.dll'.format(tempDir))
 
         self._zipHelper.createZipFile(tempDir, zipPath)
