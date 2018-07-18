@@ -631,9 +631,9 @@ PlayerSettings:
     iOS: 0
   allowUnsafeCode: 0
   additionalIl2CppArgs: 
-  scriptingRuntimeVersion: 0
+  scriptingRuntimeVersion: 1
   apiCompatibilityLevelPerPlatform:
-    Metro: 2
+    Metro: 3
     Standalone: 3
   m_RenderingPath: 1
   m_MobileRenderingPath: 1
