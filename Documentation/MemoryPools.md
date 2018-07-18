@@ -402,7 +402,7 @@ public class TestInstaller : MonoInstaller<TestInstaller>
 {
     public override void InstallBindings()
     {
-        Container.BindFactory<Foo, Foo.Factory>().FromPoolableMemoryPool<Foo>(x => x.WithInitialSize(2));
+        Container.BindFactory<Foo, Foo.Factory>().FromPoolableMemoryPool(x => x.WithInitialSize(2));
     }
 }
 ```
