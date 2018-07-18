@@ -1,6 +1,22 @@
 
 # <a id="release-notes"></a>Release Notes
 
+## Version 6.2.0 (July 18, 2018)
+
+Bug fixes and some minor extensions
+
+- Added back IInstantiator interface to be used as an alternative to directly injecting DiContainer
+- Added unity project management asmdef files
+- Fixed compiler warning about missing assignment for Inject fields when using Rider IDE (#483)
+- Fixed to support signals defined as structs instead of classes
+- Added optional signals support to the non unity zenject dll build
+- Fixed BindSignal to support mapping to multiple bindings at once
+- Fixed support for UWP platform with .NET scripting backend
+
+## Version 6.1.1 (June 18, 2018)
+
+Hotfix for exception in SceneContext inspector editor
+
 ## Version 6.1.0 (June 17, 2018)
 
 Large release with lots of new features, bug fixes, and performance improvements.  Some API changes to be aware of before upgrading.  See the <a href="../README.md#upgrading-from-zenject5">upgrade guide</a> for details
