@@ -1,6 +1,13 @@
 
 # <a id="release-notes"></a>Release Notes
 
+## Version 7.0.0 (July 18, 2018)
+
+Upgraded project to 2018.2.  Created an LTS branch of zenject to maintain support for Unity 2017.x
+
+- Fixed IL2CPP issue with 2018.2
+- Fixed issue with the asmdef files failing to generate a valid solution
+
 ## Version 6.2.0 (July 18, 2018)
 
 Bug fixes and some minor extensions
