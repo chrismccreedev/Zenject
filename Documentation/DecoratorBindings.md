@@ -127,7 +127,7 @@ public class TestInstaller : MonoInstaller<TestInstaller>
 
 So now our orc stats will get an upgrade for both damage and health.
 
-Note that in this case the order that we apply our decorators doesn't matter in this case but could in other cases.  The decorators will be applied in the order that they are added, so in this case, it would look like `ShieldUpgradeEnemyDecorator(WeaponUpgradeEnemyDecorator(OrcStats()))`
+Note that the order that we apply our decorators doesn't matter in this case but could in other cases.  The decorators will be applied in the order that they are added, so in this case, it would look like `ShieldUpgradeEnemyDecorator(WeaponUpgradeEnemyDecorator(OrcStats()))`
 
 Another simple way of using decorators would be to do things like add extra logging, or verification of output values, or profiling to existing interfaces.  For example:
 
