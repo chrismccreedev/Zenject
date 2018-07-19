@@ -1,12 +1,19 @@
 
 # <a id="release-notes"></a>Release Notes
 
-## Version 7.0.0 (July 18, 2018)
+## Version 7.0.0 (July 19, 2018)
 
-Upgraded project to 2018.2.  Created an LTS branch of zenject to maintain support for Unity 2017.x
+Upgraded project to 2018.1.  Created an LTS branch of zenject to maintain support for Unity 2017.x
 
 - Fixed IL2CPP issue with 2018.2
 - Fixed issue with the asmdef files failing to generate a valid solution
+
+## Version 6.2.1 (July 19, 2018)
+
+Hotfix release for issue with testframework
+
+- Changed to have all the test helper classes in one place underneath OptionalExtras/TestFramework and also fixed to not place it in a zip
+- Fixed rare issue when instantiating prefabs in ZenjectUnitTestFixture (#506)
 
 ## Version 6.2.0 (July 18, 2018)
 
