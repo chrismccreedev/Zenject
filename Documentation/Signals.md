@@ -318,6 +318,33 @@ public class UserManager
 }
 ```
 
+When `Fire()` is called, SignalBus expects the signal to be declared and exception will be thrown if the signal is not declared. If you want to call `Fire()` regardless of the signal declaration, use `TryFire()` method instead that ignores undeclared signals. You can use `TryFire()` looks like this:
+
+```csharp
+public class UserJoinedSignal
+{
+}
+
+public class UserManager
+{
+    readonly SignalBus _signalBus;
+
+    public UserManager(SignalBus signalBus)
+    {
+        _signalBus = signalBus;
+    }
+
+    public void DoSomething()
+    {
+        // Generic version
+        _signalBus.TryFire<UserJoinedSignal>(); // Nothing happens if UserJoinedSignal is NOT declared
+
+        // Non-Generic version
+        _signalBus.TryFire(new UserJoinedSignal()); // Nothing happens if UserJoinedSignal is NOT declared
+    }
+}
+```
+
 ## <a id="#bindsignal"></a>Binding Signals with BindSignal
 
 As mentioned above, in addition to being able to directly subscribe to signals on the signal bus (via `SignalBus.Subscribe` or `SignalBus.GetStream`) you can also directly bind a signal to a handling class inside an installer.  This approach has advantages and disadvantages compared to directly subscribing in a handling class so again comes down to personal preference.
