@@ -95,6 +95,7 @@ class Runner:
             self._log.heading("Building WebGl")
             self._platform = Platforms.WebGl
             self._createBuild()
+            self._sys.copyFile('[WebGlTemplate]', '[OutputRootDir]/WebGl/Web.config')
 
         # TODO
         #self._log.heading("Building Ios")
