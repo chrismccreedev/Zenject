@@ -162,6 +162,7 @@ Also, if you prefer video documentation, you can watch [this youtube series on z
         * <a href="#dicontainer-methods-other">Other DiContainer methods</a>
 * <a href="#questions">Frequently Asked Questions</a>
     * <a href="#isthisoverkill">Isn't this overkill?  I mean, is using statically accessible singletons really that bad?</a>
+    * <a href="#ecs-integration">Is there a way to integrate with the upcoming Unity ECS?</a>
     * <a href="#aot-support">Does this work on AOT platforms such as iOS and WebGL?</a>
     * <a href="#faq-performance">How is Performance?</a>
     * <a href="#more-samples">Are there any more sample projects with source to look at?</a>
@@ -2964,6 +2965,10 @@ It is possible to remove or replace bindings that were added in a previous bind 
     And in terms of (B), it also forces you to code to interfaces.  By declaring all your dependencies as constructor parameters, you are basically saying "in order for me to do X, I need these contracts fulfilled".  These constructor parameters might not actually be interfaces or abstract classes, but it doesn't matter - in an abstract sense, they are still contracts, which isn't the case when you are creating them within the class or using global singletons.
 
     Then the result will be more loosely coupled code, which will make it 100x easier to refactor, maintain, test, understand, re-use, etc.
+
+* **<a id="ecs-integration">Is there a way to integrate with the upcoming Unity ECS?</a>**
+
+Currently there does not appear to be an official way to do custom injections into Unity ECS systems, however, there are <a href="https://forum.unity.com/threads/request-for-world-addmanager.539271/#post-3558224">some workarounds</a> until Unity hopefully addresses this.
 
 * **<a id="aot-support"></a>Does this work on AOT platforms such as iOS and WebGL?**
 
