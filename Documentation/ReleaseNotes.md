@@ -1,6 +1,16 @@
 
 # <a id="release-notes"></a>Release Notes
 
+## Version 6.3.0 (August 6, 2018)
+
+Bug fixes and some minor extensions
+
+- Fixed struct type signals to work properly on AOT platforms
+- Fixed issue with ZenjectIntegrationTestFixture where exceptions were being thrown during setup
+- Added support for testing multiple scenes at once when using SceneTestFixture
+- Added TryFire method on SignalBus for cases where you don't care if it's declared or not
+- Fixed zenject integration tests to play nicely with asmdef files
+
 ## Version 6.2.0 (July 18, 2018)
 
 Bug fixes and some minor extensions
