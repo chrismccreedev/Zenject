@@ -2397,6 +2397,17 @@ The reason this setting is not set to true by default is because it can cause cr
 
 Zenject integration with UniRx is disabled by default.  To enable, you must add the define `ZEN_SIGNALS_ADD_UNIRX` to your project, which you can do by selecting Edit -> Project Settings -> Player and then adding `ZEN_SIGNALS_ADD_UNIRX` in the "Scripting Define Symbols" section
 
+With zenject version 7.0.0, you'll also have to change the Zenject.asmdef file to the following:
+
+```
+{
+    "name": "Zenject",
+    "references": [
+        "UniRx"
+    ]
+}
+```
+
 With `ZEN_SIGNALS_ADD_UNIRX` enabled, you can observe zenject signals via UniRx streams as explained in the <a href="Documentation/Signals.md">signals docs</a>, and you can also observe zenject events such as Tick, LateTick, and FixedTick etc. on the `TickableManager` class.  One example usage is to ensure that certain events are only handled a maximum of once per frame:
 
 ```csharp
