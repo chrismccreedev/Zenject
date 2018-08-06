@@ -2968,7 +2968,7 @@ It is possible to remove or replace bindings that were added in a previous bind 
 
 * **<a id="ecs-integration">Is there a way to integrate with the upcoming Unity ECS?</a>**
 
-Currently there does not appear to be an official way to do custom injections into Unity ECS systems, however, there are <a href="https://forum.unity.com/threads/request-for-world-addmanager.539271/#post-3558224">some workarounds</a> until Unity hopefully addresses this.
+    Currently there does not appear to be an official way to do custom injections into Unity ECS systems, however, there are <a href="https://forum.unity.com/threads/request-for-world-addmanager.539271/#post-3558224">some workarounds</a> until Unity hopefully addresses this.
 
 * **<a id="aot-support"></a>Does this work on AOT platforms such as iOS and WebGL?**
 
