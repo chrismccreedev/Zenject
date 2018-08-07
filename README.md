@@ -93,7 +93,7 @@ If you are a DI veteran, then it might be worth taking a look at the <a href="#c
 
 The tests may also be helpful to show usage for each specific feature (which you can find at `Zenject/OptionalExtras/UnitTests` and `Zenject/OptionalExtras/IntegrationTests`)
 
-Also, if you prefer video documentation, you can watch [this youtube series on zenject](https://www.youtube.com/user/charlesamat/videos) created by Infallible Code.
+Also, if you prefer video documentation, you can watch [this youtube series on zenject](https://www.youtube.com/watch?v=IS2YUIb_w_M&list=PLKERDLXpXl_jNJPY2czQcfPXW4BJaGZc_) created by Infallible Code.
 
 ## Table Of Contents
 
