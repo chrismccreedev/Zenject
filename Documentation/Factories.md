@@ -16,6 +16,7 @@ Similar to the main documentation, I recommend at least reading the Introduction
     * <a href="#custom-factories">Custom Factories</a>
     * <a href="#ifactory">Using IFactory directly</a>
     * <a href="#custom-interface">Custom Factory Interface</a>
+    * <a href="#prefab-factories">Prefab Factory</a>
     * <a href="#implementing-validatable">Implementing IValidatable</a>
 
 ## <a id="theory"></a>Theory
@@ -544,6 +545,83 @@ public class FooInstaller : MonoInstaller<FooInstaller>
 ```
 
 Note that there is an equivalent method for memory pools called `BindMemoryPoolCustomInterface` as well
+
+## <a id="prefab-factories"></a>Prefab Factory
+
+In some cases you might want the code that is calling the Create method to also provide the prefab to use for the new object.  You could directly call `DiContainer.InstantiatePrefabForComponent` but this would violate our rule of only injecting DiContainer into the 'composition root layer' (ie. factories and installers), so it would be better to write a custom factory like this instead:
+
+```csharp
+public class Foo
+{
+    public class Factory : PlaceholderFactory<UnityEngine.Object, Foo>
+    {
+    }
+}
+
+public class FooFactory : IFactory<UnityEngine.Object, Foo>
+{
+    readonly DiContainer _container;
+
+    public FooFactory(DiContainer container)
+    {
+        _container = container;
+    }
+
+    public Foo Create(UnityEngine.Object prefab)
+    {
+        return _container.InstantiatePrefabForComponent<Foo>(prefab);
+    }
+}
+
+public override void InstallBindings()
+{
+    Container.BindFactory<UnityEngine.Object, Foo, Foo.Factory>().FromFactory<FooFactory>();
+}
+```
+
+However, this kind of custom factory is common enough that there is a helper class included for this purpose called PrefabFactory.  So you could just do this instead:
+
+```csharp
+public class Foo
+{
+    public class Factory : PlaceholderFactory<UnityEngine.Object, Foo>
+    {
+    }
+}
+
+public class TestInstaller : MonoInstaller<TestInstaller>
+{
+    public GameObject Prefab;
+
+    public override void InstallBindings()
+    {
+        Container.BindFactory<UnityEngine.Object, Foo, Foo.Factory>().FromFactory<PrefabFactory<Foo>>();
+    }
+}
+```
+
+A similar helper class is provided when instantiating a prefab from a resource path.  For example:
+
+```csharp
+public class Foo
+{
+    public class Factory : PlaceholderFactory<string, Foo>
+    {
+    }
+}
+
+public class TestInstaller : MonoInstaller<TestInstaller>
+{
+    public GameObject Prefab;
+
+    public override void InstallBindings()
+    {
+        Container.BindFactory<string, Foo, Foo.Factory>().FromFactory<PrefabResourceFactory<Foo>>();
+    }
+}
+```
+
+One thing to be aware of when using PrefabResource or PrefabResourceFactory is that validation does not run in those cases.  So if our Foo class above was missing a dependency then we would not find this out until run time.  This is not possible because the prefab is needed for validation.
 
 ## <a id="implementing-validatable"></a>Implementing IValidatable
 
