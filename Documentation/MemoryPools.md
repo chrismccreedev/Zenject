@@ -954,6 +954,28 @@ public class PoolExample : MonoBehaviour
 }
 ```
 
+Since spawning lists are such a common operation, DisposeBlock includes a helper method for it, so it can be simplified to this instead:
+
+```csharp
+public class PoolExample : MonoBehaviour
+{
+    public void Update()
+    {
+        using (var block = DisposeBlock.Spawn())
+        {
+            var components = block.SpawnList<Component>();
+
+            this.GetComponents(typeof(Component), components);
+
+            foreach (var component in components)
+            {
+                // Some logic
+            }
+        }
+    }
+}
+```
+
 ### <a id="poolable-memorypools"></a>PoolableMemoryPool
 
 If you prefer not to follow the dispose pattern explained above, but would also like to avoid the boilerplate code from the original approach using a `Reset` method, then you can do that too by using `PoolableMemoryPool` or `MonoPoolableMemoryPool`.
