@@ -1,12 +1,32 @@
 
 # <a id="release-notes"></a>Release Notes
 
-## Version 7.0.0 (July 19, 2018)
+## Version 7.2.0 (August 27, 2018)
 
-Upgraded project to 2018.1.  Created an LTS branch of zenject to maintain support for Unity 2017.x
+Merged in changes from LTS version 6.4.0
 
-- Fixed IL2CPP issue with 2018.2
-- Fixed issue with the asmdef files failing to generate a valid solution
+## Version 6.4.0 (August 27, 2018)
+
+A few new minor features and some bug fixes
+
+Notable:
+- Added new bind method WithDefaultGameObjectParent when using FromSubContainerResolve and ByInstaller or ByMethod to ensure instantiated game objects get destroyed with the subcontainer
+- Added WithKernel bind method to avoid the need to make Facades always derive from Kernel
+- Added ability to specify transient scope with BindFactory and BindMemoryPool methods
+- Added new bind method OnInstantiated to run custom code when the object is created
+
+Minor:
+- Fixed decorators to properly be inherited into subcontainers
+- Fixed bug with validation + decorators
+- Added PrefabFactory and PrefabResourceFactory helper classes
+- Fixed issue with destruction order of signals in some edge cases
+- Added FromSubContainerResolve.ByInstance bind method to explicitly supply container to use
+- Bug fix to support factories with 6 arguments
+- Added ParentBus property to SignalBus
+
+## Version 7.1.0 (August 6, 2018)
+
+Merged in changes from LTS version 6.3.0
 
 ## Version 6.3.0 (August 6, 2018)
 
@@ -17,6 +37,13 @@ Bug fixes and some minor extensions
 - Added support for testing multiple scenes at once when using SceneTestFixture
 - Added TryFire method on SignalBus for cases where you don't care if it's declared or not
 - Fixed zenject integration tests to play nicely with asmdef files
+
+## Version 7.0.0 (July 19, 2018)
+
+Upgraded project to 2018.1.  Created an LTS branch of zenject to maintain support for Unity 2017.x
+
+- Fixed IL2CPP issue with 2018.2
+- Fixed issue with the asmdef files failing to generate a valid solution
 
 ## Version 6.2.1 (July 19, 2018)
 
