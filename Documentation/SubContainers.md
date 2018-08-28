@@ -9,8 +9,8 @@
 * <a href="#dynamic-game-object-contexts">Creating Game Object Context's Dynamically</a>
 * <a href="#dynamic-game-object-contexts">Creating Game Object Context's Dynamically With Parameters</a>
 * <a href="#using-game-object-contexts-no-monobehaviours">GameObjectContext Example Without MonoBehaviours</a>
-## <a href="#byinstaller-bymethod-with-kernel">Using ByInstaller / ByMethod with Kernel</a>
-## <a href="#byinstaller-bymethod-with-kernel-and-bindfactory">Using ByInstaller / ByMethod with Kernel and BindFactory</a>
+* <a href="#byinstaller-bymethod-with-kernel">Using ByInstaller / ByMethod with Kernel</a>
+* <a href="#byinstaller-bymethod-with-kernel-and-bindfactory">Using ByInstaller / ByMethod with Kernel and BindFactory</a>
 
 ## <a id="introduction"></a>Introduction
 
@@ -81,7 +81,7 @@ Note the following:
 - You should always add a bind statement for whatever class is given to FromSubContainerResolve within the sub-container install method - otherwise you'll get exceptions and validation will fail.
 - Unlike the above example, it is often better to use `ByInstaller` instead of `ByMethod`.  This is because when you use `ByMethod` it is easy to accidentally reference the Container instead of the subContainer.  Also, by using `ByInstaller` you can pass arguments into the Installer itself.
 - Subcontainers can also be used in a similar way to spawn facades dynamically by using BindFactory with FromSubContainerResolve
-- There are some drawbacks to this approach when it comes to using MonoBehaviour's or when using interfaces such as IInitializable / ITickable / IDisposable.  See <a href="#advanced-byinstaller-bymethod">here</a> for advanced usage.
+- There are some drawbacks to this approach when it comes to using MonoBehaviour's or when using interfaces such as IInitializable / ITickable / IDisposable.  See <a href="#byinstaller-bymethod-with-kernel">here</a> for advanced usage.
 
 ## <a id="using-game-object-contexts"></a>Creating Sub-Containers on GameObject's by using Game Object Context
 
