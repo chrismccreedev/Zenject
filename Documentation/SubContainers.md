@@ -7,7 +7,7 @@
 * <a href="#hello-world-for-facades">Hello World Example For Sub-Containers/Facade</a>
 * <a href="#using-game-object-contexts">Creating Sub-Containers on GameObject's by using Game Object Context</a>
 * <a href="#dynamic-game-object-contexts">Creating Game Object Context's Dynamically</a>
-* <a href="#dynamic-game-object-contexts">Creating Game Object Context's Dynamically With Parameters</a>
+* <a href="#dynamic-game-object-contexts-with-params">Creating Game Object Context's Dynamically With Parameters</a>
 * <a href="#using-game-object-contexts-no-monobehaviours">GameObjectContext Example Without MonoBehaviours</a>
 * <a href="#byinstaller-bymethod-with-kernel">Using ByInstaller / ByMethod with Kernel</a>
 * <a href="#byinstaller-bymethod-with-kernel-and-bindfactory">Using ByInstaller / ByMethod with Kernel and BindFactory</a>
@@ -287,7 +287,7 @@ After doing this, make sure to drag and drop the newly created Ship prefab into 
 
 Now if we run our scene, we can hit Space to add multiple Ship's to our scene.  You can also add ships directly to the scene at edit time just like before and they should work the same.   Note however that the ZenjectBinding component we added with the "Use Scene Context" flag checked will have no effect for the dynamically created ships, but will be used for the ships added at edit time.  So if you duplicate the ship in the scene hierarchy and then add a `List<Ship>` constructor parameter to one of your classes, you'll get the initial list of Ships but not the dynamically created ones that were added via the factory.
 
-## <a id="dynamic-game-object-contexts"></a>Creating Game Object Context's Dynamically With Parameters
+## <a id="dynamic-game-object-contexts-with-params"></a>Creating Game Object Context's Dynamically With Parameters
 
 Let's make this even more interesting by passing a parameter into our ship facade.  Let's make the speed of the ship configurable from within the GameController class.
 
@@ -606,10 +606,7 @@ Another benefit to this approach compared to the initial approach we took is tha
 
 ## <a id="byinstaller-bymethod-with-kernel"></a>Using ByInstaller / ByMethod with Kernel
 
-In some cases you might not want to use GameObjectContext at all and instead just use ByInstaller or ByMethod like in the <a href="#hello-world-for-facades">Hello World example</a> above.  However, there are some gotchas with this approach to be aware of:
-
-1. Interfaces such as ITickable / IInitializable / IDisposable will not work out of the box
-2. Any game objects that are instantiated inside the subcontainer will not be disposed with the subcontainer
+In some cases you might not want to use GameObjectContext at all and instead just use ByInstaller or ByMethod like in the <a href="#hello-world-for-facades">Hello World example</a> above.  You might also want to use interfaces such as ITickable / IInitializable / IDisposable inside your subcontainer.  However, unlike when using GameObjectContext, this doesn't work out-of-the-box.
 
 For example, you might try doing this:
 
@@ -681,6 +678,21 @@ Now if we run it, we should see the Hello message, then if we stop playing we sh
 The reason this works is because we are now binding `IInitializable`, `IDisposable`, and `ITickable` on the root container to the Greeter class by executing `Container.BindInterfacesAndSelfTo<Greeter>()`.  Greeter inherits from Kernel, which inherits from all these interfaces and also handles forwarding these calls to the IInitializable's / ITickable's / IDisposable's in our sub container.  Note that we use AsSingle() here, which is important otherwise it will create a new sub-container for every interface which is not what we want.
 
 The Initialize / Tick / Dispose events work out-of-the-box for GameObjectContext and SceneContext because in those cases a kernel is added automatically.  It is only for these non-MonoBehaviour subcontainers that we need to be explicit about whether a kernel should be added or not.
+
+Note also that we can control the tick priority of our subcontainer by changing the execution order for the Greeter class like this:
+
+```csharp
+public class TestInstaller : MonoInstaller
+{
+    public override void InstallBindings()
+    {
+        Container.BindInterfacesAndSelfTo<Greeter>()
+            .FromSubContainerResolve().ByMethod(InstallGreeter).AsSingle().NonLazy();
+
+        Container.BindExecutionOrder<Greeter>(-1);
+    }
+}
+```
 
 ## <a id="byinstaller-bymethod-with-kernel-and-bindfactory"></a>Using ByInstaller / ByMethod with Kernel and BindFactory
 
