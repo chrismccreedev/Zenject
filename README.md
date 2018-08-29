@@ -55,7 +55,7 @@ Or, if you have found a bug, you are also welcome to create an issue on the [git
 * Support for automatically mapping open generic types
 * Built in support for unit test, integration tests, and scene tests
 * Just-in-time injection using the LazyInject<> construct
-* Support for multiple threads for resolving/instantiating (with define ZEN_MULTITHREADING)
+* Support for multiple threads for resolving/instantiating
 
 ## <a id="installation"></a>Installation
 
@@ -168,6 +168,7 @@ Also, if you prefer video documentation, you can watch [this youtube series on z
     * <a href="#ecs-integration">Is there a way to integrate with the upcoming Unity ECS?</a>
     * <a href="#aot-support">Does this work on AOT platforms such as iOS and WebGL?</a>
     * <a href="#faq-performance">How is Performance?</a>
+    * <a href="#faq-multiple-threads">Does Zenject support multithreading?</a>
     * <a href="#more-samples">Are there any more sample projects with source to look at?</a>
     * <a href="#what-games-are-using-zenject">What games/tools/libraries are using Zenject</a>
 * <a href="#cheatsheet">Cheat Sheet</a>
@@ -3020,6 +3021,13 @@ It is possible to remove or replace bindings that were added in a previous bind 
 * **<a id="faq-performance"></a>How is performance?**
 
     See <a href="#optimization_notes">here</a>
+
+* **<a id="faq-multiple-threads"></a>Does Zenject support multithreading?**
+
+    Yes, with a few caveats
+    - You just need to enable the define `ZEN_MULTITHREADING` in player settings
+    - Only the resolve and instantiate operations support multithreading.  The bindings that occur during the install phase must cannot be executed concurrently on multiple threads.  In other words, everything after the initial install should support multithreading.
+    - Circular reference errors are handled less gracefully.  Instead of an exception with an error message that details the object graph with the circular reference, a StackOverflowException might be thrown
 
 * **<a id="howtousecoroutines"></a>How do I use Unity style Coroutines in normal C# classes?**
 
