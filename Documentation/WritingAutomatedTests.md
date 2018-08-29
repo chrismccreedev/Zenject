@@ -410,6 +410,20 @@ public class TestSceneStartup : SceneTestFixture
 
 In this case, it will inject your SceneTestFixture derived class with the last loaded SceneContext container which will also be set to the SceneContainer property.  If you want to access the other scene containers you can do that too using the SceneContainers property.
 
+Note that if you are executing a particularly long test, you might have to increase the timeout value which defaults to 30 seconds.  For example:
+
+```csharp
+public class LongTestExample : SceneTestFixture
+{
+    [UnityTest]
+    [Timeout(60000)]
+    public IEnumerator ExecuteSoakTest()
+    {
+        ...
+    }
+}
+```
+
 ### User Driven Test Beds
 
 A fourth common approach to testing worth mentioning is User Driven Test Beds.  This just involves creating a new scene with a SceneContext etc. just as you do for production scenes, except installing only a subset of the bindings that you would normally include in the production scenes, and possibly mocking out certain parts that you don't need to test.  Then, by iterating on the system you are working on using this test bed, it can be much faster to make progress rather than needing to fire up your normal production scene.
