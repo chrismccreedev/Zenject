@@ -242,11 +242,12 @@ Other things to be aware of:
 <pre>
 Container.BindFactory&lt;<b>ContractType</b>, <b>PlaceholderFactoryType</b>&gt;()
     .WithId(<b>Identifier</b>)
+    .WithFactoryArguments(<b>Factory Arguments</b>)
     .To&lt;<b>ResultType</b>&gt;()
     .From<b>ConstructionMethod</b>()
     .As<b>Scope</b>()
     .WithArguments(<b>Arguments</b>)
-    .WithFactoryArguments(<b>Factory Arguments</b>)
+    .OnInstantiated(<b>InstantiatedCallback</b>)
     .When(<b>Condition</b>)
     .NonLazy()
     .(<b>Copy</b>|<b>Move</b>)Into(<b>All</b>|<b>Direct</b>)SubContainers();
