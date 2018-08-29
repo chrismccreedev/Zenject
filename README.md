@@ -55,6 +55,7 @@ Or, if you have found a bug, you are also welcome to create an issue on the [git
 * Support for automatically mapping open generic types
 * Built in support for unit test, integration tests, and scene tests
 * Just-in-time injection using the LazyInject<> construct
+* Support for multiple threads for resolving/instantiating (with define ZEN_MULTITHREADING)
 
 ## <a id="installation"></a>Installation
 
