@@ -449,6 +449,7 @@ Container.Bind&lt;<b>ContractType</b>&gt;()
     .From<b>ConstructionMethod</b>()
     .As<b>Scope</b>()
     .WithArguments(<b>Arguments</b>)
+    .OnInstantiated(<b>InstantiatedCallback</b>)
     .When(<b>Condition</b>)
     .(<b>Copy</b>|<b>Move</b>)Into(<b>All</b>|<b>Direct</b>)SubContainers()
     .NonLazy()
@@ -484,6 +485,25 @@ Where:
     * In most cases, you will likely want to just use AsSingle, however AsTransient and AsCached have their uses too.
 
 * **Arguments** = A list of objects to use when constructing the new instance of type **ResultType**.  This can be useful as an alternative to adding other bindings for the arguments in the form `Container.BindInstance(arg).WhenInjectedInto<ResultType>()`
+* **InstantiatedCallback** = In some cases it is useful to be able customize an object after it is instantiated.  In particular, if using a third party library, it might be necessary to change a few fields on it.  For these cases you can pass a method to OnInstantiated that can customize the newly created instance.  For example:
+
+```csharp
+Container.Bind<Foo>().AsSingle().OnInstantiated<Foo>(OnFooInstantiated);
+
+void OnFooInstantiated(InjectContext context, Foo foo)
+{
+    foo.Qux = "asdf";
+}
+```
+
+Or, equivalently:
+
+```csharp
+Container.Bind<Foo>().AsSingle().OnInstantiated<Foo>((ctx, foo) => foo.Bar = "qux");
+```
+
+Note that you can also define a custom factory that directly calls Container.InstantiateX before customizing it for the same effect, but OnInstantiated can be easier in some cases
+
 * **Condition** = The condition that must be true for this binding to be chosen.  See <a href="#conditional-bindings">here</a> for more details.
 * (**Copy**|**Move**)Into(**All**|**Direct**)SubContainers = This value can be ignored for 99% of users.  It can be used to automatically have the binding inherited by subcontainers.  For example, if you have a class Foo and you want a unique instance of Foo to be automatically placed in the container and every subcontainer, then you could add the following binding:
 
@@ -911,6 +931,8 @@ Container.Bind<Foo>().AsSingle().MoveIntoDirectSubContainers()
             }
         }
         ```
+
+    1. **ByInstance** - Initialize the subcontainer by directly using a given instance of DiContainer that you provide yourself.  This is only useful in some rare edge cases.
 
 1. **FromSubContainerResolveAll** - Same as FromSubContainerResolve except will match multiple values or zero values.
 
