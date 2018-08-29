@@ -39,7 +39,7 @@ public class Logger
 }
 ```
 
-Now, to test this class, create a new folder named Editor, then right click on it inside the Project tab, and select `Create -> Zenject -> Unit Test`.  Name it `TestLogger`.cs.  This will create a basic template that we can fill in with our tests.  Copy and paste the following:
+Now, to test this class, open up Unity's Test Runner by clicking Window -> General -> Test Runner.  Then underneath the EditMode tab click "Create EditMode Test Assembly Folder".  This will create a folder that contains the necessary asmdef file that is needed to get access to the Nunit namespace.  Now, then right click on it inside the Project tab, and select `Create -> Zenject -> Unit Test`.  Name it `TestLogger`.cs.  This will create a basic template that we can fill in with our tests.  Copy and paste the following:
 
 ```csharp
 using System;
@@ -193,7 +193,7 @@ public class SpaceShip : MonoBehaviour
 }
 ```
 
-After adding this class to your project, you can add an integration test for it by right clicking somewhere in the Project tab and then selecting `Create -> Zenject -> Integration Test` and then naming it `SpaceShipTests.cs`.  This will create the following template code with everything you need to start writing your test:
+Similar to what we did with edit mode tests above, open Unity's Test Runner by clicking Window -> General -> Test Runner.  Then underneath the PlayMode tab click "Create PlayMode Test Assembly Folder".  This will create a folder that contains the necessary asmdef file that is needed to get access to the Nunit namespace.  Now you can right click inside this new folder and select `Create -> Zenject -> Integration Test` and then name it `SpaceShipTests.cs`.  This will create the following template code with everything you need to start writing your test:
 
 ```csharp
 public class SpaceShipTests : ZenjectIntegrationTestFixture
@@ -347,7 +347,7 @@ public class SpaceFighterTests : SceneTestFixture
 }
 ```
 
-Note that you can add your own scene tests through the right click menu in the Projects tab by choosing `Create -> Zenject -> Scene Test`.
+Note that you can add your own scene tests through the right click menu in the Projects tab by choosing `Create -> Zenject -> Scene Test`.  Note that they will require an asmdef file set up in a similar way to integration tests as described above.
 
 Every scene test should inherit from SceneTestFixture, and then at some point in each test method it should call `yield return LoadScene(NameOfScene)`
 
