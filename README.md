@@ -485,45 +485,45 @@ Where:
     * In most cases, you will likely want to just use AsSingle, however AsTransient and AsCached have their uses too.
 
 * **Arguments** = A list of objects to use when constructing the new instance of type **ResultType**.  This can be useful as an alternative to adding other bindings for the arguments in the form `Container.BindInstance(arg).WhenInjectedInto<ResultType>()`
-* **InstantiatedCallback** = In some cases it is useful to be able customize an object after it is instantiated.  In particular, if using a third party library, it might be necessary to change a few fields on it.  For these cases you can pass a method to OnInstantiated that can customize the newly created instance.  For example:
+* **InstantiatedCallback** = In some cases it is useful to be able customize an object after it is instantiated.  In particular, if using a third party library, it might be necessary to change a few fields on one of its types.  For these cases you can pass a method to OnInstantiated that can customize the newly created instance.  For example:
 
-```csharp
-Container.Bind<Foo>().AsSingle().OnInstantiated<Foo>(OnFooInstantiated);
+    ```csharp
+    Container.Bind<Foo>().AsSingle().OnInstantiated<Foo>(OnFooInstantiated);
 
-void OnFooInstantiated(InjectContext context, Foo foo)
-{
-    foo.Qux = "asdf";
-}
-```
+    void OnFooInstantiated(InjectContext context, Foo foo)
+    {
+        foo.Qux = "asdf";
+    }
+    ```
 
-Or, equivalently:
+    Or, equivalently:
 
-```csharp
-Container.Bind<Foo>().AsSingle().OnInstantiated<Foo>((ctx, foo) => foo.Bar = "qux");
-```
+    ```csharp
+    Container.Bind<Foo>().AsSingle().OnInstantiated<Foo>((ctx, foo) => foo.Bar = "qux");
+    ```
 
-Note that you can also define a custom factory that directly calls Container.InstantiateX before customizing it for the same effect, but OnInstantiated can be easier in some cases
+    Note that you can also define a custom factory that directly calls Container.InstantiateX before customizing it for the same effect, but OnInstantiated can be easier in some cases
 
 * **Condition** = The condition that must be true for this binding to be chosen.  See <a href="#conditional-bindings">here</a> for more details.
 * (**Copy**|**Move**)Into(**All**|**Direct**)SubContainers = This value can be ignored for 99% of users.  It can be used to automatically have the binding inherited by subcontainers.  For example, if you have a class Foo and you want a unique instance of Foo to be automatically placed in the container and every subcontainer, then you could add the following binding:
 
-```csharp
-Container.Bind<Foo>().AsSingle().CopyIntoAllSubContainers()
-```
+    ```csharp
+    Container.Bind<Foo>().AsSingle().CopyIntoAllSubContainers()
+    ```
 
-In other words, the result will be equivalent to copying and pasting the `Container.Bind<Foo>().AsSingle()` statement into the installer for every sub-container.
+    In other words, the result will be equivalent to copying and pasting the `Container.Bind<Foo>().AsSingle()` statement into the installer for every sub-container.
 
-Or, if you only wanted Foo in the subcontainers and not the current container:
+    Or, if you only wanted Foo in the subcontainers and not the current container:
 
-```csharp
-Container.Bind<Foo>().AsSingle().MoveIntoAllSubContainers()
-```
+    ```csharp
+    Container.Bind<Foo>().AsSingle().MoveIntoAllSubContainers()
+    ```
 
-Or, if you only wanted Foo to be in the immediate child subcontainer, and not the subcontainers of these subcontainers:
+    Or, if you only wanted Foo to be in the immediate child subcontainer, and not the subcontainers of these subcontainers:
 
-```csharp
-Container.Bind<Foo>().AsSingle().MoveIntoDirectSubContainers()
-```
+    ```csharp
+    Container.Bind<Foo>().AsSingle().MoveIntoDirectSubContainers()
+    ```
 
 * **NonLazy** = Normally, the **ResultType** is only ever instantiated when the binding is first used (aka "lazily").  However, when NonLazy is used, **ResultType** will immediately be created on startup.
 
