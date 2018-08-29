@@ -3024,8 +3024,8 @@ It is possible to remove or replace bindings that were added in a previous bind 
 
 * **<a id="faq-multiple-threads"></a>Does Zenject support multithreading?**
 
-    Yes, with a few caveats
-    - You just need to enable the define `ZEN_MULTITHREADING` in player settings
+    Yes, with a few caveats:
+    - You need to enable the define `ZEN_MULTITHREADING` in player settings
     - Only the resolve and instantiate operations support multithreading.  The bindings that occur during the install phase must cannot be executed concurrently on multiple threads.  In other words, everything after the initial install should support multithreading.
     - Circular reference errors are handled less gracefully.  Instead of an exception with an error message that details the object graph with the circular reference, a StackOverflowException might be thrown
 

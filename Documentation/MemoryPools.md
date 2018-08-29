@@ -169,6 +169,7 @@ Container.BindMemoryPool&lt;<b>ObjectType, MemoryPoolType</b>&gt;()
     .To&lt;<b>ResultType</b>&gt;()
     .WithId(<b>Identifier</b>)
     .From<b>ConstructionMethod</b>()
+    .As<b>Scope</b>()
     .WithArguments(<b>Arguments</b>)
     .WithFactoryArguments(<b>Factory Arguments</b>)
     .When(<b>Condition</b>)
@@ -194,6 +195,8 @@ Where:
     * **ExpandByDoubling** - When the pool is full and a new instance is requested, the pool will double in size before returning the requested instance.  This approach can be useful if you prefer having large infrequent allocations to many small frequent allocations
 
 * **WithFactoryArguments** = If you want to inject extra arguments into your MemoryPool derived class, you can include them here.  Note that `WithArguments` applies to the actual instantiated type and not the memory pool.
+
+* **Scope** = Note that unlike for normal bindings, the default is AsCached instead of AsTransient, which is almost always what you want, so in most cases you can leave this unspecified.  It is only in some rare cases where you need to have unique pools for each class that uses the pool.
 
 The rest of the bind methods behave the same as the normal bind methods documented <a href="../README.md#binding">here</a>
 
