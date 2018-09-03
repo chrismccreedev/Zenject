@@ -3050,6 +3050,7 @@ It is possible to remove or replace bindings that were added in a previous bind 
     - You need to enable the define `ZEN_MULTITHREADING` in player settings
     - Only the resolve and instantiate operations support multithreading.  The bindings that occur during the install phase must cannot be executed concurrently on multiple threads.  In other words, everything after the initial install should support multithreading.
     - Circular reference errors are handled less gracefully.  Instead of an exception with an error message that details the object graph with the circular reference, a StackOverflowException might be thrown
+    - If you make heavy use of zenject from multiple threads at the same time, you might also want to enable the define `ZEN_INTERNAL_NO_POOLS` which will cause zenject to not use memory pools for internal operations.  This will cause more memory allocations however can be much faster in some cases because it will avoid hitting locks the memory pools uses to control access to the shared data across threads
 
 * **<a id="howtousecoroutines"></a>How do I use Unity style Coroutines in normal C# classes?**
 
