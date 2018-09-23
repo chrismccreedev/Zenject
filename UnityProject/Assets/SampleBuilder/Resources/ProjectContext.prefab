@@ -56,6 +56,8 @@ MonoBehaviour:
   _installerPrefabs: []
   _scriptableObjectInstallers: []
   _parentNewObjectsUnderContext: 1
+  _editorReflectionBakingCoverageMode: 0
+  _buildsReflectionBakingCoverageMode: 2
   _settings:
     _ensureDeterministicDestructionOrderOnApplicationQuit: 0
     _displayWarningWhenResolvingDuringInstall: 1
