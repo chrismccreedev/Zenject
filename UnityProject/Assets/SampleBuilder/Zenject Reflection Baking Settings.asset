@@ -11,9 +11,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1ab372d6a005c8344b5d6b25dbc310ce, type: 3}
   m_Name: Zenject Reflection Baking Settings
   m_EditorClassIdentifier: 
-  _executionMode: 3
-  _allAssemblies: 1
-  _weavedAssemblies:
-  - Library\ScriptAssemblies\Zenject.dll
+  _isEnabled: 1
+  _allGeneratedAssemblies: 1
+  _weavedAssemblies: []
   _namespacePatterns:
   - ^Zenject.
