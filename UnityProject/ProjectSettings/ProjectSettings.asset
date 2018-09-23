@@ -634,7 +634,7 @@ PlayerSettings:
     iOS: 2
   scriptingBackend:
     Android: 0
-    Metro: 1
+    Metro: 2
     Standalone: 0
     WP8: 2
     WebGL: 1
@@ -645,7 +645,7 @@ PlayerSettings:
   scriptingRuntimeVersion: 0
   apiCompatibilityLevelPerPlatform:
     Metro: 2
-    Standalone: 2
+    Standalone: 1
   m_RenderingPath: 1
   m_MobileRenderingPath: 1
   metroPackageName: Game1
