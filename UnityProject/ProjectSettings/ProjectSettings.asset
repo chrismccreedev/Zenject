@@ -629,12 +629,13 @@ PlayerSettings:
   webGLCompressionFormat: 1
   scriptingDefineSymbols:
     1: ZEN_INTERNAL_PROFILING
-    13: 
+    13: ZEN_INTERNAL_PROFILING
+    14: ZEN_INTERNAL_PROFILING
   platformArchitecture:
     iOS: 2
   scriptingBackend:
     Android: 0
-    Metro: 2
+    Metro: 1
     Standalone: 0
     WP8: 2
     WebGL: 1
@@ -642,10 +643,11 @@ PlayerSettings:
   incrementalIl2cppBuild:
     iOS: 0
   additionalIl2CppArgs: 
-  scriptingRuntimeVersion: 0
+  scriptingRuntimeVersion: 1
   apiCompatibilityLevelPerPlatform:
-    Metro: 2
-    Standalone: 1
+    Metro: 3
+    Standalone: 3
+    WebGL: 3
   m_RenderingPath: 1
   m_MobileRenderingPath: 1
   metroPackageName: Game1
@@ -757,7 +759,7 @@ PlayerSettings:
     UNet: 0
     Unity_Ads: 0
   facebookSdkVersion: 7.9.1
-  apiCompatibilityLevel: 2
+  apiCompatibilityLevel: 3
   cloudProjectId: 
   projectName: 
   organizationId: 
