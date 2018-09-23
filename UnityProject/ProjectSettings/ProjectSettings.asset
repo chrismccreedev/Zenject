@@ -643,11 +643,11 @@ PlayerSettings:
   incrementalIl2cppBuild:
     iOS: 0
   additionalIl2CppArgs: 
-  scriptingRuntimeVersion: 1
+  scriptingRuntimeVersion: 0
   apiCompatibilityLevelPerPlatform:
     Metro: 3
-    Standalone: 3
-    WebGL: 3
+    Standalone: 1
+    WebGL: 2
   m_RenderingPath: 1
   m_MobileRenderingPath: 1
   metroPackageName: Game1
@@ -759,7 +759,7 @@ PlayerSettings:
     UNet: 0
     Unity_Ads: 0
   facebookSdkVersion: 7.9.1
-  apiCompatibilityLevel: 3
+  apiCompatibilityLevel: 2
   cloudProjectId: 
   projectName: 
   organizationId: 
