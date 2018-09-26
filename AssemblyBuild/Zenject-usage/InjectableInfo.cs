@@ -1,9 +1,8 @@
 using System;
 using System.Reflection;
-using ModestTree;
 using Zenject.Internal;
 
-namespace Zenject.Internal
+namespace Zenject
 {
     // An injectable is a field or property with [Inject] attribute
     // Or a constructor parameter
@@ -34,23 +33,5 @@ namespace Zenject.Internal
             SourceType = sourceType;
         }
 
-        public InjectContext SpawnInjectContext(
-            DiContainer container, InjectContext currentContext, 
-            object targetInstance, Type targetType, object concreteIdentifier)
-        {
-            var context = ZenPools.SpawnInjectContext(container, MemberType);
-
-            context.ObjectType = targetType;
-            context.ParentContext = currentContext;
-            context.ObjectInstance = targetInstance;
-            context.Identifier = Identifier;
-            context.MemberName = MemberName;
-            context.Optional = Optional;
-            context.SourceType = SourceType;
-            context.FallBackValue = DefaultValue;
-            context.ConcreteIdentifier = concreteIdentifier;
-
-            return context;
-        }
     }
 }
