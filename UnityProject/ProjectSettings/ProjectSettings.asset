@@ -609,7 +609,7 @@ PlayerSettings:
   webGLCompressionFormat: 1
   webGLLinkerTarget: 0
   scriptingDefineSymbols:
-    1: ZEN_INTERNAL_PROFILING
+    1: ZEN_INTERNAL_PROFILING;ZEN_INTERNAL_NO_POOLS
     13: ZEN_INTERNAL_PROFILING
     14: ZEN_INTERNAL_PROFILING
   platformArchitecture:

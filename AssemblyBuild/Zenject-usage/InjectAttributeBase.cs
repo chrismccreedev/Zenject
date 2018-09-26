@@ -1,15 +1,7 @@
-using System;
-using Zenject.Internal;
-
 namespace Zenject
 {
-    public abstract class InjectAttributeBase : PreserveAttribute
+    public abstract class InjectAttributeBase : Zenject.Internal.PreserveAttribute
     {
-        [Preserve]
-        public InjectAttributeBase()
-        {
-        }
-
         public bool Optional
         {
             get;
