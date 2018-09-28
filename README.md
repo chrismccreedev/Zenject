@@ -694,7 +694,7 @@ Where:
 1. **FromNewComponentOn** - Instantiate a new component of the given type on the given game object
 
     ```csharp
-    Container.Bind<Foo>().FromComponent(someGameObject);
+    Container.Bind<Foo>().FromNewComponentOn(someGameObject);
     ```
 
     **ResultType** must derive from UnityEngine.MonoBehaviour / UnityEngine.Component in this case
