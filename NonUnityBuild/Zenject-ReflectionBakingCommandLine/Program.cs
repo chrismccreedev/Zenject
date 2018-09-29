@@ -5,8 +5,8 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using Mono.Cecil;
-using Mono.Collections.Generic;
+using Zenject.ReflectionBaking.Mono.Cecil;
+using Zenject.ReflectionBaking.Mono.Collections.Generic;
 
 namespace Zenject.ReflectionBaking
 {
