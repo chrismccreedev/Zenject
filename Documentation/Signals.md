@@ -227,16 +227,6 @@ public override void InstallBindings()
 
 Any objects that are in the container where it's declared, or any sub container, can now listen on the signal and also fire it.
 
-You might also consider making your signal classes a struct instead of a class like this:
-
-```csharp
-public struct PlayerDiedSignal
-{
-}
-```
-
-This has the advantage of not causing any heap allocations, and can be more efficient in general when the signal has zero parameters or only a few parameters.
-
 ## <a id="declaration-syntax"></a>Declaration Binding Syntax
 
 The format of the DeclareSignal statement is the following:

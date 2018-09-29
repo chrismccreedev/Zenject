@@ -242,10 +242,12 @@ Other things to be aware of:
 <pre>
 Container.BindFactory&lt;<b>ContractType</b>, <b>PlaceholderFactoryType</b>&gt;()
     .WithId(<b>Identifier</b>)
+    .WithFactoryArguments(<b>Factory Arguments</b>)
     .To&lt;<b>ResultType</b>&gt;()
     .From<b>ConstructionMethod</b>()
+    .As<b>Scope</b>()
     .WithArguments(<b>Arguments</b>)
-    .WithFactoryArguments(<b>Factory Arguments</b>)
+    .OnInstantiated(<b>InstantiatedCallback</b>)
     .When(<b>Condition</b>)
     .NonLazy()
     .(<b>Copy</b>|<b>Move</b>)Into(<b>All</b>|<b>Direct</b>)SubContainers();
@@ -258,6 +260,8 @@ Where:
 * **PlaceholderFactoryType** = The class deriving from `PlaceholderFactory<>`
 
 * **WithFactoryArguments** = If you want to inject extra arguments into your placeholder factory derived class, you can include them here.  Note that `WithArguments` applies to the actual instantiated type and not the factory.
+
+* **Scope** = Note that unlike for non-factory bindings, the default is AsCached instead of AsTransient, which is almost always what you want for factories, so in most cases you can leave this unspecified.
 
 ## <a id="abstract-factories"></a>Abstract Factories
 
