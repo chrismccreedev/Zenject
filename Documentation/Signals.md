@@ -1,8 +1,4 @@
 
-## Signals
-
-NOTE: If you are upgrading from zenject 5.x and want to continue using that version of signals, you can find a zenject-6 compatible version of that [here](https://github.com/svermeulen/ZenjectSignalsOld).  So to use that, just import zenject 6 making sure to uncheck the `OptionalExtras/Signals` folder, and then add the `ZenjectSignalsOld` folder from the linked repo to your project instead.
-
 ## Table Of Contents
 
 * Introduction
@@ -18,6 +14,7 @@ NOTE: If you are upgrading from zenject 5.x and want to continue using that vers
     * <a href="#use-with-subcontainers">Signals With Subcontainers</a>
     * <a href="#async-signals">Asynchronous Signals</a>
     * <a href="#settings">Signal Settings</a>
+    * <a href="#identifiers">Identifiers</a>
 
 ## <a id="theory"></a>Motivation / Theory
 
@@ -509,4 +506,8 @@ Most of the default settings for signals can be overriden via a settings propert
 **Require Strict Unsubscribe** - When true, this will cause exceptions to be thrown if the scene ends and there are still signal handlers that have not yet unsubscribed yet.  By default it is false.
 
 **Default Async Tick Priority** - This value controls the default tick priority when `RunAsync` is used with `DeclareSignal` but `WithTickPriority` is left unset.  By default it is set to 1, which will cause the signal handlers to be invoked right after all the normal tickables have been called.  This default is chosen because it will ensure that the signal is handled in the same frame that it is triggered, which can be important if the signal affects how the frame is rendered.
+
+## <a id="identifiers"></a>Identifiers
+
+In some cases you might want to define multiple distinct signals from the same Signals class.  You can do this by passing an identifier object to all of the signal methods.  Each method, such as DeclareSignal, Subscribe, Unsubscribe, GetStream, and Fire all have overloads that take an optional identifier object.
 
