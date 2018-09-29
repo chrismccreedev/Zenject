@@ -150,7 +150,8 @@ Also, if you prefer video documentation, you can watch [this youtube series on z
     * <a href="#unirx-integration">UniRx Integration</a>
     * <a href="#auto-mocking-using-moq">Auto-Mocking using Moq</a>
     * <a href="#editor-windows">Creating Unity EditorWindow's with Zenject</a>
-    * <a href="#optimization_notes">Optimization Notes</a>
+    * <a href="#optimization_notes">Optimization Recommendations/Notes</a>
+    * <a href="#reflection-baking">Reflection Baking</a>
     * <a href="#upgrading-from-zenject5">Upgrade Guide for Zenject 6</a>
     * <a href="#dicontainer-methods">DiContainer Methods</a>
         * <a href="#dicontainer-methods-instantiate">DiContainer.Instantiate</a>
@@ -2536,21 +2537,76 @@ Note that every time your code is compiled again within Unity, your editor windo
 
 Something else to note is that the rate at which the ITickable.Tick method gets fired can change depending on what you have on focus.  If you run our timer window, then select another window other than Unity, you can see what I mean.  (Tick Count increments much more slowly)
 
-## <a id="optimization_notes"></a>Optimization Notes
+## <a id="optimization_notes"></a>Optimization Recommendations/Notes
 
-DI can affect start-up time when it builds the initial object graph. However it can also affect performance any time you instantiate new objects at run time.
+1. Use <a href="#memory-pools">memory pools</a> with an initial size.  This should restrict all the costly instantiate operations to scene startup and allow you to avoid any performance spikes once the game starts.
 
-Zenject uses C# reflection which is typically slow, but in Zenject this work is cached so any performance hits only occur once for each class type.  In other words, Zenject avoids costly reflection operations by making a trade-off between performance and memory to ensure good performance.
+2. Use <a href="#reflection-baking">reflection baking</a>.  This is often simply a matter of enabling it and forgetting it, and can eliminate as much as 45% of the time spent running zenject code during scene startup.
 
-You can also force Zenject to populate this cache by calling `Zenject.TypeAnalyzer.GetInfo` for each type you want Zenject to cache the reflection information for.
+3. Use Unity's Profiler.  When Unity's profiler is open, Zenject automatically adds profiling samples for all the common zenject interface operations including IInitializable.Initialize, ITickable.Tick, IDisposable.Dispose, etc.  in a similar way that unity does this automatically for all MonoBehaviour methods.  So, if you implement ITickable then you should see Foo.Tick in the profiler where Foo is one of your classes.
+
+One common frustration people have when they start to profile their Zenject project is that it can be difficult to distinguish between time spent in Zenject versus time spent in their own code.  And therefore it can be tempting to blame Zenject.  This is especially the case when looking at the costs related to scene startup, since the SceneContext.Awake method appears to eat up a lot of the frame.  SceneContext.Awake is where the install is triggered, and also where the entire object graph is constructed, so contains within it a combination of zenject code and also user code.
+
+To help determine how much of this initial performance hit is zenject compared to your own code, you can enable the define ZEN_INTERNAL_PROFILING in your player settings.  After doing this, if you run the scene you should see a more detailed break-down of all the costs incurred while invoking SceneContext.Awake.  After enabling this flag and running your scene, the profiling output should appear in the console like this:
+
+```
+SceneContext.Awake detailed profiling: Total time tracked: 3104.19 ms.  Details:
+  67.2% (02960x) (2086 ms) User Code
+  19.4% (01243x) (0602 ms) Type Analysis - Direct Reflection
+  06.1% (02928x) (0189 ms) DiContainer.Resolve
+  02.3% (00003x) (0071 ms) Other
+  02.3% (00259x) (0071 ms) DiContainer.Bind
+  01.3% (01112x) (0041 ms) DiContainer.Instantiate
+  00.7% (01032x) (0023 ms) Searching Hierarchy
+  00.4% (01243x) (0011 ms) Type Analysis - Calling Baked Reflection Getter
+  00.3% (01852x) (0010 ms) DiContainer.Inject
+```
+
+Or, if you enable reflection baking, then the 'Direct Reflection' costs should be eliminated and it should appear more like this:
+
+```
+SceneContext.Awake detailed profiling: Total time tracked: 2357.43 ms.  Details:
+  79.1% (02964x) (1865 ms) User Code
+  06.4% (02928x) (0151 ms) DiContainer.Resolve
+  06.2% (01243x) (0145 ms) Type Analysis - Calling Baked Reflection Getter
+  02.8% (00003x) (0067 ms) Other
+  02.4% (00259x) (0057 ms) DiContainer.Bind
+  01.5% (01112x) (0034 ms) DiContainer.Instantiate
+  00.8% (01852x) (0020 ms) DiContainer.Inject
+  00.8% (01032x) (0018 ms) Searching Hierarchy
+```
+
+As you can see, in this case 79% of the costs incurred by calling SceneContext.Awake method were related to our game code (labelled here as User Code) rather than zenject.
+
+Note that when not using reflection baking, the costs associated with 'Direct Reflection' above should mostly only occur at startup.  This is because after the first time these costs are incurred, the results are cached.
+
+You can also get minor gains in speed and minor reductions in memory allocations by defining `ZEN_STRIP_ASSERTS_IN_BUILDS` in build settings.  This will cause all asserts to be stripped out of builds.  However, note that debugging any zenject related errors within builds will be made significantly more difficult by doing this.
 
 For some benchmarks on Zenject versus other DI frameworks, see [here](https://github.com/svermeulen/IocPerformance/tree/Zenject).
 
 Zenject should also produce zero per-frame heap allocations.
 
-If performance is really important, then we recommend that you use memory pools (and also specify an initial size) and also cache reflection by calling `Zenject.TypeAnalyzer.GetInfo`.  By doing this, you should be able to restrict all the costly operations to the initialization time and avoid any performance issues once your game starts.
+## <a id="reflection-baking"></a>Reflection Baking
 
-You can also get minor gains in speed and minor reductions in memory allocations by defining `ZEN_STRIP_ASSERTS_IN_BUILDS` in build settings.  This will cause all asserts to be stripped out of builds.  However, note that debugging any zenject related errors within builds will be made significantly more difficult by doing this.
+One easy way to squeeze extra performance out of Zenject is to enable a feature called Reflection Baking.  This will move some of the costs associated with analyzing the types in your codebase (aka reflection) from runtime to build time.  In one of our products at Modest Tree, turning on baking resulted in a 45% reduction in zenject startup time (which amounted to around 424 milliseconds saved).  Results vary project to project depending on how many types are used and the target platform, but is often noticeable.
+
+Reflection Baking will also reduce the time taken to instantiate new objects.  This is especially true on IL2CPP platforms, where instantiating via reflection is typically slower due to restrictions there.
+
+To enable for your project, simply right click somewhere in the project tab and select Create -> Zenject -> Reflection Baking Settings. Now if you build your project again, reflection costs inside Zenject should be mostly eliminated.
+
+By default, reflection baking will modify all the generated assemblies in your project.  These include the assemblies that Unity generates and places in the Library/ScriptAssemblies folder, and do not include any assemblies that are placed underneath the Assets directory (however you can also apply reflection baking there too as a <a href="#reflection-baking-external-dlls">separate step</a>)
+
+In some cases you might want to limit which areas of the code reflection baking is applied to.  You can do this by selecting the reflection baking settings object, unchecking the `All Generated Assemblies` flag, and then explicitly adding the assemblies you want to use to the `Weaved Assemblies` property.  Or you can leave the `All Generated Assemblies` flag set to true and instead limit which assemblies are changed by adding one or more regular expressions to the Namespace Patterns field.  For example, if all of your game code lives underneath the `ModestTree.SpaceFighter` namespace, then you could ensure that the reflection baking only applies there by adding `^ModestTree.SpaceFighter` as a namespace pattern.  Note that zenject will automatically add a namespace pattern for itself so it is not necessary for you to do this (however, it is necessary to add the zenject assemblies to `Weaved Assemblies` if you do not have `All Generated Assemblies` checked)
+
+By default, reflection baking will only apply to builds and will not be in effect while testing inside the unity editor.  If you want to temporarily disable baking you can uncheck `Is Enabled In Builds` in the inspector.  You can also force baking to apply while inside unity editor by checking `Is Enabled in Editor`.  However note that this will slow down compile times so probably will not be worth it, but can be useful when profiling to see the effect that the baking has.  Also note that if you are using Unity 2017 LTS then reflection baking can only be used by builds due to Unity API limitations.
+
+### <a id="reflection-baking-external-dlls"></a>Baking External DLLs
+
+When using reflection baking as described above, by adding a reflection baking settings object, this will only apply reflection baking to the C# files that are dropped directly into your unity project.  If you are using external dlls, and want to have reflection baking applied there as well, then you can do this by adding a post-build step.  There is a command line tool that you can find in the github repo by opening the `zenject\NonUnityBuild\Zenject.sln` file and building the "Zenject-ReflectionBakingCommandLine" project.
+
+### Under the hood
+
+Reflection Baking uses a library called [Cecil](https://github.com/jbevain/cecil) to do IL Weaving on the generated assemblies.  What this means is that after Unity generates the DLLs for the source files in your project, Zenject will edit those DLLs directly to embed zenject operations directly into your classes.   Normally, zenject has to iterate over every field, property, methods, and constructors of your classes to find what needs to be injected, and this is where the reflection costs are incurred.  However, once a class has reflection baking applied, then zenject just needs to call a static method on your class to retrieve all the information that it needs, which is much faster.
 
 ## <a id="upgrading-from-zenject5"></a>Upgrade Guide for Zenject 6
 
