@@ -3,17 +3,20 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class SampleSceneSwitcher : MonoBehaviour
+namespace Zenject
 {
-    public void Update()
+    public class SampleSceneSwitcher : MonoBehaviour
     {
-        if (Input.GetKeyDown(KeyCode.F1))
+        public void Update()
         {
-            SceneManager.LoadScene("Asteroids");
-        }
-        else if (Input.GetKeyDown(KeyCode.F2))
-        {
-            SceneManager.LoadScene("SpaceFighter");
+            if (Input.GetKeyDown(KeyCode.F1))
+            {
+                SceneManager.LoadScene("Asteroids");
+            }
+            else if (Input.GetKeyDown(KeyCode.F2))
+            {
+                SceneManager.LoadScene("SpaceFighter");
+            }
         }
     }
 }
