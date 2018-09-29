@@ -10,9 +10,9 @@
 
 using System;
 
-using Mono.Cecil.Metadata;
+using Zenject.ReflectionBaking.Mono.Cecil.Metadata;
 
-namespace Mono.Cecil {
+namespace Zenject.ReflectionBaking.Mono.Cecil {
 
 	public abstract class TypeSystem {
 

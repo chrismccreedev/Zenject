@@ -11,9 +11,9 @@
 using System;
 using System.Text;
 
-using Mono.Collections.Generic;
+using Zenject.ReflectionBaking.Mono.Collections.Generic;
 
-namespace Mono.Cecil {
+namespace Zenject.ReflectionBaking.Mono.Cecil {
 
 	public sealed class GenericInstanceMethod : MethodSpecification, IGenericInstance, IGenericContext {
 

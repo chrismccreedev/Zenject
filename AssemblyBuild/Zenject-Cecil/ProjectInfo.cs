@@ -10,7 +10,7 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-[assembly: AssemblyProduct ("Mono.Cecil")]
+[assembly: AssemblyProduct ("Zenject.ReflectionBaking.Mono.Cecil")]
 [assembly: AssemblyCopyright ("Copyright © 2008 - 2015 Jb Evain")]
 
 [assembly: ComVisible (false)]

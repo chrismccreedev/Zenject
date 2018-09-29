@@ -9,9 +9,9 @@
 //
 
 using System;
-using Mono.Collections.Generic;
+using Zenject.ReflectionBaking.Mono.Collections.Generic;
 
-namespace Mono {
+namespace Zenject.ReflectionBaking.Mono {
 
 	static class Empty<T> {
 
@@ -19,7 +19,7 @@ namespace Mono {
 	}
 }
 
-namespace Mono.Cecil {
+namespace Zenject.ReflectionBaking.Mono.Cecil {
 
 	static partial class Mixin {
 

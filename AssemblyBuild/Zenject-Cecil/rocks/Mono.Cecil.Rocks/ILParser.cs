@@ -10,10 +10,10 @@
 
 using System;
 
-using Mono.Cecil.Cil;
-using Mono.Collections.Generic;
+using Zenject.ReflectionBaking.Mono.Cecil.Cil;
+using Zenject.ReflectionBaking.Mono.Collections.Generic;
 
-namespace Mono.Cecil.Rocks {
+namespace Zenject.ReflectionBaking.Mono.Cecil.Rocks {
 
 #if INSIDE_ROCKS
 	public

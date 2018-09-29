@@ -8,7 +8,7 @@
 // Licensed under the MIT/X11 license.
 //
 
-namespace Mono.Cecil.Cil {
+namespace Zenject.ReflectionBaking.Mono.Cecil.Cil {
 
 	public abstract class VariableReference {
 

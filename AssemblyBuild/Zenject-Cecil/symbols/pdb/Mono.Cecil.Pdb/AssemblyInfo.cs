@@ -11,6 +11,6 @@
 using System;
 using System.Reflection;
 
-[assembly: AssemblyTitle ("Mono.Cecil.Pdb")]
+[assembly: AssemblyTitle ("Zenject.ReflectionBaking.Mono.Cecil.Pdb")]
 
 [assembly: CLSCompliant (false)]

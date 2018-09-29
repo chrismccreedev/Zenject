@@ -12,11 +12,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-using Mono.Cecil.Cil;
-using Mono.Collections.Generic;
-using Mono.CompilerServices.SymbolWriter;
+using Zenject.ReflectionBaking.Mono.Cecil.Cil;
+using Zenject.ReflectionBaking.Mono.Collections.Generic;
+using Zenject.ReflectionBaking.Mono.CompilerServices.SymbolWriter;
 
-namespace Mono.Cecil.Mdb {
+namespace Zenject.ReflectionBaking.Mono.Cecil.Mdb {
 
 #if !READ_ONLY
 	public class MdbWriterProvider : ISymbolWriterProvider {
@@ -126,7 +126,7 @@ namespace Mono.Cecil.Mdb {
 
 			if (body.Scope != null && body.Scope.HasScopes)
 				WriteScope (body.Scope, true);
-			else 
+			else
 				if (body.HasVariables)
 					AddVariables (body.Variables);
 

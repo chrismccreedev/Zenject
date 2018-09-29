@@ -9,9 +9,9 @@
 //
 
 using System;
-using Mono.Cecil.PE;
+using Zenject.ReflectionBaking.Mono.Cecil.PE;
 
-namespace Mono.Cecil.Metadata {
+namespace Zenject.ReflectionBaking.Mono.Cecil.Metadata {
 
 	enum Table : byte {
 		Module = 0x00,

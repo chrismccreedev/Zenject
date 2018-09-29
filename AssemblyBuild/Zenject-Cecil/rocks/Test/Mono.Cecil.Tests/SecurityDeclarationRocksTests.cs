@@ -2,9 +2,9 @@ using System.Security.Permissions;
 
 using NUnit.Framework;
 
-using Mono.Cecil.Rocks;
+using Zenject.ReflectionBaking.Mono.Cecil.Rocks;
 
-namespace Mono.Cecil.Tests {
+namespace Zenject.ReflectionBaking.Mono.Cecil.Tests {
 
 	[TestFixture]
 	public class SecurityDeclarationRocksTests : BaseTestFixture {

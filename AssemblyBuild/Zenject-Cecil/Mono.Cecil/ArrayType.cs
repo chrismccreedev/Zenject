@@ -10,10 +10,10 @@
 
 using System;
 using System.Text;
-using Mono.Collections.Generic;
-using MD = Mono.Cecil.Metadata;
+using Zenject.ReflectionBaking.Mono.Collections.Generic;
+using MD = Zenject.ReflectionBaking.Mono.Cecil.Metadata;
 
-namespace Mono.Cecil {
+namespace Zenject.ReflectionBaking.Mono.Cecil {
 
 	public struct ArrayDimension {
 

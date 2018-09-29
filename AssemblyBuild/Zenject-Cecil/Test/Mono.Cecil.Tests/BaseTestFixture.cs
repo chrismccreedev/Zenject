@@ -1,12 +1,12 @@
 using System;
 using System.IO;
 using System.Reflection;
-using Mono.Cecil.Cil;
+using Zenject.ReflectionBaking.Mono.Cecil.Cil;
 using NUnit.Framework;
 
-using Mono.Cecil.PE;
+using Zenject.ReflectionBaking.Mono.Cecil.PE;
 
-namespace Mono.Cecil.Tests {
+namespace Zenject.ReflectionBaking.Mono.Cecil.Tests {
 
 	public abstract class BaseTestFixture {
 

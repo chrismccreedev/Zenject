@@ -10,9 +10,9 @@
 
 using System;
 
-using MD = Mono.Cecil.Metadata;
+using MD = Zenject.ReflectionBaking.Mono.Cecil.Metadata;
 
-namespace Mono.Cecil {
+namespace Zenject.ReflectionBaking.Mono.Cecil {
 
 	public interface IModifierType {
 		TypeReference ModifierType { get; }

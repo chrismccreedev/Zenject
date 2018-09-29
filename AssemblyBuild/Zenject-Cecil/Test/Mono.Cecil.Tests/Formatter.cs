@@ -1,9 +1,9 @@
 using System;
 using System.IO;
-using Mono.Cecil;
-using Mono.Cecil.Cil;
+using Zenject.ReflectionBaking.Mono.Cecil;
+using Zenject.ReflectionBaking.Mono.Cecil.Cil;
 
-namespace Mono.Cecil.Tests {
+namespace Zenject.ReflectionBaking.Mono.Cecil.Tests {
 
 	public static class Formatter {
 

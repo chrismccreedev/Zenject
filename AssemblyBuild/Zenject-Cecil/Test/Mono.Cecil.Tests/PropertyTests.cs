@@ -2,7 +2,7 @@ using System.Linq;
 
 using NUnit.Framework;
 
-namespace Mono.Cecil.Tests {
+namespace Zenject.ReflectionBaking.Mono.Cecil.Tests {
 
 	[TestFixture]
 	public class PropertyTests : BaseTestFixture {

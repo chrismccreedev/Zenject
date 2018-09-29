@@ -5,11 +5,11 @@ using System.IO;
 using SR = System.Reflection;
 using System.Runtime.CompilerServices;
 
-using Mono.Cecil.Cil;
+using Zenject.ReflectionBaking.Mono.Cecil.Cil;
 
 using NUnit.Framework;
 
-namespace Mono.Cecil.Tests {
+namespace Zenject.ReflectionBaking.Mono.Cecil.Tests {
 
 	[TestFixture]
 	public class ImportReflectionTests : BaseTestFixture {
@@ -214,8 +214,8 @@ namespace Mono.Cecil.Tests {
 			var foo_def = module.Import (typeof (Foo<>));
 			var foo_open = module.Import (typeof (Foo<>), foo_def);
 
-			Assert.AreEqual ("Mono.Cecil.Tests.ImportReflectionTests/Foo`1", foo_def.FullName);
-			Assert.AreEqual ("Mono.Cecil.Tests.ImportReflectionTests/Foo`1<TFoo>", foo_open.FullName);
+			Assert.AreEqual ("Zenject.ReflectionBaking.Mono.Cecil.Tests.ImportReflectionTests/Foo`1", foo_def.FullName);
+			Assert.AreEqual ("Zenject.ReflectionBaking.Mono.Cecil.Tests.ImportReflectionTests/Foo`1<TFoo>", foo_open.FullName);
 		}
 
 		[Test]
@@ -229,7 +229,7 @@ namespace Mono.Cecil.Tests {
 
 			var generic_foo = module.Import (generic_list_foo_open, foo_def);
 
-			Assert.AreEqual ("Mono.Cecil.Tests.ImportReflectionTests/Generic`1<System.Collections.Generic.List`1<TFoo>>",
+			Assert.AreEqual ("Zenject.ReflectionBaking.Mono.Cecil.Tests.ImportReflectionTests/Generic`1<System.Collections.Generic.List`1<TFoo>>",
 				generic_foo.FullName);
 		}
 
@@ -244,7 +244,7 @@ namespace Mono.Cecil.Tests {
 
 			var generic_foo = module.Import (generic_foo_open, foo_def);
 
-			Assert.AreEqual ("Mono.Cecil.Tests.ImportReflectionTests/Generic`1<Mono.Cecil.Tests.ImportReflectionTests/Foo`1<TFoo>>",
+			Assert.AreEqual ("Zenject.ReflectionBaking.Mono.Cecil.Tests.ImportReflectionTests/Generic`1<Mono.Cecil.Tests.ImportReflectionTests/Foo`1<TFoo>>",
 				generic_foo.FullName);
 		}
 
@@ -259,7 +259,7 @@ namespace Mono.Cecil.Tests {
 
 			var array_foo = module.Import (foo_open_array, foo_def);
 
-			Assert.AreEqual ("Mono.Cecil.Tests.ImportReflectionTests/Foo`1<TFoo>[]",
+			Assert.AreEqual ("Zenject.ReflectionBaking.Mono.Cecil.Tests.ImportReflectionTests/Foo`1<TFoo>[]",
 				array_foo.FullName);
 		}
 
@@ -275,7 +275,7 @@ namespace Mono.Cecil.Tests {
 
 			var generic_field = module.Import (generic_list_foo_open_field, foo_def);
 
-			Assert.AreEqual ("T Mono.Cecil.Tests.ImportReflectionTests/Generic`1<System.Collections.Generic.List`1<TFoo>>::Field",
+			Assert.AreEqual ("T Zenject.ReflectionBaking.Mono.Cecil.Tests.ImportReflectionTests/Generic`1<System.Collections.Generic.List`1<TFoo>>::Field",
 				generic_field.FullName);
 		}
 
@@ -291,7 +291,7 @@ namespace Mono.Cecil.Tests {
 
 			var generic_method = module.Import (generic_list_foo_open_method, foo_def);
 
-			Assert.AreEqual ("T Mono.Cecil.Tests.ImportReflectionTests/Generic`1<System.Collections.Generic.List`1<TFoo>>::Method(T)",
+			Assert.AreEqual ("T Zenject.ReflectionBaking.Mono.Cecil.Tests.ImportReflectionTests/Generic`1<System.Collections.Generic.List`1<TFoo>>::Method(T)",
 				generic_method.FullName);
 		}
 
@@ -302,7 +302,7 @@ namespace Mono.Cecil.Tests {
 
 			var method = module.Import (typeof (Generic<>).GetMethod ("Method"));
 
-			Assert.AreEqual ("T Mono.Cecil.Tests.ImportReflectionTests/Generic`1<T>::Method(T)", method.FullName);
+			Assert.AreEqual ("T Zenject.ReflectionBaking.Mono.Cecil.Tests.ImportReflectionTests/Generic`1<T>::Method(T)", method.FullName);
 		}
 
 		[Test]
@@ -312,11 +312,11 @@ namespace Mono.Cecil.Tests {
 
 			var generic_method = module.Import (typeof (Generic<>).GetMethod ("GenericMethod"));
 
-			Assert.AreEqual ("TS Mono.Cecil.Tests.ImportReflectionTests/Generic`1<T>::GenericMethod(T,TS)", generic_method.FullName);
+			Assert.AreEqual ("TS Zenject.ReflectionBaking.Mono.Cecil.Tests.ImportReflectionTests/Generic`1<T>::GenericMethod(T,TS)", generic_method.FullName);
 
 			generic_method = module.Import (typeof (Generic<>).GetMethod ("GenericMethod"), generic_method);
 
-			Assert.AreEqual ("TS Mono.Cecil.Tests.ImportReflectionTests/Generic`1<T>::GenericMethod<TS>(T,TS)", generic_method.FullName);
+			Assert.AreEqual ("TS Zenject.ReflectionBaking.Mono.Cecil.Tests.ImportReflectionTests/Generic`1<T>::GenericMethod<TS>(T,TS)", generic_method.FullName);
 		}
 
 		delegate void Emitter (ModuleDefinition module, MethodBody body);

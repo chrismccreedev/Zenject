@@ -10,7 +10,7 @@
 
 using System.Collections.Generic;
 
-namespace Mono.Cecil.Metadata {
+namespace Zenject.ReflectionBaking.Mono.Cecil.Metadata {
 
 	struct Row<T1, T2> {
 		internal T1 Col1;

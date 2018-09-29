@@ -13,9 +13,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-using Mono.Collections.Generic;
+using Zenject.ReflectionBaking.Mono.Collections.Generic;
 
-namespace Mono.Cecil {
+namespace Zenject.ReflectionBaking.Mono.Cecil {
 
 	public delegate AssemblyDefinition AssemblyResolveEventHandler (object sender, AssemblyNameReference reference);
 

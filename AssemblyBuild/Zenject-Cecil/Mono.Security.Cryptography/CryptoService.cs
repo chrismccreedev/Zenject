@@ -17,12 +17,12 @@ using System.Security.Cryptography;
 
 #if !SILVERLIGHT && !CF
 using System.Runtime.Serialization;
-using Mono.Security.Cryptography;
+using Zenject.ReflectionBaking.Mono.Security.Cryptography;
 #endif
 
-using Mono.Cecil.PE;
+using Zenject.ReflectionBaking.Mono.Cecil.PE;
 
-namespace Mono.Cecil {
+namespace Zenject.ReflectionBaking.Mono.Cecil {
 
 	// Most of this code has been adapted
 	// from Jeroen Frijters' fantastic work

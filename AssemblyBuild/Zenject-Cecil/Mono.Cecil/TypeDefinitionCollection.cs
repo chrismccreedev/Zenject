@@ -11,11 +11,11 @@
 using System;
 using System.Collections.Generic;
 
-using Mono.Cecil.Metadata;
+using Zenject.ReflectionBaking.Mono.Cecil.Metadata;
 
-using Mono.Collections.Generic;
+using Zenject.ReflectionBaking.Mono.Collections.Generic;
 
-namespace Mono.Cecil {
+namespace Zenject.ReflectionBaking.Mono.Cecil {
 
 	using Slot = Row<string, string>;
 

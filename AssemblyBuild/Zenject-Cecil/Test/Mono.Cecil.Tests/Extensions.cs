@@ -2,9 +2,9 @@ using System;
 using System.Linq;
 using SR = System.Reflection;
 
-using Mono.Cecil;
+using Zenject.ReflectionBaking.Mono.Cecil;
 
-namespace Mono.Cecil.Tests {
+namespace Zenject.ReflectionBaking.Mono.Cecil.Tests {
 
 	public static class Extensions {
 

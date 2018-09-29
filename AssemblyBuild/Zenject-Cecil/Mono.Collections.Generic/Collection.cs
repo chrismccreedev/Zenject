@@ -12,9 +12,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-using Mono.Cecil;
+using Zenject.ReflectionBaking.Mono.Cecil;
 
-namespace Mono.Collections.Generic {
+namespace Zenject.ReflectionBaking.Mono.Collections.Generic {
 
 	public class Collection<T> : IList<T>, IList {
 

@@ -14,9 +14,9 @@ using System.IO;
 
 using Microsoft.Cci.Pdb;
 
-using Mono.Cecil.Cil;
+using Zenject.ReflectionBaking.Mono.Cecil.Cil;
 
-namespace Mono.Cecil.Pdb {
+namespace Zenject.ReflectionBaking.Mono.Cecil.Pdb {
 
 	public class PdbReader : ISymbolReader {
 

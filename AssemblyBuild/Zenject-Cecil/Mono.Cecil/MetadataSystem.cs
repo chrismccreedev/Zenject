@@ -11,9 +11,9 @@
 using System;
 using System.Collections.Generic;
 
-using Mono.Cecil.Metadata;
+using Zenject.ReflectionBaking.Mono.Cecil.Metadata;
 
-namespace Mono.Cecil {
+namespace Zenject.ReflectionBaking.Mono.Cecil {
 
 	struct Range {
 		public uint Start;

@@ -3,7 +3,7 @@ using System.Linq;
 
 using NUnit.Framework;
 
-namespace Mono.Cecil.Tests {
+namespace Zenject.ReflectionBaking.Mono.Cecil.Tests {
 
 	[TestFixture]
 	public class TypeParserTests : BaseTestFixture {
@@ -51,13 +51,13 @@ namespace Mono.Cecil.Tests {
 		{
 			var module = GetCurrentModule ();
 
-			const string fullname = "Mono.Cecil.Tests.TypeParserTests";
+			const string fullname = "Zenject.ReflectionBaking.Mono.Cecil.Tests.TypeParserTests";
 
 			var type = TypeParser.ParseType (module, fullname);
 			Assert.IsNotNull (type);
 			Assert.AreEqual (module, type.Scope);
 			Assert.AreEqual (module, type.Module);
-			Assert.AreEqual ("Mono.Cecil.Tests", type.Namespace);
+			Assert.AreEqual ("Zenject.ReflectionBaking.Mono.Cecil.Tests", type.Namespace);
 			Assert.AreEqual ("TypeParserTests", type.Name);
 			Assert.IsInstanceOf (typeof (TypeDefinition), type);
 		}
@@ -88,15 +88,15 @@ namespace Mono.Cecil.Tests {
 		public void FullyQualifiedTypeReference ()
 		{
 			var module = GetCurrentModule ();
-			var cecil = module.AssemblyReferences.Where (reference => reference.Name == "Mono.Cecil").First ();
+			var cecil = module.AssemblyReferences.Where (reference => reference.Name == "Zenject.ReflectionBaking.Mono.Cecil").First ();
 
-			var fullname = "Mono.Cecil.TypeDefinition, " + cecil.FullName;
+			var fullname = "Zenject.ReflectionBaking.Mono.Cecil.TypeDefinition, " + cecil.FullName;
 
 			var type = TypeParser.ParseType (module, fullname);
 			Assert.IsNotNull (type);
 			Assert.AreEqual (cecil, type.Scope);
 			Assert.AreEqual (module, type.Module);
-			Assert.AreEqual ("Mono.Cecil", type.Namespace);
+			Assert.AreEqual ("Zenject.ReflectionBaking.Mono.Cecil", type.Namespace);
 			Assert.AreEqual ("TypeDefinition", type.Name);
 			Assert.IsInstanceOf (typeof (TypeReference), type);
 		}
@@ -126,7 +126,7 @@ namespace Mono.Cecil.Tests {
 		{
 			var module = GetCurrentModule ();
 
-			const string fullname = "Mono.Cecil.Tests.TypeParserTests+ID";
+			const string fullname = "Zenject.ReflectionBaking.Mono.Cecil.Tests.TypeParserTests+ID";
 
 			var type = TypeParser.ParseType (module, fullname);
 
@@ -136,7 +136,7 @@ namespace Mono.Cecil.Tests {
 			Assert.AreEqual ("", type.Namespace);
 			Assert.AreEqual ("ID", type.Name);
 
-			Assert.AreEqual ("Mono.Cecil.Tests.TypeParserTests/ID", type.FullName);
+			Assert.AreEqual ("Zenject.ReflectionBaking.Mono.Cecil.Tests.TypeParserTests/ID", type.FullName);
 			Assert.AreEqual (fullname, TypeParser.ToParseable (type));
 		}
 
@@ -272,7 +272,7 @@ namespace Mono.Cecil.Tests {
 		{
 			var module = GetCurrentModule ();
 
-			var fullname = string.Format ("System.Collections.Generic.Dictionary`2[Mono.Cecil.Tests.TypeParserTests,[System.String, {0}]]",
+			var fullname = string.Format ("System.Collections.Generic.Dictionary`2[Zenject.ReflectionBaking.Mono.Cecil.Tests.TypeParserTests,[System.String, {0}]]",
 				typeof (object).Assembly.FullName);
 
 			var type = TypeParser.ParseType (module, fullname);
@@ -292,7 +292,7 @@ namespace Mono.Cecil.Tests {
 			var argument = instance.GenericArguments [0];
 			Assert.IsInstanceOf (typeof (TypeDefinition), argument);
 			Assert.AreEqual (module, argument.Module);
-			Assert.AreEqual ("Mono.Cecil.Tests", argument.Namespace);
+			Assert.AreEqual ("Zenject.ReflectionBaking.Mono.Cecil.Tests", argument.Namespace);
 			Assert.AreEqual ("TypeParserTests", argument.Name);
 
 			argument = instance.GenericArguments [1];
@@ -312,7 +312,7 @@ namespace Mono.Cecil.Tests {
 		{
 			var module = GetCurrentModule ();
 
-			var fullname = string.Format ("System.Collections.Generic.Dictionary`2[Mono.Cecil.Tests.TypeParserTests+Bar,Mono.Cecil.Tests.TypeParserTests+Bar], {0}", typeof (object).Assembly.FullName);
+			var fullname = string.Format ("System.Collections.Generic.Dictionary`2[Zenject.ReflectionBaking.Mono.Cecil.Tests.TypeParserTests+Bar,Mono.Cecil.Tests.TypeParserTests+Bar], {0}", typeof (object).Assembly.FullName);
 
 			var type = TypeParser.ParseType (module, fullname);
 
@@ -346,7 +346,7 @@ namespace Mono.Cecil.Tests {
 		{
 			var module = GetCurrentModule ();
 
-			var fullname = string.Format ("System.Collections.Generic.Dictionary`2[[System.String, {0}],Mono.Cecil.Tests.TypeParserTests+Foo`2[Mono.Cecil.Tests.TypeParserTests,[System.Int32, {0}]]]",
+			var fullname = string.Format ("System.Collections.Generic.Dictionary`2[[System.String, {0}],Zenject.ReflectionBaking.Mono.Cecil.Tests.TypeParserTests+Foo`2[Mono.Cecil.Tests.TypeParserTests,[System.Int32, {0}]]]",
 				typeof (object).Assembly.FullName);
 
 			var type = TypeParser.ParseType (module, fullname);
@@ -375,12 +375,12 @@ namespace Mono.Cecil.Tests {
 			Assert.IsNotNull (instance);
 			Assert.AreEqual (2, instance.GenericArguments.Count);
 			Assert.AreEqual (module, instance.Module);
-			Assert.AreEqual ("Mono.Cecil.Tests.TypeParserTests/Foo`2", instance.ElementType.FullName);
+			Assert.AreEqual ("Zenject.ReflectionBaking.Mono.Cecil.Tests.TypeParserTests/Foo`2", instance.ElementType.FullName);
 			Assert.IsInstanceOf (typeof (TypeDefinition), instance.ElementType);
 
 			argument = instance.GenericArguments [0];
 			Assert.AreEqual (module, argument.Module);
-			Assert.AreEqual ("Mono.Cecil.Tests", argument.Namespace);
+			Assert.AreEqual ("Zenject.ReflectionBaking.Mono.Cecil.Tests", argument.Namespace);
 			Assert.AreEqual ("TypeParserTests", argument.Name);
 			Assert.IsInstanceOf (typeof (TypeDefinition), argument);
 

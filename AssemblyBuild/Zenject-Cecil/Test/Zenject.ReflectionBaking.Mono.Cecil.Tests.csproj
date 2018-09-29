@@ -3,8 +3,8 @@
   <Import Project="..\Mono.Cecil.Tests.settings" />
   <PropertyGroup>
     <ProjectGuid>{A47B1F49-A81A-43E8-BE6B-DD28AF2C4055}</ProjectGuid>
-    <RootNamespace>Mono.Cecil.Tests</RootNamespace>
-    <AssemblyName>Mono.Cecil.Tests</AssemblyName>
+    <RootNamespace>Zenject.ReflectionBaking.Mono.Cecil.Tests</RootNamespace>
+    <AssemblyName>Zenject.ReflectionBaking.Mono.Cecil.Tests</AssemblyName>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\ProjectInfo.cs" />
@@ -51,9 +51,9 @@
     <None Include="Resources\il\types.il" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Mono.Cecil.csproj">
+    <ProjectReference Include="..\Zenject.ReflectionBaking.Mono.Cecil.csproj">
       <Project>{D68133BD-1E63-496E-9EDE-4FBDBF77B486}</Project>
-      <Name>Mono.Cecil</Name>
+      <Name>Zenject.ReflectionBaking.Mono.Cecil</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

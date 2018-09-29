@@ -10,12 +10,12 @@
 
 using System;
 
-using Mono.Cecil.PE;
-using Mono.Collections.Generic;
+using Zenject.ReflectionBaking.Mono.Cecil.PE;
+using Zenject.ReflectionBaking.Mono.Collections.Generic;
 
 using RVA = System.UInt32;
 
-namespace Mono.Cecil.Cil {
+namespace Zenject.ReflectionBaking.Mono.Cecil.Cil {
 
 	sealed class CodeReader : ByteBuffer {
 

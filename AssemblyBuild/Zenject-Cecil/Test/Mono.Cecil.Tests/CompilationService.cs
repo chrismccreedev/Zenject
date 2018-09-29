@@ -7,7 +7,7 @@ using System.Text;
 
 using NUnit.Framework;
 
-namespace Mono.Cecil.Tests {
+namespace Zenject.ReflectionBaking.Mono.Cecil.Tests {
 
 	struct CompilationResult {
 		internal DateTime source_write_time;

@@ -12,12 +12,12 @@ using System.Collections.Generic;
 using System.Diagnostics.SymbolStore;
 using System.Runtime.InteropServices;
 
-using Mono.Cecil.Cil;
-using Mono.Collections.Generic;
+using Zenject.ReflectionBaking.Mono.Cecil.Cil;
+using Zenject.ReflectionBaking.Mono.Collections.Generic;
 
 #if !READ_ONLY
 
-namespace Mono.Cecil.Pdb
+namespace Zenject.ReflectionBaking.Mono.Cecil.Pdb
 {
 	internal class SymWriter
 	{

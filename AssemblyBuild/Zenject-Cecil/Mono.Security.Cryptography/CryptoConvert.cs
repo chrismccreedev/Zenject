@@ -32,7 +32,7 @@ using System.Security.Cryptography;
 
 #if !(SILVERLIGHT || READ_ONLY)
 
-namespace Mono.Security.Cryptography {
+namespace Zenject.ReflectionBaking.Mono.Security.Cryptography {
 
 	static class CryptoConvert {
 

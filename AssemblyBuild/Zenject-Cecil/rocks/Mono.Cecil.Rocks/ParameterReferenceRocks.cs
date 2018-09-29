@@ -1,5 +1,5 @@
 
-namespace Mono.Cecil.Rocks {
+namespace Zenject.ReflectionBaking.Mono.Cecil.Rocks {
 
 	public static class ParameterReferenceRocks {
 

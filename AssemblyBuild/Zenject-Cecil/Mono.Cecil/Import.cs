@@ -10,12 +10,12 @@
 
 using System;
 using System.Collections.Generic;
-using Mono.Collections.Generic;
+using Zenject.ReflectionBaking.Mono.Collections.Generic;
 using SR = System.Reflection;
 
-using Mono.Cecil.Metadata;
+using Zenject.ReflectionBaking.Mono.Cecil.Metadata;
 
-namespace Mono.Cecil {
+namespace Zenject.ReflectionBaking.Mono.Cecil {
 
 	enum ImportGenericKind {
 		Definition,

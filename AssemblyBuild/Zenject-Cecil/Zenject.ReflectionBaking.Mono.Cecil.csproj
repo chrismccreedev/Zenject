@@ -3,8 +3,8 @@
   <Import Project="Mono.Cecil.settings" />
   <PropertyGroup>
     <ProjectGuid>{D68133BD-1E63-496E-9EDE-4FBDBF77B486}</ProjectGuid>
-    <RootNamespace>Mono.Cecil</RootNamespace>
-    <AssemblyName>Mono.Cecil</AssemblyName>
+    <RootNamespace>Zenject.ReflectionBaking.Mono.Cecil</RootNamespace>
+    <AssemblyName>Zenject.ReflectionBaking.Mono.Cecil</AssemblyName>
   </PropertyGroup>
   <ItemGroup Condition=" '$(TargetFrameworkVersion)' != 'v2.0' ">
     <Reference Include="System.Core" />

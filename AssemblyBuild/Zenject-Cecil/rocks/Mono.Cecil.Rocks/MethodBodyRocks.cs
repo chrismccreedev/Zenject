@@ -10,9 +10,9 @@
 
 using System;
 
-using Mono.Cecil.Cil;
+using Zenject.ReflectionBaking.Mono.Cecil.Cil;
 
-namespace Mono.Cecil.Rocks {
+namespace Zenject.ReflectionBaking.Mono.Cecil.Rocks {
 
 #if INSIDE_ROCKS
 	public

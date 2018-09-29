@@ -10,13 +10,13 @@
 
 using System;
 
-using Mono;
-using Mono.Cecil.Cil;
-using Mono.Cecil.Metadata;
+using Zenject.ReflectionBaking.Mono;
+using Zenject.ReflectionBaking.Mono.Cecil.Cil;
+using Zenject.ReflectionBaking.Mono.Cecil.Metadata;
 
 using RVA = System.UInt32;
 
-namespace Mono.Cecil.PE {
+namespace Zenject.ReflectionBaking.Mono.Cecil.PE {
 
 	sealed class Image {
 

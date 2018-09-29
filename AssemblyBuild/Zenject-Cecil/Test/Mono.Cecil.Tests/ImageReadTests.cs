@@ -1,13 +1,13 @@
 using System;
 using System.IO;
 
-using Mono.Cecil;
-using Mono.Cecil.PE;
-using Mono.Cecil.Metadata;
+using Zenject.ReflectionBaking.Mono.Cecil;
+using Zenject.ReflectionBaking.Mono.Cecil.PE;
+using Zenject.ReflectionBaking.Mono.Cecil.Metadata;
 
 using NUnit.Framework;
 
-namespace Mono.Cecil.Tests {
+namespace Zenject.ReflectionBaking.Mono.Cecil.Tests {
 
 	[TestFixture]
 	public class ImageReadTests : BaseTestFixture {

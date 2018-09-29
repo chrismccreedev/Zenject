@@ -13,7 +13,7 @@ using System.IO;
 
 #if !READ_ONLY
 
-namespace Mono.Cecil.PE {
+namespace Zenject.ReflectionBaking.Mono.Cecil.PE {
 
 	class BinaryStreamWriter : BinaryWriter {
 

@@ -10,7 +10,7 @@
 
 using System;
 
-namespace Mono.Cecil {
+namespace Zenject.ReflectionBaking.Mono.Cecil {
 
 	[Flags]
 	public enum MethodSemanticsAttributes : ushort {

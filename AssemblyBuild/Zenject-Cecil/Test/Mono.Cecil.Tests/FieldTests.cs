@@ -1,10 +1,10 @@
 using System;
 
-using Mono.Cecil.PE;
+using Zenject.ReflectionBaking.Mono.Cecil.PE;
 
 using NUnit.Framework;
 
-namespace Mono.Cecil.Tests {
+namespace Zenject.ReflectionBaking.Mono.Cecil.Tests {
 
 	[TestFixture]
 	public class FieldTests : BaseTestFixture {

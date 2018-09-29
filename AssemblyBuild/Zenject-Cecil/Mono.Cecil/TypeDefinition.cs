@@ -10,10 +10,10 @@
 
 using System;
 
-using Mono.Cecil.Metadata;
-using Mono.Collections.Generic;
+using Zenject.ReflectionBaking.Mono.Cecil.Metadata;
+using Zenject.ReflectionBaking.Mono.Collections.Generic;
 
-namespace Mono.Cecil {
+namespace Zenject.ReflectionBaking.Mono.Cecil {
 
 	public sealed class TypeDefinition : TypeReference, IMemberDefinition, ISecurityDeclarationProvider {
 

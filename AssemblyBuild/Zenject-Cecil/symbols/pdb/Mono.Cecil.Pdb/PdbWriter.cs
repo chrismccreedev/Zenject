@@ -12,12 +12,12 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.SymbolStore;
 
-using Mono.Cecil.Cil;
-using Mono.Collections.Generic;
+using Zenject.ReflectionBaking.Mono.Cecil.Cil;
+using Zenject.ReflectionBaking.Mono.Collections.Generic;
 
 #if !READ_ONLY
 
-namespace Mono.Cecil.Pdb {
+namespace Zenject.ReflectionBaking.Mono.Cecil.Pdb {
 
 	public class PdbWriter : Cil.ISymbolWriter {
 

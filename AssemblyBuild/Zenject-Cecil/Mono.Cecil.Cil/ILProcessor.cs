@@ -10,9 +10,9 @@
 
 using System;
 
-using Mono.Collections.Generic;
+using Zenject.ReflectionBaking.Mono.Collections.Generic;
 
-namespace Mono.Cecil.Cil {
+namespace Zenject.ReflectionBaking.Mono.Cecil.Cil {
 
 	public sealed class ILProcessor {
 

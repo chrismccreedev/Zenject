@@ -10,7 +10,7 @@
 
 #if !NET_3_5 && !NET_4_0
 
-namespace Mono {
+namespace Zenject.ReflectionBaking.Mono {
 	//delegate void Action ();
 	delegate void Action<T1, T2> (T1 arg1, T2 arg2);
 	//delegate void Action<T1, T2, T3> (T1 arg1, T2 arg2, T3 arg3);

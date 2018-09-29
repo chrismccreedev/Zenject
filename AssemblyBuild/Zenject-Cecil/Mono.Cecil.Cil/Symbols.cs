@@ -13,9 +13,9 @@ using System.IO;
 using System.Runtime.InteropServices;
 using SR = System.Reflection;
 
-using Mono.Collections.Generic;
+using Zenject.ReflectionBaking.Mono.Collections.Generic;
 
-namespace Mono.Cecil.Cil {
+namespace Zenject.ReflectionBaking.Mono.Cecil.Cil {
 
 	[StructLayout (LayoutKind.Sequential)]
 	public struct ImageDebugDirectory {
@@ -168,7 +168,7 @@ namespace Mono.Cecil.Cil {
 			var cecil_name = typeof (SymbolProvider).Assembly.GetName ();
 
 			var name = new SR.AssemblyName {
-				Name = "Mono.Cecil." + symbol_kind,
+				Name = "Zenject.ReflectionBaking.Mono.Cecil." + symbol_kind,
 				Version = cecil_name.Version,
 			};
 
@@ -218,7 +218,7 @@ namespace Mono.Cecil.Cil {
 
 		static string GetProviderTypeName (string name)
 		{
-			return "Mono.Cecil." + symbol_kind + "." + symbol_kind + name;
+			return "Zenject.ReflectionBaking.Mono.Cecil." + symbol_kind + "." + symbol_kind + name;
 		}
 
 #if !READ_ONLY

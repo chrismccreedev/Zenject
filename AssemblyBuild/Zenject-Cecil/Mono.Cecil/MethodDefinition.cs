@@ -8,12 +8,12 @@
 // Licensed under the MIT/X11 license.
 //
 
-using Mono.Cecil.Cil;
-using Mono.Collections.Generic;
+using Zenject.ReflectionBaking.Mono.Cecil.Cil;
+using Zenject.ReflectionBaking.Mono.Collections.Generic;
 
 using RVA = System.UInt32;
 
-namespace Mono.Cecil {
+namespace Zenject.ReflectionBaking.Mono.Cecil {
 
 	public sealed class MethodDefinition : MethodReference, IMemberDefinition, ISecurityDeclarationProvider {
 

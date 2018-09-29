@@ -36,7 +36,7 @@ using System.Collections;
 using System.IO;
 using System.Diagnostics.SymbolStore;
 
-namespace Mono.CompilerServices.SymbolWriter
+namespace Zenject.ReflectionBaking.Mono.CompilerServices.SymbolWriter
 {
 	public class SymbolWriterImpl: ISymbolWriter
 	{

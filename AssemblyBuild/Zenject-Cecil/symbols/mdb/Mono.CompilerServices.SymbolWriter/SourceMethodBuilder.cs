@@ -30,7 +30,7 @@
 
 using System.Collections.Generic;
 
-namespace Mono.CompilerServices.SymbolWriter
+namespace Zenject.ReflectionBaking.Mono.CompilerServices.SymbolWriter
 {
 	public class SourceMethodBuilder
 	{

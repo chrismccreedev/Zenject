@@ -2,12 +2,12 @@
 using System.IO;
 using System.Linq;
 
-using Mono.Cecil.Cil;
-using Mono.Cecil.Pdb;
+using Zenject.ReflectionBaking.Mono.Cecil.Cil;
+using Zenject.ReflectionBaking.Mono.Cecil.Pdb;
 
 using NUnit.Framework;
 
-namespace Mono.Cecil.Tests {
+namespace Zenject.ReflectionBaking.Mono.Cecil.Tests {
 
 	[TestFixture]
 	public class PdbTests : BaseTestFixture {

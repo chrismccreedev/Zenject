@@ -6,11 +6,11 @@ using System.Linq;
 using SR = System.Reflection;
 using System.Runtime.CompilerServices;
 
-using Mono.Cecil.Cil;
+using Zenject.ReflectionBaking.Mono.Cecil.Cil;
 
 using NUnit.Framework;
 
-namespace Mono.Cecil.Tests {
+namespace Zenject.ReflectionBaking.Mono.Cecil.Tests {
 
 	[TestFixture]
 	public class ImportCecilTests : BaseTestFixture {
@@ -218,7 +218,7 @@ namespace Mono.Cecil.Tests {
 
 			var method = module.Import (generic.GetMethod ("Method"));
 
-			Assert.AreEqual ("T Mono.Cecil.Tests.ImportCecilTests/Generic`1::Method(T)", method.FullName);
+			Assert.AreEqual ("T Zenject.ReflectionBaking.Mono.Cecil.Tests.ImportCecilTests/Generic`1::Method(T)", method.FullName);
 		}
 
 		public class ContextGeneric1Method2<G1>
@@ -260,28 +260,28 @@ namespace Mono.Cecil.Tests {
 			var meth = type.GetMethod ("GenericMethod");
 			var imported_type = module.Import (type);
 			var method = module.Import (meth, imported_type);
-			Assert.AreEqual ("G1 Mono.Cecil.Tests.ImportCecilTests/ContextGeneric1Method2`1<Mono.Cecil.Tests.ImportCecilTests/ContextGeneric2Method1`2<G2,H2>>::GenericMethod<R1,S1>(R1,S1)", method.FullName);
+			Assert.AreEqual ("G1 Zenject.ReflectionBaking.Mono.Cecil.Tests.ImportCecilTests/ContextGeneric1Method2`1<Mono.Cecil.Tests.ImportCecilTests/ContextGeneric2Method1`2<G2,H2>>::GenericMethod<R1,S1>(R1,S1)", method.FullName);
 
 			// and the other way around
 			type = typeof (ContextGeneric2Method1<,>).MakeGenericType (typeof (ContextGeneric1Method2<>), typeof (IList<>));
 			meth = type.GetMethod ("GenericMethod");
 			imported_type = module.Import (type);
 			method = module.Import (meth, imported_type);
-			Assert.AreEqual ("R2 Mono.Cecil.Tests.ImportCecilTests/ContextGeneric2Method1`2<Mono.Cecil.Tests.ImportCecilTests/ContextGeneric1Method2`1<G1>,System.Collections.Generic.IList`1<T>>::GenericMethod<R2>(G2,H2)", method.FullName);
+			Assert.AreEqual ("R2 Zenject.ReflectionBaking.Mono.Cecil.Tests.ImportCecilTests/ContextGeneric2Method1`2<Mono.Cecil.Tests.ImportCecilTests/ContextGeneric1Method2`1<G1>,System.Collections.Generic.IList`1<T>>::GenericMethod<R2>(G2,H2)", method.FullName);
 
 			// not sure about this one
 			type = typeof (NestedGenericsA<string>.NestedGenericsB<int>.NestedGenericsC<float>);
 			meth = type.GetMethod ("GenericMethod");
 			imported_type = module.Import (type);
 			method = module.Import (meth, imported_type);
-			Assert.AreEqual ("A Mono.Cecil.Tests.ImportCecilTests/NestedGenericsA`1/NestedGenericsB`1/NestedGenericsC`1<System.String,System.Int32,System.Single>::GenericMethod(B,C)", method.FullName);
+			Assert.AreEqual ("A Zenject.ReflectionBaking.Mono.Cecil.Tests.ImportCecilTests/NestedGenericsA`1/NestedGenericsB`1/NestedGenericsC`1<System.String,System.Int32,System.Single>::GenericMethod(B,C)", method.FullName);
 
 			// We need both the method & type !
 			type = typeof (Generic<>).MakeGenericType (typeof (string));
 			meth = type.GetMethod ("ComplexGenericMethod");
 			imported_type = module.Import (type);
 			method = module.Import (meth, imported_type);
-			Assert.AreEqual ("Mono.Cecil.Tests.ImportCecilTests/Generic`1<TS> Mono.Cecil.Tests.ImportCecilTests/Generic`1<System.String>::ComplexGenericMethod<TS>(T,TS)", method.FullName);
+			Assert.AreEqual ("Zenject.ReflectionBaking.Mono.Cecil.Tests.ImportCecilTests/Generic`1<TS> Mono.Cecil.Tests.ImportCecilTests/Generic`1<System.String>::ComplexGenericMethod<TS>(T,TS)", method.FullName);
 		}
 
 		delegate void Emitter (ModuleDefinition module, MethodBody body);

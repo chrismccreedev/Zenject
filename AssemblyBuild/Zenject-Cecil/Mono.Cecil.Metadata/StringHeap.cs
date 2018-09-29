@@ -12,9 +12,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-using Mono.Cecil.PE;
+using Zenject.ReflectionBaking.Mono.Cecil.PE;
 
-namespace Mono.Cecil.Metadata {
+namespace Zenject.ReflectionBaking.Mono.Cecil.Metadata {
 
 	class StringHeap : Heap {
 

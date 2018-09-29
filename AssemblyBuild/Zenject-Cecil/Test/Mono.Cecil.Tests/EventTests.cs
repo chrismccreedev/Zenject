@@ -1,11 +1,11 @@
 using System;
 
-using Mono.Cecil;
-using Mono.Cecil.Metadata;
+using Zenject.ReflectionBaking.Mono.Cecil;
+using Zenject.ReflectionBaking.Mono.Cecil.Metadata;
 
 using NUnit.Framework;
 
-namespace Mono.Cecil.Tests {
+namespace Zenject.ReflectionBaking.Mono.Cecil.Tests {
 
 	[TestFixture]
 	public class EventTests : BaseTestFixture {
