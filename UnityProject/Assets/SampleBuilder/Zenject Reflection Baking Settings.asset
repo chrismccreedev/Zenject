@@ -15,5 +15,4 @@ MonoBehaviour:
   _isEnabledInEditor: 0
   _allGeneratedAssemblies: 1
   _weavedAssemblies: []
-  _namespacePatterns:
-  - ^Zenject.
+  _namespacePatterns: []
