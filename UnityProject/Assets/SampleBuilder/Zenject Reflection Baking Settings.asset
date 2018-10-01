@@ -13,6 +13,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _isEnabledInBuilds: 1
   _isEnabledInEditor: 0
-  _allGeneratedAssemblies: 1
-  _weavedAssemblies: []
+  _allGeneratedAssemblies: 0
+  _includeAssemblies:
+  - Library/ScriptAssemblies/Zenject.dll
+  _excludeAssemblies:
+  - Library/ScriptAssemblies/Zenject-IntegrationTests.dll
+  - Library/ScriptAssemblies/Zenject-IntegrationTests-Editor.dll
   _namespacePatterns: []
