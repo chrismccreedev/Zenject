@@ -809,7 +809,7 @@ Container.Bind<Foo>().AsSingle().MoveIntoDirectSubContainers()
 
 1. **FromResolveAllGetter&lt;ObjectType&gt;** - Same as FromResolveGetter except will match multiple values or zero values.
 
-1. **FromSubContainerResolve** - Get **ResultType** by doing a lookup on a subcontainer.  Note that for this to work, the sub-container must have a binding for **ResultType**.  This approach can be very powerful, because it allows you to group related dependencies together inside a mini-container, and then expose only certain classes (aka <a href="https://en.wikipedia.org/wiki/Facade_pattern">"Facades"</a>) to operate on this group of dependencies at a higher level.  For more details on using sub-containers, see <a href="#sub-containers-and-facades">this section</a>.  There are 4 different ways to define the subcontainer:
+1. **FromSubContainerResolve** - Get **ResultType** by doing a lookup on a subcontainer.  Note that for this to work, the sub-container must have a binding for **ResultType**.  This approach can be very powerful, because it allows you to group related dependencies together inside a mini-container, and then expose only certain classes (aka <a href="https://en.wikipedia.org/wiki/Facade_pattern">"Facades"</a>) to operate on this group of dependencies at a higher level.  For more details on using sub-containers, see <a href="#sub-containers-and-facades">this section</a>.  There are several ways to define the subcontainer:
 
     1. **ByMethod** - Initialize the subcontainer by using a method.
 
@@ -836,7 +836,7 @@ Container.Bind<Foo>().AsSingle().MoveIntoDirectSubContainers()
         }
         ```
 
-    1. **ByNewPrefab** - Initialize subcontainer by instantiating a new prefab.  Note that the prefab must contain a `GameObjectContext` component attached to the root game object.  For details on `GameObjectContext` see <a href="#sub-containers-and-facades">this section</a>.
+    1. **ByNewContextPrefab** - Initialize subcontainer by instantiating a new prefab.  Note that the prefab must contain a `GameObjectContext` component attached to the root game object.  For details on `GameObjectContext` see <a href="#sub-containers-and-facades">this section</a>.
 
         ```csharp
         Container.Bind<Foo>().FromSubContainerResolve().ByNewContextPrefab(MyPrefab);
@@ -877,10 +877,10 @@ Container.Bind<Foo>().AsSingle().MoveIntoDirectSubContainers()
         }
         ```
 
-    1. **ByNewPrefabResource** - Initialize subcontainer instantiating a new prefab obtained via `Resources.Load`.  Note that the prefab must contain a `GameObjectContext` component attached to the root game object.
+    1. **ByNewContextPrefabResource** - Initialize subcontainer instantiating a new prefab obtained via `Resources.Load`.  Note that the prefab must contain a `GameObjectContext` component attached to the root game object.
 
         ```csharp
-        Container.Bind<Foo>().FromSubContainerResolve().ByNewPrefabResource("Path/To/MyPrefab");
+        Container.Bind<Foo>().FromSubContainerResolve().ByNewContextPrefabResource("Path/To/MyPrefab");
         ```
 
     1. **ByNewPrefabResourceMethod** - Initialize subcontainer instantiating a new prefab obtained via `Resources.Load`.  Note that unlike `ByNewPrefabResource`, this bind method does not require that there be a GameObjectContext attached to the prefab.  In this case the GameObjectContext is added dynamically and then run with the given installer method.
