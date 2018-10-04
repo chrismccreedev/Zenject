@@ -1,6 +1,32 @@
 
 # <a id="release-notes"></a>Release Notes
 
+## Version 7.3.0 (October 6, 2018)
+
+Merged in changes from LTS version 6.5.0
+
+## Version 6.5.0 (October 27, 2018)
+
+Mostly optimizations, some minor bug fixes, and a few minor new features.
+
+Notable:
+- Added support for [Reflection Baking](https://github.com/svermeulen/Zenject#reflection-baking) to automatically eliminate costs associated with reflection from your zenject application.
+- General optimizations to memory usage and processing time
+- Added non-generic versions of all the FromComponentX methods
+- Fixed multi-threading issues
+- Added new bind methods ByNewGameObjectInstaller and ByNewGameObjectMethod
+- Added ZEN_INTERNAL_PROFILING define to allow users to easily see how much cpu time is devoted to zenject versus custom game code
+- Added an optional identifier for signals
+
+Minor:
+- Added ability to use custom attributes in place of Zenject.InjectAttribute
+- Changed to use Expression.New when possible for inject methods, fields, properties, and constructors for extra speed
+- Added ArrayPool class
+- Improved readability of error messages
+- Fixed rare bug where instantiated prefabs would get offset slightly by the scene context position
+- Renamed ByNewPrefabResource to ByNewContextPrefabResource properly and made the previous name obsolete
+- Added documentation for WithKernel, and WithDefaultGameObjectParent bind methods
+
 ## Version 7.2.0 (August 27, 2018)
 
 Merged in changes from LTS version 6.4.0
