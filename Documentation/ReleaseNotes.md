@@ -5,7 +5,7 @@
 
 Merged in changes from LTS version 6.5.0
 
-## Version 6.5.0 (October 27, 2018)
+## Version 6.5.0 (October 6, 2018)
 
 Mostly optimizations, some minor bug fixes, and a few minor new features.
 

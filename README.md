@@ -13,7 +13,7 @@ If you are looking for the older documentation for Zenject you can find that her
 
 ## <a id="introduction"></a>Introduction
 
-Zenject is a lightweight dependency injection framework built specifically to target Unity 3D (however it can be used outside of Unity as well).  It can be used to turn your application into a collection of loosely-coupled parts with highly segmented responsibilities.  Zenject can then glue the parts together in many different configurations to allow you to easily write, re-use, refactor and test your code in a scalable and extremely flexible way.
+Zenject is a lightweight highly performant dependency injection framework built specifically to target Unity 3D (however it can be used outside of Unity as well).  It can be used to turn your application into a collection of loosely-coupled parts with highly segmented responsibilities.  Zenject can then glue the parts together in many different configurations to allow you to easily write, re-use, refactor and test your code in a scalable and extremely flexible way.
 
 Tested in Unity 3D on the following platforms: 
 * PC/Mac/Linux
@@ -56,6 +56,8 @@ Or, if you have found a bug, you are also welcome to create an issue on the [git
 * Built in support for unit test, integration tests, and scene tests
 * Just-in-time injection using the LazyInject<> construct
 * Support for multiple threads for resolving/instantiating
+* Support for 'reflection baking' to eliminate costly reflection operations completely by directly modifying the generated assemblies
+* Automatic injection of game objects using ZenAutoInjecter component
 
 ## <a id="installation"></a>Installation
 
@@ -503,7 +505,7 @@ Where:
     Container.Bind<Foo>().AsSingle().OnInstantiated<Foo>((ctx, foo) => foo.Bar = "qux");
     ```
 
-    Note that you can also define a custom factory that directly calls Container.InstantiateX before customizing it for the same effect, but OnInstantiated can be easier in some cases
+    Note that you can also bind a custom factory using FromFactory that directly calls Container.InstantiateX before customizing it for the same effect, but OnInstantiated can be easier in some cases
 
 * **Condition** = The condition that must be true for this binding to be chosen.  See <a href="#conditional-bindings">here</a> for more details.
 * (**Copy**|**Move**)Into(**All**|**Direct**)SubContainers = This value can be ignored for 99% of users.  It can be used to automatically have the binding inherited by subcontainers.  For example, if you have a class Foo and you want a unique instance of Foo to be automatically placed in the container and every subcontainer, then you could add the following binding:
@@ -715,7 +717,7 @@ Where:
 1. **FromComponentInHierarchy** - Look up the component within the scene hierarchy associated with the current context, as well as the hierarchy associated with any parent contexts.  Works similar to `GetComponentInChildren` in that it will return the first matching value found
 
     ```csharp
-    Container.Bind<Foo>().FromComponentInHierarchy();
+    Container.Bind<Foo>().FromComponentInHierarchy().AsSingle();
     ```
 
     **ResultType** must either be an interface or derive from UnityEngine.MonoBehaviour / UnityEngine.Component in this case
@@ -1268,7 +1270,9 @@ Also note that some validation behaviour is configurable in <a href="#zenjectset
 
 If you want to add your own validation logic, you can do this simply by having one of your classes inherit from `IValidatable`.  After doing this, as long as your class is bound in an installer somewhere, it will be instantiated during validation and then its `Validate()` method will be called.  Note however that any dependencies it has will be injected as null (unless marked with `[ZenjectAllowDuringValidation]` attribute).
 
-Inside the Validate method you can throw exceptions if you want validation to fail, or you can just log information to the console.  One common thing that occurs in custom validatables is to instantiate types that would not otherwise be validated.  For example, if you create a custom factory that directly instantiates a type using `Container.Instantiate<Foo>()`, then `Foo` will not be validated - however you can fix this by having your factory implement `IValidatable` and then calling `Container.Instantiate<Foo>()` inside the `Validate()` method.
+Inside the Validate method you can throw exceptions if you want validation to fail, or you can just log information to the console.  One common thing that occurs in custom validatables is to instantiate types that would not otherwise be validated.  By instantiating them during validation it will ensure that all their dependencies can be resolved.
+
+For example, if you create a custom factory that directly instantiates a type using `Container.Instantiate<Foo>()`, then `Foo` will not be validated, so you will not find out if it is missing some dependencies until runtime.  However you can fix this by having your factory implement `IValidatable` and then calling `Container.Instantiate<Foo>()` inside the `Validate()` method.
 
 ## <a id="scene-bindings"></a>Scene Bindings
 
@@ -1276,53 +1280,85 @@ In many cases, you have a number of MonoBehaviours that have been added to the s
 
 The usual way this is done is to add public references to these objects within your installer like this:
 
-    public class Foo : MonoBehaviour
+```csharp
+public class Foo : MonoBehaviour
+{
+}
+
+public class GameInstaller : MonoInstaller
+{
+    public Foo foo;
+
+    public override void InstallBindings()
     {
+        Container.BindInstance(foo);
+        Container.Bind<IInitializable>().To<GameRunner>().AsSingle();
+    }
+}
+
+public class GameRunner : IInitializable
+{
+    readonly Foo _foo;
+
+    public GameRunner(Foo foo)
+    {
+        _foo = foo;
     }
 
-    public class GameInstaller : MonoInstaller
+    public void Initialize()
     {
-        public Foo foo;
-
-        public override void InstallBindings()
-        {
-            Container.BindInstance(foo);
-            Container.Bind<IInitializable>().To<GameRunner>().AsSingle();
-        }
+        ...
     }
-
-    public class GameRunner : IInitializable
-    {
-        readonly Foo _foo;
-
-        public GameRunner(Foo foo)
-        {
-            _foo = foo;
-        }
-
-        public void Initialize()
-        {
-            ...
-        }
-    }
+}
+```
 
 This works fine however in some cases this can get cumbersome.  For example, if you want to allow an artist to add any number of `Enemy` objects to the scene, and you also want all those `Enemy` objects added to the Zenject Container.  In this case, you would have to manually drag each one to the inspector of one of your installers.  This is very error prone since its easy to forget one, or to delete the `Enemy` game object but forget to delete the null reference in the inspector for your installer, etc.
 
-So another way to do this is to use the `ZenjectBinding` component.  You can do this by adding a `ZenjectBinding` MonoBehaviour to the same game object that you want to be automatically added to the Zenject container.
+Another way to do this would be to use the FromComponentInHierarchy bind method like this:
 
-For example, if I have a MonoBehaviour of type `Foo` in my scene, I can just add `ZenjectBinding` alongside it, and then drag the Foo component into the Component property of the ZenjectBinding component.
+```csharp
+public class GameInstaller : MonoInstaller
+{
+    public override void InstallBindings()
+    {
+        Container.Bind<Foo>().FromComponentInHierarchy().AsTransient();
+        Container.Bind<IInitializable>().To<GameRunner>().AsSingle();
+    }
+}
+```
+
+Now, whenever a dependency of type Foo is required, zenject will search the entire scene for any MonoBehaviours of type Foo.  This will function very similarly to use Unity's <a href="https://docs.unity3d.com/ScriptReference/Object.FindObjectsOfType.html">FindObjectsOfType</a> method every time you want to look up a certain dependency.  Note that because this method can be a very heavy operation, you probably want to mark it AsCached or AsSingle like this instead:
+
+```csharp
+public class GameInstaller : MonoInstaller
+{
+    public override void InstallBindings()
+    {
+        Container.Bind<Foo>().FromComponentInHierarchy().AsCached();
+        Container.Bind<IInitializable>().To<GameRunner>().AsSingle();
+    }
+}
+```
+
+This way, you only incur the performance hit for the search once the first time it is needed instead of every time it is injected to any class.  Note also that we can `FromComponentsInHierarchy` (note the plural) in cases where we expect there to be multiple Foos.
+
+Yet another way to do this is to use the `ZenjectBinding` component.  You can do this by adding a `ZenjectBinding` MonoBehaviour to the same game object that you want to be automatically added to the Zenject container.
+
+For example, if you have a MonoBehaviour of type `Foo` in your scene, you can just add `ZenjectBinding` alongside it, and then drag the Foo component into the Component property of the ZenjectBinding component.
 
 <img src="Documentation/Images/AutoBind1.png?raw=true" alt="ZenjectBinding"/>
 
 Then our installer becomes:
 
-    public class GameInstaller : MonoInstaller
+```csharp
+public class GameInstaller : MonoInstaller
+{
+    public override void InstallBindings()
     {
-        public override void InstallBindings()
-        {
-            Container.Bind<IInitializable>().To<GameRunner>().AsSingle();
-        }
+        Container.Bind<IInitializable>().To<GameRunner>().AsSingle();
     }
+}
+```
 
 The `ZenjectBinding` component has the following properties:
 
@@ -1391,7 +1427,7 @@ The `ZenjectBinding` component has the following properties:
     * Note that factories are part of this layer and the container can be referenced there (which is necessary to create objects at runtime).  See <a href="#creating-objects-dynamically">here</a> for more details on this.
 
 * **Do not use IInitializable, ITickable and IDisposable for dynamically created objects**
-    * Objects that are of type `IInitializable` are only initialized once - at startup during Unity's `Start` phase.  If you create an object through a factory, and it derives from `IInitializable`, the `Initialize()` method will not be called.  You should use `[Inject]` methods in this case.
+    * Objects that are of type `IInitializable` are only initialized once - at startup during Unity's `Start` phase.  If you create an object through a factory, and it derives from `IInitializable`, the `Initialize()` method will not be called.  You should use `[Inject]` methods in this case or call Initialize() explicitly yourself after calling Create.
     * The same applies to `ITickable` and `IDisposable`.  Deriving from these will do nothing unless they are part of the original object graph created at startup.
     * If you have dynamically created objects that have an `Update()` method, it is usually best to call `Update()` on those manually, and often there is a higher level manager-like class in which it makes sense to do this from.  If however you prefer to use `ITickable` for dynamically objects you can declare a dependency to `TickableManager` and add/remove it explicitly as well.
 
@@ -1430,6 +1466,26 @@ For bindings that create new game objects (eg. `FromComponentInNewPrefab`, `From
         .FromComponentInNewPrefab(BulletPrefab)
         .UnderTransform(BulletTransform);
     ```
+
+* **UnderTransform(Method)** = A method to provide the transform to use.
+
+    ```csharp
+    Container.BindFactory<Foo, Foo.Factory>()
+        .FromComponentInNewGameObject()
+        .UnderTransform(GetParent);
+
+    Transform GetParent(InjectContext context)
+    {
+        if (context.ObjectInstance is Component)
+        {
+            return ((Component)context.ObjectInstance).transform;
+        }
+
+        return null;
+    }
+    ```
+
+    This example will automatically parent the Foo GameObject underneath the game object that it is being injected into, unless the injected object is not a MonoBehaviour in which case it will leave Foo at the root of the scene hierarchy.
 
 ## <a id="optional-binding"></a>Optional Binding
 
@@ -1579,6 +1635,8 @@ Note also that this only occurs once.  If you load another scene from the first 
 The reason that all the bindings you add to a global installer are available for any classes within each individual scene, is because the Container in each scene uses the `ProjectContext` Container as it's "parent".  For more information on nested containers see <a href="#sub-containers-and-facades">here</a>.
 
 `ProjectContext` is a very convenient place to put objects that you want to persist across scenes.  However, the fact that it's completely global to every scene can lead to some unintended behaviour.  For example, this means that even if you write a simple test scene that uses Zenject, it will load the `ProjectContext,` which may not be what you want.  To address these problems it is often better to use Scene Parenting instead, since that approach allows you to be selective in terms of which scenes inherit the same common bindings.  See <a href="#scene-parenting">here</a> for more details on that approach.
+
+Note also that by default, any game objects that are instantiated inside ProjectContext will be parented underneath it by default.  If you'd prefer that each newly instantiated object is instead placed at the root of the scene hierarchy (but still marked DontDestroyOnLoad) then you can change this by unchecking the flag 'Parent New Objects Under Context' in the inspector of ProjectContext.
 
 ## <a id="identifiers"></a>Identifiers
 
@@ -1767,7 +1825,7 @@ If you are building some code as DLLs and then including them in Unity, you can 
 
 You can also use Zenject for non-unity projects by downloading `Zenject-NonUnity.zip` from the [releases section](https://github.com/modesttree/Zenject/releases)
 
-Finally, if you are attempting to run unit tests outside of Unity using the Unity generated solution, you might encounter run time errors in the Zenject code when it attempts to access the Unity API.  You can disable this behaviour by adding a define for `ZEN_TESTS_OUTSIDE_UNITY` in the generates solution.
+Finally, if you are attempting to run unit tests outside of Unity using the Unity generated solution, you might encounter run time errors in the Zenject code when it attempts to access the Unity API.  You can disable this behaviour by adding a define for `ZEN_TESTS_OUTSIDE_UNITY` in the generated solution.
 
 ## <a id="zenjectsettings"></a>Zenject Settings
 
@@ -1775,7 +1833,7 @@ A lot of the default behaviour in Zenject can be customized via a settings prope
 
 - **Validation Error Response** - This value controls the behaviour that is triggered when zenject encounters a validation error.  It can be set to either 'Log' or 'Throw'.  The difference here is that when set to 'Log' there will be multiple validation errors printed every time validation is run, whereas if set to 'Throw' only the first validation error will be output to the console.  When unset the default value is 'Log'.  'Throw' is also sometimes useful if running validation inside unit tests.
 
-- **Validation Root Resolve Method** - When validation is triggered for a given scene, the DiContainer will do a 'dry run' and pretend to instantiate the entire object graph as defined by the installers in the scene.   However, by default it will only validate the 'roots' of the object graph - that is, the 'NonLazy' bindings or the bindings which are injected into the 'NonLazy' bindings.  As an option, you can change this behaviour to 'All' which will validate all bindings, even those that are not not used during startup.
+- **Validation Root Resolve Method** - When validation is triggered for a given scene, the DiContainer will do a 'dry run' and pretend to instantiate the entire object graph as defined by the installers in the scene.   However, by default it will only validate the 'roots' of the object graph - that is, the 'NonLazy' bindings or the bindings which are injected into the 'NonLazy' bindings.  As an option, you can change this behaviour to 'All' which will validate all bindings, even those that are not currently used.
 
 - **Display Warning When Resolving During Install** - This value will control whether a warning is issued to the console when either a Resolve or an Instantiate is triggered during the install phase which looks like this:
 
@@ -2603,7 +2661,7 @@ Something else to note is that the rate at which the ITickable.Tick method gets 
 
 ## <a id="optimization_notes"></a>Optimization Recommendations/Notes
 
-1. Use <a href="#memory-pools">memory pools</a> with an initial size.  This should restrict all the costly instantiate operations to scene startup and allow you to avoid any performance spikes once the game starts.
+1. Use <a href="#memory-pools">memory pools</a> with an initial size.  This should restrict all the costly instantiate operations to scene startup and allow you to avoid any performance spikes once the game starts.  Or, if you want to be really thorough, you could use a fixed size, which would trigger exceptions when the pool size limit is reached.
 
 2. Use <a href="#reflection-baking">reflection baking</a>.  This is often simply a matter of enabling it and forgetting it, and can eliminate as much as 45% of the time spent running zenject code during scene startup.
 

@@ -69,7 +69,7 @@ public class Enemy
 }
 ```
 
-But now, every place that needs to create a new `Enemy` instance needs to also supply an instance of `Player`, and we are back at the problem mentioned <a href="../README.md#theory">in the main theory section</a>.  So to address this, factories must be used to create every dynamic instance to ensure that these extra dependencies are filled in my zenject.
+But now, every place that needs to create a new `Enemy` instance needs to also supply an instance of `Player`, and we are back at the problem mentioned <a href="../README.md#theory">in the main theory section</a>.  So to address this, factories must be used to create every dynamic instance to ensure that these extra dependencies are filled in by zenject.
 
 ## <a id="example"></a>Example
 
@@ -262,6 +262,8 @@ Where:
 * **WithFactoryArguments** = If you want to inject extra arguments into your placeholder factory derived class, you can include them here.  Note that `WithArguments` applies to the actual instantiated type and not the factory.
 
 * **Scope** = Note that unlike for non-factory bindings, the default is AsCached instead of AsTransient, which is almost always what you want for factories, so in most cases you can leave this unspecified.
+
+Other bind methods have the same functionality as <a href="../README.md#binding">non factory bindings</a>.
 
 ## <a id="abstract-factories"></a>Abstract Factories
 
