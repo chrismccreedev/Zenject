@@ -877,7 +877,7 @@ public class PoolExample : MonoBehaviour
 }
 ```
 
-Zenject also includes `DictionaryPool` and `HashSetPool` classes that can be used similarly.
+Zenject also includes `DictionaryPool`, `HashSetPool`, and `ArrayPool` classes that can be used similarly.
 
 ### <a id="disposeblock"></a>Dispose Block
 

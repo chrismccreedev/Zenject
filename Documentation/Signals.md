@@ -230,6 +230,7 @@ The format of the DeclareSignal statement is the following:
 
 <pre>
 Container.DeclareSignal&lt;<b>SignalType</b>&gt;()
+    .WithId(<b>Identifier</b>)
     .<b>(RequiredSubscriber|OptionalSubscriber|OptionalSubscriberWithWarning)</b>()
     .<b>(RunAsync|RunSync)</b>()
     .WithTickPriority(<b>TickPriority</b>)
@@ -239,6 +240,8 @@ Container.DeclareSignal&lt;<b>SignalType</b>&gt;()
 Where:
 
 - **SignalType** - The custom class that represents the signal
+
+* **Identifier** = The value to use to uniquely identify the binding.  This can be ignored in most cases, but can be useful in cases where you want to define multiple distinct signals using the same signal type.
 
 - **RequiredSubscriber**/**OptionalSubscriber**/**OptionalSubscriberWithWarning** - These values control how the signal should behave when it fired but there are no subscribers associated with it.  Unless it is over-ridden in <a href="#settings">ZenjectSettings</a>, the default is OptionalSubscriber, which will do nothing in this case.  When RequiredSubscriber is set, exceptions will be thrown in the case of zero subscribers.  OptionalSubscriberWithWarning is half way in between where it will issue a console log warning instead of an exception.  Which one you choose depends on how strict you prefer your application to be, and whether it matters if the given signal is actually handled or not.
 
@@ -340,6 +343,7 @@ The format of the BindSignal command is:
 
 <pre>
 Container.BindSignal&lt;<b>SignalType</b>&gt;()
+    .WithId(<b>Identifier</b>)
     .ToMethod(<b>Handler</b>)
     .From(<b>ConstructionMethod</b>)
     .(<b>Copy</b>|<b>Move</b>)Into(<b>All</b>|<b>Direct</b>)SubContainers();
@@ -348,6 +352,8 @@ Container.BindSignal&lt;<b>SignalType</b>&gt;()
 Where:
 
 - **SignalType** - The custom class that represents the signal
+
+* **Identifier** = The value to use to uniquely identify the binding.  This can be ignored in most cases.  Note that when using signal identifiers you have to use the same identifier for DeclareSignal as well (and Fire, Subscribe, etc.)
 
 - **ConstructionMethod** - When binding to an instance method above, you also need to define where this instance comes from.  See the section on Handler below for more detail
 
@@ -386,7 +392,7 @@ Container.Bind<Greeter>().AsSingle();
 Container.BindSignal<UserJoinedSignal>().ToMethod<Greeter>(x => x.SayHello).FromResolve();
 ```
 
-In this case we want the signal to trigger the `Greeter.SayHello` method.  Note that we need to supply a value for `From` in thise case so that there is an instance that can be called with the given method.
+In this case we want the signal to trigger the `Greeter.SayHello` method.  Note that we need to supply a value for `From` in this case because an instance is needed to call the given method on.
 
 Similar to static methods you could also bind to a method without parameters:
 
@@ -456,7 +462,7 @@ Container.BindSignal<UserJoinedSignal>().ToMethod<Greeter>((x, s) => x.SayHello(
 
 ## <a id="signalbusinstaller"></a>SignalBusInstaller
 
-The zenject signal functionality is optional.  When importing zenject, if you do not want to include signals you can simply uncheck the `OptionalExtras/Signals` folder.  As a result of this, signals are not enabled automatically, so you have to explicitly install them yourself by calling `SignalBusInstaller.Install(Container)` in one of your installers.
+Signals are an optional feature of Zenject.  When importing Zenject, if you do not want to include signals you can simply uncheck the `OptionalExtras/Signals` folder.  As a result of this, signals are not enabled automatically, so you have to explicitly install them yourself by calling `SignalBusInstaller.Install(Container)` in one of your installers.
 
 You could either do this just one time in a `ProjectContext` installer, or you could do this in each scene in a `SceneContext` installer.  Note that you only need to do this once, and then you can use signals in the container that you pass to `SignalBusInstaller,` as well as any subcontainers, which is why if you install to `ProjectContext` you do not need to install to `SceneContext.`
 
@@ -506,8 +512,4 @@ Most of the default settings for signals can be overriden via a settings propert
 **Require Strict Unsubscribe** - When true, this will cause exceptions to be thrown if the scene ends and there are still signal handlers that have not yet unsubscribed yet.  By default it is false.
 
 **Default Async Tick Priority** - This value controls the default tick priority when `RunAsync` is used with `DeclareSignal` but `WithTickPriority` is left unset.  By default it is set to 1, which will cause the signal handlers to be invoked right after all the normal tickables have been called.  This default is chosen because it will ensure that the signal is handled in the same frame that it is triggered, which can be important if the signal affects how the frame is rendered.
-
-## <a id="identifiers"></a>Identifiers
-
-In some cases you might want to define multiple distinct signals from the same Signals class.  You can do this by passing an identifier object to all of the signal methods.  Each method, such as DeclareSignal, Subscribe, Unsubscribe, GetStream, and Fire all have overloads that take an optional identifier object.
 
