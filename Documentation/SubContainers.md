@@ -668,14 +668,14 @@ public class TestInstaller : MonoInstaller
     public override void InstallBindings()
     {
         Container.BindInterfacesAndSelfTo<Greeter>()
-            .FromSubContainerResolve().ByMethod(InstallGreeter).AsSingle().NonLazy();
+            .FromSubContainerResolve().ByMethod(InstallGreeter).AsSingle();
     }
 }
 ```
 
 Now if we run it, we should see the Hello message, then if we stop playing we should see the Goodbye message.
 
-The reason this works is because we are now binding `IInitializable`, `IDisposable`, and `ITickable` on the root container to the Greeter class by executing `Container.BindInterfacesAndSelfTo<Greeter>()`.  Greeter inherits from Kernel, which inherits from all these interfaces and also handles forwarding these calls to the IInitializable's / ITickable's / IDisposable's in our sub container.  Note that we use AsSingle() here, which is important otherwise it will create a new sub-container for every interface which is not what we want.
+The reason this works is because we are now binding `IInitializable`, `IDisposable`, and `ITickable` on the root container to the Greeter class by executing `Container.BindInterfacesAndSelfTo<Greeter>()`.  Greeter inherits from Kernel, which inherits from all these interfaces and also handles forwarding these calls to the IInitializable's / ITickable's / IDisposable's in our sub container.  Note that we no longer need to use NonLazy here because any bindings to these interfaces are always created.
 
 The Initialize / Tick / Dispose events work out-of-the-box for GameObjectContext and SceneContext because in those cases a kernel is added automatically.  It is only for these non-MonoBehaviour subcontainers that we need to be explicit about whether a kernel should be added or not.
 
@@ -687,9 +687,71 @@ public class TestInstaller : MonoInstaller
     public override void InstallBindings()
     {
         Container.BindInterfacesAndSelfTo<Greeter>()
-            .FromSubContainerResolve().ByMethod(InstallGreeter).AsSingle().NonLazy();
+            .FromSubContainerResolve().ByMethod(InstallGreeter).AsSingle();
 
         Container.BindExecutionOrder<Greeter>(-1);
+    }
+}
+```
+
+This approach of deriving from Kernel works, however, it can also add some extra weight to our Facade class that we don't want.  As an alternative, you can also use the bind method WithKernel like this:
+
+```csharp
+public class Greeter
+{
+    public Greeter()
+    {
+        Debug.Log("Created Greeter");
+    }
+}
+
+public class TestInstaller : MonoInstaller
+{
+    public override void InstallBindings()
+    {
+        Container.Bind<Greeter>()
+            .FromSubContainerResolve().ByMethod(InstallGreeter).WithKernel().AsSingle();
+    }
+
+    void InstallGreeter(DiContainer subContainer)
+    {
+        subContainer.Bind<Greeter>().AsSingle();
+
+        subContainer.BindInterfacesTo<GoodbyeHandler>().AsSingle();
+        subContainer.BindInterfacesTo<HelloHandler>().AsSingle();
+    }
+}
+```
+
+Using this approach, you do not need to derive from Kernel and also use BindInterfacesAndSelfTo.  You can simply add WithKernel to the bind statement and the Initialize / Tick / Dispose events will be triggered properly inside your subcontainer.
+
+When using WithKernel like this, you can also call another bind method that will define a default transform parent for any game objects that are instantiated inside the sub container.  For example:
+
+```csharp
+public class TestInstaller : MonoInstaller
+{
+    public override void InstallBindings()
+    {
+        Container.Bind<Greeter>().FromSubContainerResolve().ByMethod(InstallGreeter).WithKernel().WithDefaultGameObjectParent("Greeter").AsSingle();
+    }
+}
+```
+
+Now, if we instantiate any game objects inside the Greeter subcontainer and we do not specify an explicit parent, then they will be placed underneath a new game object named "Greeter".  This can help for organization purposes when reading the scene in the scene heirarchy.
+
+Note also that with this approach, you can no longer use `BindExecutionOrder<Greeter>` to adjust the execution order of the subcontainer.  However, if you later decide that you need to customize the execution order then you can do that by passing a custom kernel-derived class to the WithKernel method and then using BindExecutionOrder with that class.  For example:
+
+```csharp
+public class GreeterKernel : Kernel
+{
+}
+
+public class TestInstaller : MonoInstaller
+{
+    public override void InstallBindings()
+    {
+        Container.Bind<Greeter>().FromSubContainerResolve().ByMethod(InstallGreeter).WithKernel<GreeterKernel>().AsSingle();
+        Container.BindExecutionOrder<GreeterKernel>(-1);
     }
 }
 ```

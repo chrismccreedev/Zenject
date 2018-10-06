@@ -834,50 +834,9 @@ Where:
 
 1. **FromResolveAllGetter&lt;ObjectType&gt;** - Same as FromResolveGetter except will match multiple values or zero values.
 
-1. **FromSubContainerResolve** - Get **ResultType** by doing a lookup on a subcontainer.  Note that for this to work, the sub-container must have a binding for **ResultType**.  This approach can be very powerful, because it allows you to group related dependencies together inside a mini-container, and then expose only certain classes (aka <a href="https://en.wikipedia.org/wiki/Facade_pattern">"Facades"</a>) to operate on this group of dependencies at a higher level.  For more details on using sub-containers, see <a href="#sub-containers-and-facades">this section</a>.  There are 4 different ways to define the subcontainer:
+1. **FromSubContainerResolve** - Get **ResultType** by doing a lookup on a subcontainer.  Note that for this to work, the sub-container must have a binding for **ResultType**.  This approach can be very powerful, because it allows you to group related dependencies together inside a mini-container, and then expose only certain classes (aka <a href="https://en.wikipedia.org/wiki/Facade_pattern">"Facades"</a>) to operate on this group of dependencies at a higher level.  For more details on using sub-containers, see <a href="#sub-containers-and-facades">this section</a>.  There are several ways to define the subcontainer:
 
-    1. **ByMethod** - Initialize the subcontainer by using a method.
-
-        ```csharp
-        Container.Bind<Foo>().FromSubContainerResolve().ByMethod(InstallFooFacade);
-
-        void InstallFooFacade(DiContainer subContainer)
-        {
-            subContainer.Bind<Foo>();
-        }
-        ```
-
-    1. **ByInstaller** - Initialize the subcontainer by using a class derived from `Installer`.  This can be a cleaner and less error-prone alternative than `ByMethod`, especially if you need to inject data into the installer itself.  Less error prone because when using ByMethod it is common to accidentally use Container instead of subContainer in your method.
-
-        ```csharp
-        Container.Bind<Foo>().FromSubContainerResolve().ByInstaller<FooFacadeInstaller>();
-
-        class FooFacadeInstaller : Installer
-        {
-            public override void InstallBindings()
-            {
-                Container.Bind<Foo>();
-            }
-        }
-        ```
-
-    1. **ByNewPrefab** - Initialize subcontainer by instantiating a new prefab.  Note that the prefab must contain a `GameObjectContext` component attached to the root game object.  For details on `GameObjectContext` see <a href="#sub-containers-and-facades">this section</a>.
-
-        ```csharp
-        Container.Bind<Foo>().FromSubContainerResolve().ByNewContextPrefab(MyPrefab);
-
-        // Assuming here that this installer is added to the GameObjectContext at the root
-        // of the prefab.  You could also use a ZenjectBinding in the case where Foo is a MonoBehaviour
-        class FooFacadeInstaller : MonoInstaller
-        {
-            public override void InstallBindings()
-            {
-                Container.Bind<Foo>();
-            }
-        }
-        ```
-
-    1. **ByNewPrefabMethod** - Initialize subcontainer by instantiating a new prefab.  Note that unlike `ByNewPrefab`, this bind method does not require that there be a GameObjectContext attached to the prefab.  In this case the GameObjectContext is added dynamically and then run with the given installer method.
+    1. **ByNewPrefabMethod** - Initialize subcontainer by instantiating a new prefab.  Note that unlike `ByNewContextPrefab`, this bind method does not require that there be a GameObjectContext attached to the prefab.  In this case the GameObjectContext is added dynamically and then run with the given installer method.
 
         ```csharp
         Container.Bind<Foo>().FromSubContainerResolve().ByNewPrefabMethod(MyPrefab, InstallFoo);
@@ -900,12 +859,6 @@ Where:
                 Container.Bind<Foo>();
             }
         }
-        ```
-
-    1. **ByNewPrefabResource** - Initialize subcontainer instantiating a new prefab obtained via `Resources.Load`.  Note that the prefab must contain a `GameObjectContext` component attached to the root game object.
-
-        ```csharp
-        Container.Bind<Foo>().FromSubContainerResolve().ByNewPrefabResource("Path/To/MyPrefab");
         ```
 
     1. **ByNewPrefabResourceMethod** - Initialize subcontainer instantiating a new prefab obtained via `Resources.Load`.  Note that unlike `ByNewPrefabResource`, this bind method does not require that there be a GameObjectContext attached to the prefab.  In this case the GameObjectContext is added dynamically and then run with the given installer method.
@@ -931,6 +884,79 @@ Where:
                 Container.Bind<Foo>();
             }
         }
+        ```
+
+    1. **ByNewGameObjectInstaller** - Initialize subcontainer by instantiating a empty game object, attaching GameObjectContext, and then installing using the given installer.  This approach is very similar to ByInstaller except has the following advantages:
+
+        - Any ITickable, IInitializable, IDisposable, etc. bindings will be called properly
+        - Any new game objects that are instantiated inside the subcontainer will be parented underneath the game object context object
+        - You can destroy the subcontainer by just destroying the game object context game object
+
+    1. **ByNewGameObjectMethod** - Same as ByNewGameObjectInstaller except the subcontainer is initialized based on the given method rather than an installer type.
+
+    1. **ByMethod** - Initialize the subcontainer by using a method.
+
+        ```csharp
+        Container.Bind<Foo>().FromSubContainerResolve().ByMethod(InstallFooFacade);
+
+        void InstallFooFacade(DiContainer subContainer)
+        {
+            subContainer.Bind<Foo>();
+        }
+        ```
+
+        Note that when using ByMethod, if you want to use zenject interfaces such as ITickable, IInitializable, IDisposable inside your subcontainer then you have to also use the WithKernel bind method like this:
+
+        ```csharp
+        Container.Bind<Foo>().FromSubContainerResolve().ByMethod(InstallFooFacade).WithKernel();
+
+        void InstallFooFacade(DiContainer subContainer)
+        {
+            subContainer.Bind<Foo>();
+            subContainer.Bind<ITickable>().To<Bar>();
+        }
+        ```
+
+    1. **ByInstaller** - Initialize the subcontainer by using a class derived from `Installer`.  This can be a cleaner and less error-prone alternative than `ByMethod`, especially if you need to inject data into the installer itself.  Less error prone because when using ByMethod it is common to accidentally use Container instead of subContainer in your method.
+
+        ```csharp
+        Container.Bind<Foo>().FromSubContainerResolve().ByInstaller<FooFacadeInstaller>();
+
+        class FooFacadeInstaller : Installer
+        {
+            public override void InstallBindings()
+            {
+                Container.Bind<Foo>();
+            }
+        }
+        ```
+
+        Note that when using ByInstaller, if you want to use zenject interfaces such as ITickable, IInitializable, IDisposable inside your subcontainer then you have to also use the WithKernel bind method like this:
+
+        ```csharp
+        Container.Bind<Foo>().FromSubContainerResolve().ByInstaller<FooFacadeInstaller>().WithKernel();
+        ```
+
+    1. **ByNewContextPrefab** - Initialize subcontainer by instantiating a new prefab.  Note that the prefab must contain a `GameObjectContext` component attached to the root game object.  For details on `GameObjectContext` see <a href="#sub-containers-and-facades">this section</a>.
+
+        ```csharp
+        Container.Bind<Foo>().FromSubContainerResolve().ByNewContextPrefab(MyPrefab);
+
+        // Assuming here that this installer is added to the GameObjectContext at the root
+        // of the prefab.  You could also use a ZenjectBinding in the case where Foo is a MonoBehaviour
+        class FooFacadeInstaller : MonoInstaller
+        {
+            public override void InstallBindings()
+            {
+                Container.Bind<Foo>();
+            }
+        }
+        ```
+
+    1. **ByNewContextPrefabResource** - Initialize subcontainer instantiating a new prefab obtained via `Resources.Load`.  Note that the prefab must contain a `GameObjectContext` component attached to the root game object.
+
+        ```csharp
+        Container.Bind<Foo>().FromSubContainerResolve().ByNewContextPrefabResource("Path/To/MyPrefab");
         ```
 
     1. **ByInstance** - Initialize the subcontainer by directly using a given instance of DiContainer that you provide yourself.  This is only useful in some rare edge cases.
