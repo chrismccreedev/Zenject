@@ -10,7 +10,7 @@ Merged in changes from LTS version 6.5.0
 Mostly optimizations, some minor bug fixes, and a few minor new features.
 
 Notable:
-- Added support for [Reflection Baking](https://github.com/svermeulen/Zenject#reflection-baking) to automatically eliminate costs associated with reflection from your zenject application.
+- Added support for [Reflection Baking](https://github.com/svermeulen/Zenject#optimization_notes) to automatically eliminate costs associated with reflection from your zenject application.
 - General optimizations to memory usage and processing time
 - Added non-generic versions of all the FromComponentX methods
 - Fixed multi-threading issues

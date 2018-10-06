@@ -174,6 +174,7 @@ Also, if you prefer video documentation, you can watch [this youtube series on z
     * <a href="#faq-multiple-threads">Does Zenject support multithreading?</a>
     * <a href="#more-samples">Are there any more sample projects with source to look at?</a>
     * <a href="#what-games-are-using-zenject">What games/tools/libraries are using Zenject</a>
+    * <a href="#circular-dependency-error">I keep getting errors complaining about circular reference!  How to address this?</a>
 * <a href="#cheatsheet">Cheat Sheet</a>
 * <a href="#further-help">Further Help</a>
 * <a href="#release-notes">Release Notes</a>
@@ -2706,8 +2707,6 @@ You can also get minor gains in speed and minor reductions in memory allocations
 
 For some benchmarks on Zenject versus other DI frameworks, see [here](https://github.com/svermeulen/IocPerformance/tree/Zenject).
 
-Zenject should also produce zero per-frame heap allocations.
-
 ## <a id="reflection-baking"></a>Reflection Baking
 
 One easy way to squeeze extra performance out of Zenject is to enable a feature called Reflection Baking.  This will move some of the costs associated with analyzing the types in your codebase (aka reflection) from runtime to build time.  In one of our products at Modest Tree, turning on baking resulted in a 45% reduction in zenject startup time (which amounted to around 424 milliseconds saved).  Results vary project to project depending on how many types are used and the target platform, but is often noticeable.
@@ -2716,7 +2715,7 @@ Reflection Baking will also reduce the time taken to instantiate new objects.  T
 
 To enable for your project, simply right click somewhere in the project tab and select Create -> Zenject -> Reflection Baking Settings. Now if you build your project again, reflection costs inside Zenject should be mostly eliminated.
 
-By default, reflection baking will modify all the generated assemblies in your project.  These include all the assemblies that Unity generates and places in the Library/ScriptAssemblies folder, and do not include any assemblies that are placed underneath the Assets directory (however you can also apply reflection baking there too as a <a href="#reflection-baking-external-dlls">separate step</a>)
+By default, reflection baking will modify all the generated assemblies in your project.  These include all the assemblies that Unity generates and places in the Library/ScriptAssemblies folder, and does not include any assemblies that are placed underneath the Assets directory (however you can also apply reflection baking there too as a <a href="#reflection-baking-external-dlls">separate step</a>)
 
 In many cases you will want to limit which areas of the code reflection baking is applied to.  You can do this by selecting the reflection baking settings object, unchecking the `All Generated Assemblies` flag, and then explicitly adding the assemblies you want to use to the `Include Assemblies` property.  Or you can leave the `All Generated Assemblies` flag set to true and instead limit which assemblies are changed by adding one or more regular expressions to the Namespace Patterns field, and also changing the `Exclude Assemblies` property.  For example, if all of your game code lives underneath the `ModestTree.SpaceFighter` namespace, then you could ensure that the reflection baking only applies there by adding `^ModestTree.SpaceFighter` as a namespace pattern.  Note that zenject will automatically add a namespace pattern for itself so it is not necessary for you to do this (however, it is necessary to add the zenject assemblies to `Include Assemblies` if you do not have `All Generated Assemblies` checked)
 
@@ -2728,7 +2727,15 @@ When using reflection baking as described above, by adding a reflection baking s
 
 ### Under the hood
 
-Reflection Baking uses a library called [Cecil](https://github.com/jbevain/cecil) to do IL Weaving on the generated assemblies.  What this means is that after Unity generates the DLLs for the source files in your project, Zenject will edit those DLLs directly to embed zenject operations directly into your classes.   Normally, zenject has to iterate over every field, property, methods, and constructors of your classes to find what needs to be injected, and this is where the reflection costs are incurred.  However, once a class has reflection baking applied, then zenject just needs to call a static method on your class to retrieve all the information that it needs, which is much faster.
+Reflection Baking uses a library called [Cecil](https://github.com/jbevain/cecil) to do IL Weaving on the generated assemblies.  What this means is that after Unity generates the DLLs for the source files in your project, Zenject will edit those DLLs directly to embed zenject operations directly into your classes.   Normally, zenject has to iterate over every field, property, methods, and constructors of your classes to find what needs to be injected, and this is where the reflection costs are incurred.  However, once a class has reflection baking applied, then zenject just needs to call a static method on your class to retrieve all the information that it needs, which can be much faster.
+
+### Coverage Settings
+
+There are two settings on ProjectContext related to reflection baking that can be useful to be aware of.  `Editor Reflection Baking Coverage Mode` and `Builds Reflection Baking Coverage Mode`.  These values will determine what behaviour zenject should use when encountering types that do not have baked reflection information (Editor for when inside unity editor and Builds for when running inside generated builds).  The choices are:
+
+1. Fallback To Direct Reflection - This will cause zenject to incur the necessary reflection operations when baking info is not found.  This is the default.
+1. No Check Assume Full Coverage - With this value set, if no reflection baking information is found for a given type, then Zenject will assume that the type does not contain any reflection information.  This can be useful in cases where there is a lot of third party code that does not have reflection baking applied, but also does not use zenject in any way.   When coverage mode is set to (1), then this can be costly because Zenject will still analyze the third party code using reflection operations.  Note that when this is set, you will need to ensure that reflection baking is always applied everywhere that uses zenject.
+1. Fallback To Direct Reflection With Warning - With this value set, when Zenject encounters a type that does not have reflection baking applied, it will use costly reflection operations, but will also issue a warning.  This can be useful if your intention is to get full coverage with reflection baking, but you don't want to use mode (2) and cause things to completely break when certain types are missed by the baking process
 
 ## <a id="upgrading-from-zenject5"></a>Upgrade Guide for Zenject 6
 
@@ -2799,7 +2806,7 @@ There were also a few things that were renamed:
 
 In addition to the bind methods documented above, there are also some other methods you might want to occasionally use on DiContainer.  For example, if you are writing a custom factory, you might want to directly call one of the `DiContainer.Instantiate` methods.  Or you might have a situation where another library is creating instances of your classes (for example, a networking library) and you need to manually call DiContainer.Inject.
 
-DiContainer is always added to itself, so you can always get it injected into any class.  However, note that injecting the DiContainer is usually a sign of bad practice, since there is almost always a better way to design your code such that you don't need to reference DiContainer directly (the exception being custom factories).  Once again, best practice with dependency injection is to only reference the DiContainer in the "composition root layer" which includes any custom factories you might have as well as the installers.  However there are exceptions to this rule.
+DiContainer is always added to itself, so you can always get it injected into any class.  However, note that injecting the DiContainer is usually a sign of bad practice, since there is almost always a better way to design your code such that you don't need to reference DiContainer directly (the exception being custom factories, but even in that case it's often better to <a href="Documentation/Factories.md#custom-factories">inject a factory into your custom factory</a>).  Once again, best practice with dependency injection is to only reference the DiContainer in the "composition root layer" which includes any custom factories you might have as well as the installers.  However there are exceptions to this rule.
 
 ### <a id="dicontainer-methods-instantiate"></a>DiContainer.Instantiate
 
