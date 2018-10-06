@@ -5,7 +5,9 @@
 
 [![Join the chat at https://gitter.im/Zenject/Lobby](https://badges.gitter.im/Zenject/Lobby.svg)](https://gitter.im/Zenject/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-This project is free - but supported via donations.  If you or your team have found it useful, please consider <a href="https://www.patreon.com/zenject?alert=2">supporting it</a>
+This project is free - but supported via donations.  If you or your team have found it useful, please consider supporting further development through either <a href="https://opencollective.com/zenject">open collective</a> or <a href="https://www.patreon.com/zenject?alert=2">patreon</a>
+
+[![Become as Backer](https://opencollective.com/zenject/tiers/backer.svg?avatarHeight=50)](https://opencollective.com/zenject) [![Become as Sponsor](https://opencollective.com/zenject/tiers/sponsor.svg?avatarHeight=50)](https://opencollective.com/zenject)
 
 If you are looking for the older documentation for Zenject you can find that here:  <a href="https://github.com/modesttree/Zenject/tree/f0dd30ad451dcbc3eb17e636455a6c89b14ad537">Zenject 3.x</a>, <a href="https://github.com/modesttree/Zenject/tree/0b4a15b1e6e680c94fd34a2d7420eb41e320b21b">Zenject 4.x</a>, <a href="https://github.com/modesttree/Zenject/tree/dc019e31dbae09eb53c1638be00f7f002898956c">Zenject 5.x</a>
 
@@ -53,6 +55,7 @@ Or, if you have found a bug, you are also welcome to create an issue on the [git
 * Support for automatically mapping open generic types
 * Built in support for unit test, integration tests, and scene tests
 * Just-in-time injection using the LazyInject<> construct
+* Support for multiple threads for resolving/instantiating
 
 ## <a id="installation"></a>Installation
 
@@ -93,7 +96,7 @@ If you are a DI veteran, then it might be worth taking a look at the <a href="#c
 
 The tests may also be helpful to show usage for each specific feature (which you can find at `Zenject/OptionalExtras/UnitTests` and `Zenject/OptionalExtras/IntegrationTests`)
 
-Also, if you prefer video documentation, you can watch [this youtube series on zenject](https://www.youtube.com/user/charlesamat/videos) created by Infallible Code.
+Also, if you prefer video documentation, you can watch [this youtube series on zenject](https://www.youtube.com/watch?v=IS2YUIb_w_M&list=PLKERDLXpXl_jNJPY2czQcfPXW4BJaGZc_) created by Infallible Code.
 
 ## Table Of Contents
 
@@ -163,8 +166,10 @@ Also, if you prefer video documentation, you can watch [this youtube series on z
         * <a href="#dicontainer-methods-other">Other DiContainer methods</a>
 * <a href="#questions">Frequently Asked Questions</a>
     * <a href="#isthisoverkill">Isn't this overkill?  I mean, is using statically accessible singletons really that bad?</a>
+    * <a href="#ecs-integration">Is there a way to integrate with the upcoming Unity ECS?</a>
     * <a href="#aot-support">Does this work on AOT platforms such as iOS and WebGL?</a>
     * <a href="#faq-performance">How is Performance?</a>
+    * <a href="#faq-multiple-threads">Does Zenject support multithreading?</a>
     * <a href="#more-samples">Are there any more sample projects with source to look at?</a>
     * <a href="#what-games-are-using-zenject">What games/tools/libraries are using Zenject</a>
 * <a href="#cheatsheet">Cheat Sheet</a>
@@ -393,7 +398,7 @@ Note the following:
 
 - Inject methods are the recommended approach for MonoBehaviours, since MonoBehaviours cannot have constructors.
 - There can be any number of inject methods.  In this case, they are called in the order of Base class to Derived class.  This can be useful to avoid the need to forward many dependencies from derived classes to the base class via constructor parameters, while also guaranteeing that the base class inject methods complete first, just like how constructors work.
-- Inject methods are are called after all other injection types.  It is designed this way so that these methods can be used to execute initialization logic which might make use of injected fields or properties.  Note also that you can leave the parameter list empty if you just want to do some initialization logic only.
+- Inject methods are called after all other injection types.  It is designed this way so that these methods can be used to execute initialization logic which might make use of injected fields or properties.  Note also that you can leave the parameter list empty if you just want to do some initialization logic only.
 - You can safely assume that the dependencies that you receive via inject methods will themselves already have been injected (the only exception to this is in the case where you have circular dependencies).  This can be important if you use inject methods to perform some basic initialization, since in that case you may need the given dependencies to be initialized as well
 - Note however that it is usually not a good idea to use inject methods for initialization logic.  Often it is better to use IInitializable.Initialize or Start() methods instead, since this will allow the entire initial object graph to be created first.
 
@@ -445,6 +450,7 @@ Container.Bind&lt;<b>ContractType</b>&gt;()
     .From<b>ConstructionMethod</b>()
     .As<b>Scope</b>()
     .WithArguments(<b>Arguments</b>)
+    .OnInstantiated(<b>InstantiatedCallback</b>)
     .When(<b>Condition</b>)
     .(<b>Copy</b>|<b>Move</b>)Into(<b>All</b>|<b>Direct</b>)SubContainers()
     .NonLazy()
@@ -480,26 +486,45 @@ Where:
     * In most cases, you will likely want to just use AsSingle, however AsTransient and AsCached have their uses too.
 
 * **Arguments** = A list of objects to use when constructing the new instance of type **ResultType**.  This can be useful as an alternative to adding other bindings for the arguments in the form `Container.BindInstance(arg).WhenInjectedInto<ResultType>()`
+* **InstantiatedCallback** = In some cases it is useful to be able customize an object after it is instantiated.  In particular, if using a third party library, it might be necessary to change a few fields on one of its types.  For these cases you can pass a method to OnInstantiated that can customize the newly created instance.  For example:
+
+    ```csharp
+    Container.Bind<Foo>().AsSingle().OnInstantiated<Foo>(OnFooInstantiated);
+
+    void OnFooInstantiated(InjectContext context, Foo foo)
+    {
+        foo.Qux = "asdf";
+    }
+    ```
+
+    Or, equivalently:
+
+    ```csharp
+    Container.Bind<Foo>().AsSingle().OnInstantiated<Foo>((ctx, foo) => foo.Bar = "qux");
+    ```
+
+    Note that you can also define a custom factory that directly calls Container.InstantiateX before customizing it for the same effect, but OnInstantiated can be easier in some cases
+
 * **Condition** = The condition that must be true for this binding to be chosen.  See <a href="#conditional-bindings">here</a> for more details.
 * (**Copy**|**Move**)Into(**All**|**Direct**)SubContainers = This value can be ignored for 99% of users.  It can be used to automatically have the binding inherited by subcontainers.  For example, if you have a class Foo and you want a unique instance of Foo to be automatically placed in the container and every subcontainer, then you could add the following binding:
 
-```csharp
-Container.Bind<Foo>().AsSingle().CopyIntoAllSubContainers()
-```
+    ```csharp
+    Container.Bind<Foo>().AsSingle().CopyIntoAllSubContainers()
+    ```
 
-In other words, the result will be equivalent to copying and pasting the `Container.Bind<Foo>().AsSingle()` statement into the installer for every sub-container.
+    In other words, the result will be equivalent to copying and pasting the `Container.Bind<Foo>().AsSingle()` statement into the installer for every sub-container.
 
-Or, if you only wanted Foo in the subcontainers and not the current container:
+    Or, if you only wanted Foo in the subcontainers and not the current container:
 
-```csharp
-Container.Bind<Foo>().AsSingle().MoveIntoAllSubContainers()
-```
+    ```csharp
+    Container.Bind<Foo>().AsSingle().MoveIntoAllSubContainers()
+    ```
 
-Or, if you only wanted Foo to be in the immediate child subcontainer, and not the subcontainers of these subcontainers:
+    Or, if you only wanted Foo to be in the immediate child subcontainer, and not the subcontainers of these subcontainers:
 
-```csharp
-Container.Bind<Foo>().AsSingle().MoveIntoDirectSubContainers()
-```
+    ```csharp
+    Container.Bind<Foo>().AsSingle().MoveIntoDirectSubContainers()
+    ```
 
 * **NonLazy** = Normally, the **ResultType** is only ever instantiated when the binding is first used (aka "lazily").  However, when NonLazy is used, **ResultType** will immediately be created on startup.
 
@@ -670,7 +695,7 @@ Container.Bind<Foo>().AsSingle().MoveIntoDirectSubContainers()
 1. **FromNewComponentOn** - Instantiate a new component of the given type on the given game object
 
     ```csharp
-    Container.Bind<Foo>().FromComponent(someGameObject);
+    Container.Bind<Foo>().FromNewComponentOn(someGameObject);
     ```
 
     **ResultType** must derive from UnityEngine.MonoBehaviour / UnityEngine.Component in this case
@@ -933,6 +958,8 @@ Container.Bind<Foo>().AsSingle().MoveIntoDirectSubContainers()
         ```csharp
         Container.Bind<Foo>().FromSubContainerResolve().ByNewContextPrefabResource("Path/To/MyPrefab");
         ```
+
+    1. **ByInstance** - Initialize the subcontainer by directly using a given instance of DiContainer that you provide yourself.  This is only useful in some rare edge cases.
 
 1. **FromSubContainerResolveAll** - Same as FromSubContainerResolve except will match multiple values or zero values.
 
@@ -2424,6 +2451,17 @@ The reason this setting is not set to true by default is because it can cause cr
 
 Zenject integration with UniRx is disabled by default.  To enable, you must add the define `ZEN_SIGNALS_ADD_UNIRX` to your project, which you can do by selecting Edit -> Project Settings -> Player and then adding `ZEN_SIGNALS_ADD_UNIRX` in the "Scripting Define Symbols" section
 
+With zenject version 7.0.0, you'll also have to change the Zenject.asmdef file to the following:
+
+```
+{
+    "name": "Zenject",
+    "references": [
+        "UniRx"
+    ]
+}
+```
+
 With `ZEN_SIGNALS_ADD_UNIRX` enabled, you can observe zenject signals via UniRx streams as explained in the <a href="Documentation/Signals.md">signals docs</a>, and you can also observe zenject events such as Tick, LateTick, and FixedTick etc. on the `TickableManager` class.  One example usage is to ensure that certain events are only handled a maximum of once per frame:
 
 ```csharp
@@ -3036,6 +3074,10 @@ It is possible to remove or replace bindings that were added in a previous bind 
 
     Then the result will be more loosely coupled code, which will make it 100x easier to refactor, maintain, test, understand, re-use, etc.
 
+* **<a id="ecs-integration">Is there a way to integrate with the upcoming Unity ECS?</a>**
+
+    Currently there does not appear to be an official way to do custom injections into Unity ECS systems, however, there are <a href="https://forum.unity.com/threads/request-for-world-addmanager.539271/#post-3558224">some workarounds</a> until Unity hopefully addresses this.
+
 * **<a id="aot-support"></a>Does this work on AOT platforms such as iOS and WebGL?**
 
     Yes.  However, there are a few things that you should be aware of.  One of the things that Unity's IL2CPP compiler does is strip out any code that is not used.  It calculates what code is used by statically analyzing the code to find usage.  This is great, except that this will sometimes strip out methods/types that we don't refer to explicitly (and instead access via reflection instead).
@@ -3083,6 +3125,14 @@ It is possible to remove or replace bindings that were added in a previous bind 
 * **<a id="faq-performance"></a>How is performance?**
 
     See <a href="#optimization_notes">here</a>
+
+* **<a id="faq-multiple-threads"></a>Does Zenject support multithreading?**
+
+    Yes, with a few caveats:
+    - You need to enable the define `ZEN_MULTITHREADING` in player settings
+    - Only the resolve and instantiate operations support multithreading.  The bindings that occur during the install phase must cannot be executed concurrently on multiple threads.  In other words, everything after the initial install should support multithreading.
+    - Circular reference errors are handled less gracefully.  Instead of an exception with an error message that details the object graph with the circular reference, a StackOverflowException might be thrown
+    - If you make heavy use of zenject from multiple threads at the same time, you might also want to enable the define `ZEN_INTERNAL_NO_POOLS` which will cause zenject to not use memory pools for internal operations.  This will cause more memory allocations however can be much faster in some cases because it will avoid hitting locks the memory pools uses to control access to the shared data across threads
 
 * **<a id="howtousecoroutines"></a>How do I use Unity style Coroutines in normal C# classes?**
 
