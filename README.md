@@ -480,7 +480,7 @@ Where:
 
 * **Scope** = This value determines how often (or if at all) the generated instance is re-used across multiple injections.
 
-    * Default: AsTransient
+    * Default: AsTransient.  Note however that not all bindings have a default, so an exception will be thrown if not supplied.  The bindings that do not require the scope to be set explicitly are any binding with a construction method that is a search rather than creating a new object from scratch (eg. FromMethod, FromComponentX, FromResolve, etc.)
     * It can be one of the following:
         1. **AsTransient** - Will not re-use the instance at all.  Every time **ContractType** is requested, the DiContainer will execute the given construction method again
         2. **AsCached** - Will re-use the same instance of **ResultType** every time **ContractType** is requested, which it will lazily generate upon first use
