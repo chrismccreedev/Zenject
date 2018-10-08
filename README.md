@@ -2705,7 +2705,7 @@ Note that when not using reflection baking, the costs associated with 'Direct Re
 
 You can also get minor gains in speed and minor reductions in memory allocations by defining `ZEN_STRIP_ASSERTS_IN_BUILDS` in build settings.  This will cause all asserts to be stripped out of builds.  However, note that debugging any zenject related errors within builds will be made significantly more difficult by doing this.
 
-For some benchmarks on Zenject versus other DI frameworks, see [here](https://github.com/svermeulen/IocPerformance/tree/Zenject).
+For some benchmarks on Zenject versus other DI frameworks, see [here](https://github.com/svermeulen/IocPerformance) (see the charts at the bottom in particular).
 
 ## <a id="reflection-baking"></a>Reflection Baking
 
