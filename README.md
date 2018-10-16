@@ -90,7 +90,9 @@ Finally, I will just say that if you don't have experience with DI frameworks, a
 
 ## Documentation
 
-The Zenject documentation is split up into the following sections.  It is split up into two parts (Introduction and Advanced) so that you can get up and running as quickly as possible.  I would recommend at least reading the Introduction section, but then feel free to jump around in the advanced section as necessary
+The Zenject documentation is split up into the following sections.  It is split up into two parts (Introduction and Advanced) so that you can get up and running as quickly as possible.  I would recommend at least skimming through the Introduction section before beginning, but then feel free to jump around in the advanced section as necessary
+
+Another great starting point is to watch [this youtube series on zenject](https://www.youtube.com/watch?v=IS2YUIb_w_M&list=PLKERDLXpXl_jNJPY2czQcfPXW4BJaGZc_) created by Infallible Code.
 
 You might also benefit from playing with the provided sample projects (which you can find by opening `Zenject/OptionalExtras/SampleGame1` or `Zenject/OptionalExtras/SampleGame2`).
 
@@ -98,7 +100,7 @@ If you are a DI veteran, then it might be worth taking a look at the <a href="#c
 
 The tests may also be helpful to show usage for each specific feature (which you can find at `Zenject/OptionalExtras/UnitTests` and `Zenject/OptionalExtras/IntegrationTests`)
 
-Also, if you prefer video documentation, you can watch [this youtube series on zenject](https://www.youtube.com/watch?v=IS2YUIb_w_M&list=PLKERDLXpXl_jNJPY2czQcfPXW4BJaGZc_) created by Infallible Code.
+Also see <a href="#further-reading">further reading section</a> for some external zenject tutorials provided elsewhere.
 
 ## Table Of Contents
 
@@ -122,6 +124,7 @@ Also, if you prefer video documentation, you can watch [this youtube series on z
         * <a href="#object-graph-validation">Object Graph Validation</a>
         * <a href="#scene-bindings">Scene Bindings</a>
         * <a href="#di-guidelines--recommendations">General Guidelines / Recommendations / Gotchas / Tips and Tricks</a>
+        * <a href="#further-reading">Further Reading</a>
 * Advanced
     * Binding
         * <a href="#game-object-bind-methods">Game Object Bind Methods</a>
@@ -1440,6 +1443,15 @@ The `ZenjectBinding` component has the following properties:
 
 * <a id="bad-execution-order"></a>**The order that things occur in is wrong, like injection is occurring too late, or Initialize() event is not called at the right time, etc.**
     * It may be because the 'script execution order' of the Zenject classes `ProjectKernel` or `SceneKernel` or `SceneContext` is incorrect.  These classes should always have the earliest or near earliest execution order.  This should already be set by default (since this setting is included in the `cs.meta` files for these classes).  However if you are compiling Zenject yourself or have a unique configuration, you may want to make sure, which you can do by going to "Edit -> Project Settings -> Script Execution Order" and confirming that these classes are at the top, before the default time.
+
+## <a id="further-reading"></a>Further Reading
+
+* [Getting Started With Zenject](https://www.youtube.com/watch?v=IS2YUIb_w_M&list=PLKERDLXpXl_jNJPY2czQcfPXW4BJaGZc_)
+* [Create a Finite State Machine in Unity 3D using Zenject](http://dimitrisevgenidis.com/2017/05/01/create-a-finite-state-machine-in-unity-3d-using-zenject/)
+* [Udemy course](https://www.udemy.com/dependency-injection-in-unity3d-using-zenject/)
+* [Chris' Tutorials on Zenject](https://www.youtube.com/watch?v=Bcj35ceGCn0&list=PLyH-qXFkNSxnJbZLrxF0jWGyHB-8Kcd5q)
+* [A better architecture for Unity projects](http://www.gamasutra.com/blogs/RubenTorresBonet/20180703/316442/A_better_architecture_for_Unity_projects.php)
+* [Development For Winners](https://grofit.gitbooks.io/development-for-winners/content/)
 
 ## <a id="game-object-bind-methods"></a>Game Object Bind Methods
 
