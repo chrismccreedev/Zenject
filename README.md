@@ -1448,7 +1448,6 @@ The `ZenjectBinding` component has the following properties:
 
 Tutorials Provided Elsewhere:
 * [Getting Started With Zenject](https://www.youtube.com/watch?v=IS2YUIb_w_M&list=PLKERDLXpXl_jNJPY2czQcfPXW4BJaGZc_)
-* [Create a Finite State Machine in Unity 3D using Zenject](http://dimitrisevgenidis.com/2017/05/01/create-a-finite-state-machine-in-unity-3d-using-zenject/)
 * [Udemy course](https://www.udemy.com/dependency-injection-in-unity3d-using-zenject/)
 * [Chris' Tutorials on Zenject](https://www.youtube.com/watch?v=Bcj35ceGCn0&list=PLyH-qXFkNSxnJbZLrxF0jWGyHB-8Kcd5q)
 * [A better architecture for Unity projects](http://www.gamasutra.com/blogs/RubenTorresBonet/20180703/316442/A_better_architecture_for_Unity_projects.php)
