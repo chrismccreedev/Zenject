@@ -1441,7 +1441,7 @@ The `ZenjectBinding` component has the following properties:
 * **Lazily instantiated objects and the object graph**
     * Zenject does not immediately instantiate every object defined by the bindings that you've set up in your installers.  It will only instantiate those bindings that are marked `NonLazy`.  All other bindings are only instantiated when they are needed.  All the `NonLazy` objects as well as all their dependencies form the 'initial object graph' of the application.  Note that this automatically includes all types that implement `IInitializable,` `ITickable,` `IDisposable,` etc.   So if you have a binding that is not being created because nothing in the initial object graph references it, then you can make this explicit by adding `NonLazy` to your binding
 
-* <a id="do-not-add-bindings-after-install"></a>Restrict the use of bind commands to the 'composition root' only.  In other words, do not make calls to `Container.Bind`, `Container.Rebind`, or `Container.Unbind` after the install phase is completed.  This important because immediately after install completes the initial object graph of your application is constructed, and needs access to the full set of bindings.
+* <a id="do-not-add-bindings-after-install"></a>**Restrict the use of bind commands to the 'composition root' only**.  In other words, do not make calls to `Container.Bind`, `Container.Rebind`, or `Container.Unbind` after the install phase is completed.  This important because immediately after install completes the initial object graph of your application is constructed, and needs access to the full set of bindings.
 
 All calls to `Container.Bind` should occur during startup before anything is resolved/instantiated.  This is important because otherwise, a class might be instantiated that 
 
@@ -1855,7 +1855,7 @@ A lot of the default behaviour in Zenject can be customized via a settings prope
 - **Display Warning When Resolving During Install** - This value will control whether a warning is issued to the console when either a Resolve or an Instantiate is triggered during the install phase which looks like this:
 
 ```
-Zenject Warning: It is bad practice to call Inject/Resolve/Instantiate before all the Installers have completed!  This is important to ensure that all bindings have properly been installed in case they are needed when injecting/instantiating/resolving.  Detected when operating on type 'Steve1.TestInstaller+Foo'.
+Zenject Warning: It is bad practice to call Inject/Resolve/Instantiate before all the Installers have completed!  This is important to ensure that all bindings have properly been installed in case they are needed when injecting/instantiating/resolving.  Detected when operating on type 'Foo'.
 ```
 
 So if you often encounter this warning and are aware of the implications of what you're doing then you might set this value to false to suppress it.
