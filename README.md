@@ -2508,7 +2508,7 @@ If you add bindings for classes that implement `IDisposable`, then you can contr
 
 Unity has a concept of "script execution order" however this value does not affect the order that OnDestroy is executed.  The root-level game objects might be destroyed in any order and this includes the SceneContext as well.
 
-One way to make this more predictable is to place everything underneath SceneContext.   For cases where a deterministic destruction order is needed this can be very helpful, because it will at least guarantee that the bound IDisposables get disposed of first before any of the game objects in the scene.  You can also toggle the setting on SceneContext "Parent New Objects Under Root" to automatically parent all dynamically instantiated objects under SceneContext as well.
+One way to make this more predictable is to place everything underneath SceneContext.   For cases where a deterministic destruction order is needed this can be very helpful, because it will at least guarantee that the bound IDisposables get disposed of first before any of the game objects in the scene.  You can also toggle the setting on SceneContext "Parent New Objects Under Scene Context" to automatically parent all dynamically instantiated objects under SceneContext as well.
 
 Another issue that can sometimes arise in terms of destruction order is the order that the scenes are unloaded in and also the order that the DontDestroyOnLoad objects (including ProjectContext) are unloaded in.
 
