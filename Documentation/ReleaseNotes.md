@@ -1,6 +1,14 @@
 
 # <a id="release-notes"></a>Release Notes
 
+## Version 7.3.1 (October 20, 2018)
+
+Minor bug fixes
+
+- Fixed compiler error related to the test framework asmdef
+- Fixed issue with reflection baking on Unity 2018.3
+- Changed the visual order of installers in contexts to match the actual order they are executed in (eg. scriptable object installers first)
+
 ## Version 7.3.0 (October 6, 2018)
 
 Merged in changes from LTS version 6.5.0
