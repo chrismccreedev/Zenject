@@ -5,7 +5,7 @@
 
 [![Join the chat at https://gitter.im/Zenject/Lobby](https://badges.gitter.im/Zenject/Lobby.svg)](https://gitter.im/Zenject/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-This project is free - but supported via donations.  If you or your team have found it useful, please consider supporting further development through either <a href="https://opencollective.com/zenject">open collective</a> or <a href="https://www.patreon.com/zenject?alert=2">patreon</a>
+This project is free - but supported via donations.  If you or your team have found it useful, please consider supporting further development through either <a href="https://opencollective.com/zenject">open collective</a> / <a href="https://www.patreon.com/zenject?alert=2">patreon</a> / <a href="https://svermeulen.github.io/DonateToZenject.html">paypal</a>
 
 [![Become as Backer](https://opencollective.com/zenject/tiers/backer.svg?avatarHeight=50)](https://opencollective.com/zenject) [![Become as Sponsor](https://opencollective.com/zenject/tiers/sponsor.svg?avatarHeight=50)](https://opencollective.com/zenject)
 
