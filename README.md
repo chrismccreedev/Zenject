@@ -5,10 +5,6 @@
 
 [![Join the chat at https://gitter.im/Zenject/Lobby](https://badges.gitter.im/Zenject/Lobby.svg)](https://gitter.im/Zenject/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-This project is free - but supported via donations.  If you or your team have found it useful, please consider supporting further development through <a href="https://opencollective.com/zenject">open collective</a> / <a href="https://www.patreon.com/zenject?alert=2">patreon</a> / <a href="https://svermeulen.github.io/DonateToZenject.html">paypal</a>
-
-[![Become as Backer](https://opencollective.com/zenject/tiers/backer.svg?avatarHeight=50)](https://opencollective.com/zenject) [![Become as Sponsor](https://opencollective.com/zenject/tiers/sponsor.svg?avatarHeight=50)](https://opencollective.com/zenject)
-
 If you are looking for the older documentation for Zenject you can find that here:  <a href="https://github.com/modesttree/Zenject/tree/f0dd30ad451dcbc3eb17e636455a6c89b14ad537">Zenject 3.x</a>, <a href="https://github.com/modesttree/Zenject/tree/0b4a15b1e6e680c94fd34a2d7420eb41e320b21b">Zenject 4.x</a>, <a href="https://github.com/modesttree/Zenject/tree/dc019e31dbae09eb53c1638be00f7f002898956c">Zenject 5.x</a>
 
 ## <a id="introduction"></a>Introduction
