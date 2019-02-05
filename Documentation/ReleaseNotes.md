@@ -24,6 +24,10 @@ Minor
 - Added UnityEvent versions of the events to SceneContext to allow hooking into it from inspector directly
 - Fixed compile warnings specific to Rider IDE
 
+## Version 6.6.0 (February 5, 2019)
+
+Minor bug fixes merged in from 8.0.0
+
 ## Version 7.3.1 (October 20, 2018)
 
 Minor bug fixes
