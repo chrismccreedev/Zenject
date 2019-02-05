@@ -26,7 +26,15 @@ Minor
 
 ## Version 6.6.0 (February 5, 2019)
 
-Minor bug fixes merged in from 8.0.0
+Minor bug fixes and a few minor extra features
+
+- Changed the visual order of installer types on context to match their execution order
+- Bug fix - readonly properties were not injectable
+- Fixed OnInstantiate method to work properly in cases where you bind multiple types to a new prefab
+- Bug fix - classes in the System namespace (ie. Stopwatch) were not able to be created by zenject
+- Added the ability to specify the signal type explicitly in Fire and TryFire methods
+- Fixed some compiler warnings
+- Added new subcontainer bind method ByInstanceGetter
 
 ## Version 7.3.1 (October 20, 2018)
 
