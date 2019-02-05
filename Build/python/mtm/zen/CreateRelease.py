@@ -132,6 +132,11 @@ class Runner:
             self._sys.deleteDirectory('[ZenTempDir]/OptionalExtras/IntegrationTests')
             self._sys.removeFile('[ZenTempDir]/OptionalExtras/IntegrationTests.meta')
 
+            self._sys.removeFileIfExists('[ZenTempDir]/Source/Usage/Zenject-usage.pdb')
+            self._sys.removeFileIfExists('[ZenTempDir]/Source/Usage/Zenject-usage.pdb.meta')
+            self._sys.removeFileIfExists('[ZenTempDir]/Source/Usage/Zenject-usage.dll.mdb')
+            self._sys.removeFileIfExists('[ZenTempDir]/Source/Usage/Zenject-usage.dll.mdb.meta')
+
             self._sys.removeFile('[ZenTempDir]/Source/Zenject.csproj')
 
             if not includeSample:
