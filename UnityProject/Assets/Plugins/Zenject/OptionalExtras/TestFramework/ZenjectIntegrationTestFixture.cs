@@ -67,7 +67,7 @@ namespace Zenject
 
             ProjectContext.ValidateOnNextRun = shouldValidate;
 
-            Assert.IsNull(_sceneContext);
+            Assert.That(_sceneContext == null);
 
             _sceneContext = SceneContext.Create();
             _sceneContext.Install();
