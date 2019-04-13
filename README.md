@@ -1,9 +1,7 @@
 
-## Extenject - Extensions and bug fixes to Zenject
+# Extenject - Extensions and bug fixes to Zenject
 
 This project is simply a fork of <a href="https://github.com/modesttree/zenject">Zenject</a>.  I was the primary maintainer but no longer have access after leaving my position at Modest Tree.  It is called Extenject to respect Modest Tree's <a href="https://github.com/modesttree/Zenject/commit/2cbbf11b344d083cc697d8b248acf41520d72da3">trademark claim</a> on the name Zenject.
-
-## Dependency Injection Framework for Unity3D
 
 [![Join the chat at https://gitter.im/Extenject/community](https://badges.gitter.im/Extenject/Lobby.svg)](https://gitter.im/Extenject/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 

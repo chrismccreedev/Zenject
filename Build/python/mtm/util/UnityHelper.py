@@ -12,8 +12,10 @@ import mtm.util.MiscUtil as MiscUtil
 
 from mtm.util.SystemHelper import ProcessErrorCodeException
 
-UnityLogFileLocation = os.getenv('localappdata') + '\\Unity\\Editor\\Editor.log'
-#UnityLogFileLocation = '{Modest3dDir}/Modest3DLog.txt'
+if os.name == 'nt':
+    UnityLogFileLocation = os.getenv('localappdata') + '\\Unity\\Editor\\Editor.log'
+else:
+    UnityLogFileLocation = '~/Library/Logs/Unity/Editor.log'
 
 class Platforms:
     Windows = 'windows'

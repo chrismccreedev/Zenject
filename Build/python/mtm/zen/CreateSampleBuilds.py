@@ -199,7 +199,6 @@ def installBindings():
             'TempDir': '[RootDir]/Temp',
             'WebGlTemplate': '[ScriptDir]/web_config_template.xml',
             'OutputRootDir': '[RootDir]/SampleBuilds',
-            'UnityExePath': 'C:/Program Files/Unity/Hub/Editor/2018.1.0f2/Editor/Unity.exe',
             'LogPath': '[BuildDir]/Log.txt',
             'UnityProjectPath': '[RootDir]/UnityProject',
             'MsBuildExePath': 'C:/Windows/Microsoft.NET/Framework/v4.0.30319/msbuild.exe'
@@ -208,6 +207,12 @@ def installBindings():
             'UseDevenv': False
         },
     }
+
+    if os.name == 'nt':
+        config['PathVars']['UnityExePath'] = 'C:/Program Files/Unity/Hub/Editor/2018.1.0f2/Editor/Unity.exe',
+    else:
+        config['PathVars']['UnityExePath'] = 'openunity'
+
     Container.bind('Config').toSingle(Config, [config])
 
     Container.bind('LogStream').toSingle(LogStreamFile)
