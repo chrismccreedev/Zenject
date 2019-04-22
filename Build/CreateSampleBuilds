@@ -1,3 +1,5 @@
 #!/bin/bash
 cd python
-python3 -m mtm.zen.CreateSampleBuilds $@
+source /usr/local/bin/virtualenvwrapper.sh
+workon extenject
+python3 -m mtm.zen.CreateSampleBuilds "$@"

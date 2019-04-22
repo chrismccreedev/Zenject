@@ -36,7 +36,7 @@ class Runner:
     _varManager = Inject('VarManager')
 
     def __init__(self):
-        self._platform = Platforms.Windows
+        self._platform = Platforms.OsX
 
     def run(self, args):
         self._args = args
@@ -207,11 +207,6 @@ def installBindings():
             'UseDevenv': False
         },
     }
-
-    if os.name == 'nt':
-        config['PathVars']['UnityExePath'] = 'C:/Program Files/Unity/Hub/Editor/2018.1.0f2/Editor/Unity.exe',
-    else:
-        config['PathVars']['UnityExePath'] = 'openunity'
 
     Container.bind('Config').toSingle(Config, [config])
 
