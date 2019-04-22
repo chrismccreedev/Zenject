@@ -63,6 +63,18 @@ class Runner:
             self._enableNet46()
             self._createBuild()
 
+        if self._args.buildType == 'all' or self._args.buildType == 'osx35':
+            self._log.heading("Building osx 3.5")
+            self._platform = Platforms.OsX
+            self._enableNet35()
+            self._createBuild()
+
+        if self._args.buildType == 'all' or self._args.buildType == 'osx46':
+            self._log.heading("Building osx 4.6")
+            self._platform = Platforms.OsX
+            self._enableNet46()
+            self._createBuild()
+
         if self._args.buildType == 'all' or self._args.buildType == 'wsa35':
             self._log.heading("Building WindowsStoreApp 3.5 .net")
             self._platform = Platforms.WindowsStoreApp
@@ -233,7 +245,7 @@ if __name__ == '__main__':
     parser.add_argument('-c', '--clearOutput', action='store_true', help='')
     parser.add_argument('-rt', '--runTests', action='store_true', help='')
     parser.add_argument('-rb', '--runBuilds', action='store_true', help='')
-    parser.add_argument('-t', '--buildType', type=str, default='win35', choices=['win35', 'win46', 'wsa35', 'wsa46', 'wsa46il2cpp', 'wsa35il2cpp', 'webgl35', 'webgl46', 'all'], help='')
+    parser.add_argument('-t', '--buildType', type=str, default='win35', choices=['win35', 'win46', 'osx35', 'osx46', 'wsa35', 'wsa46', 'wsa46il2cpp', 'wsa35il2cpp', 'webgl35', 'webgl46', 'all'], help='')
 
     args = parser.parse_args(sys.argv[1:])
 

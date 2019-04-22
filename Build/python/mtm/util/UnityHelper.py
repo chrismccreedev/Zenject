@@ -1,8 +1,6 @@
 import os
 import time
 
-from mtm.log.LogWatcher import LogWatcher
-
 import mtm.ioc.Container as Container
 from mtm.ioc.Inject import Inject
 import mtm.ioc.IocAssertions as Assertions
@@ -11,11 +9,6 @@ from mtm.util.Assert import *
 import mtm.util.MiscUtil as MiscUtil
 
 from mtm.util.SystemHelper import ProcessErrorCodeException
-
-if os.name == 'nt':
-    UnityLogFileLocation = os.getenv('localappdata') + '\\Unity\\Editor\\Editor.log'
-else:
-    UnityLogFileLocation = '~/Library/Logs/Unity/Editor.log'
 
 class Platforms:
     Windows = 'windows'
@@ -49,7 +42,7 @@ class UnityHelper:
         if os.name == 'nt':
             return '"C:/Program Files/Unity/Hub/Editor/2018.1.0f2/Editor/Unity.exe" ' + args
 
-        return 'open -n "/Applications/UnityInstalls/2018.1.0f2/Unity.app" --args ' + args
+        return 'open -n -W "/Applications/UnityInstalls/2018.1.0f2/Unity.app" --args ' + args
 
     def openUnity(self, projectPath, platform):
         args = '-buildTarget {0} -projectPath "{1}"'.format(self._getBuildTargetArg(platform), projectPath)
@@ -98,11 +91,6 @@ class UnityHelper:
 
     def runEditorFunctionRaw(self, projectPath, editorCommand, platform, extraArgs):
 
-        logPath = self._varMgr.expandPath(UnityLogFileLocation)
-
-        logWatcher = LogWatcher(logPath, self.onUnityLog)
-        logWatcher.start()
-
         try:
             args = '-buildTarget {0} -projectPath "{1}"'.format(self._getBuildTargetArg(platform), projectPath)
 
@@ -118,10 +106,4 @@ class UnityHelper:
 
         except:
             raise UnityUnknownErrorException("Unknown error occurred while running Unity!")
-
-        finally:
-            logWatcher.stop()
-
-            while not logWatcher.isDone:
-                time.sleep(0.1)
 

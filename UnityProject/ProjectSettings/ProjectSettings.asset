@@ -630,7 +630,7 @@ PlayerSettings:
   apiCompatibilityLevelPerPlatform:
     Metro: 3
     Standalone: 2
-    WebGL: 2
+    WebGL: 1
   m_RenderingPath: 1
   m_MobileRenderingPath: 1
   metroPackageName: Game1
