@@ -146,7 +146,6 @@ class Runner:
 
             self._createUnityPackage('[PackageTempDir]', outputPath)
         finally:
-            time.sleep(0.5)
             self._sys.deleteDirectory('[PackageTempDir]')
 
     def _createUnityPackage(self, projectPath, outputPath):
