@@ -67,7 +67,7 @@ You can install Zenject using any of the following methods
     * **Zenject.vX.X.unitypackage** - Same as above except without the Sample projects.
     * **Zenject-NonUnity.vX.X.zip** - Use this if you want to <a href="#using-outside-unity">use Zenject outside of Unity</a> (eg. just as a normal C# project)
 
-1. From the [Asset Store Page](http://u3d.as/content/modest-tree-media/zenject-dependency-injection/7ER)
+1. From the [Asset Store Page](https://www.assetstore.unity3d.com/#!/content/144698)
 
     * Normally this should be the same as what you find in the [Releases section](https://github.com/svermeulen/Extenject/releases), but may also be slightly out of date since Asset Store can take a week or so to review submissions sometimes.
 
