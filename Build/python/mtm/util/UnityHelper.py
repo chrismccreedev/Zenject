@@ -49,7 +49,7 @@ class UnityHelper:
         if os.name == 'nt':
             return '"C:/Program Files/Unity/Hub/Editor/2019.1.0f2/Editor/Unity.exe" ' + args
 
-        return 'open -n "/Applications/UnityInstalls/2019.1.0f2/Unity.app" --args ' + args
+        return 'open -n "/Applications/Unity/Hub/Editor/2019.1.0f2/Unity.app" --args ' + args
 
     def openUnity(self, projectPath, platform):
         args = '-buildTarget {0} -projectPath "{1}"'.format(self._getBuildTargetArg(platform), projectPath)
