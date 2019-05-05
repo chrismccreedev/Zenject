@@ -14,6 +14,7 @@
 
 *.userprefs
 
+/*.user
 /*.csproj
 /*.sln
 /*.idea
