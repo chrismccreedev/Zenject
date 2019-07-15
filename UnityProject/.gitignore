@@ -18,3 +18,6 @@
 /*.csproj
 /*.sln
 /*.idea
+
+# MacOS folder specific attributes:
+.DS_Store
