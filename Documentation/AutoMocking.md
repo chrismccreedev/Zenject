@@ -2,26 +2,26 @@
 ## <a id="auto-mocking-using-moq"></a>Auto-Mocking
 
 > Test double, mock, stub, fake or spy? 
-> For simplicity this documentation is using the word "mock".
+> For simplicity this documentation is using the word "mock" for all.
 
 One of the really cool features of DI is the fact that it makes testing code much, much easier.  This is because you can easily substitute one dependency for another by using a different Composition Root. For example, if you only want to test a particular class (let's call it Foo) and don't care about testing its dependencies, you might write *mocks* for them so that you can isolate Foo specifically.
 
 ```csharp
 public class Foo
 {
-IWebServer _webServer;
+    IWebServer _webServer;
 
-public Foo(IWebServer webServer)
-{
-_webServer = webServer;
-}
+    public Foo(IWebServer webServer)
+    {
+        _webServer = webServer;
+    }
 
-public void Initialize()
-{
-//...
-var x = _webServer.GetSomething();
-//...
-}
+    public void Initialize()
+    {
+        //...
+        var x = _webServer.GetSomething();
+        //...
+    }
 }
 ```
 
@@ -37,7 +37,7 @@ However, if we create a mock class for IWebServer then we can address all these 
 ```csharp
 public class MockWebServer : IWebServer
 {
-//...
+    //...
 }
 ```
 
@@ -55,7 +55,8 @@ Note that by default, Auto-mocking is not enabled in Zenject.  If you wish to us
 
 ## Using Moq
 
-If you wish to use Moq then you need to go to your Zenject install directory and extract the contents of "Zenject\Source\Editor\AutoMoq.zip" into that same directory.
+If you wish to use Moq then you need to go to your Zenject install directory and extract the contents of ``Zenject\OptionalExtras\AutoMoq.zip`` into that same directory.
+The extracted folder should then be dropped in ``Zenject\OptionalExtras\TestFrameWork\Editor``.
 
 Note that there are multiple versions of Moq.dll included in the zip and that you should use the one that targets the Scripting Runtime Version that you have configured in your player settings. Also note that if you're using Scripting Runtime Version 3.5, that you might also need to change your "Api Compatibility Level" from ".NET 2.0 Subset" to ".NET 2.0"
 
@@ -77,7 +78,8 @@ For more details, see the documentation for [Moq](https://github.com/moq/moq4)
 
 ## Using NSubstitute
 
-If you wish to use NSubstitute then you need to go to your Zenject install directory and extract the contents of "Zenject\OptionalExtras\Editor\AutoSubstitute.zip" into that same directory.
+If you wish to use NSubstitute then you need to go to your Zenject install directory and extract the contents of ``Zenject\OptionalExtras\AutoSubstitute.zip``.
+The extracted folder should then be dropped in ``Zenject\OptionalExtras\TestFrameWork\Editor``.
 
 > Mock, stub, fake, spy, test double? Strict or loose? Nah, just substitute for the type you need!
 
