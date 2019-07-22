@@ -9,11 +9,11 @@ This project is simply a fork of <a href="https://github.com/modesttree/zenject"
 
 ## Lawsuit
 
-Extenject has been removed from Asset Store because of a copyright claim by Modest Tree, so the only way to obtain it currently is through the [releases section on github](https://github.com/svermeulen/Extenject/releases).
+Extenject has been removed from Asset Store because of a copyright claim by Modest Tree, so the only way to obtain it currently is through the [releases section on github](https://github.com/svermeulen/Extenject/releases).  Modest Tree has also blocked me from contributing to zenject github issues and removed me from the zenject gitter chat, so to get my help please report issues [to extenject](https://github.com/svermeulen/Extenject/issues/new), and discuss in the [extenject chat](https://gitter.im/Extenject/community) instead
 
-Modest Tree has also filed a lawsuit against me, and Unity tells me that they will not re-enable Extenject in the Asset Store until the lawsuit is complete, which might not occur until 2020.
+They have also filed a lawsuit against me and Unity tells me that they will not re-enable Extenject in the Asset Store until the lawsuit is complete, which might not occur until 2020.
 
-I have been advised not to comment on details of the lawsuit right now - however you can read [their filing](https://drive.google.com/open?id=1pVVCuwsJfhQ-jj2cIe5oF6zNwHITCHbF) and [my defense](https://drive.google.com/open?id=1CYy2g46b2XiDoIsWb75SgLJoIGakGiyz) (both of which are public) for details.  The lawsuit also relates to other MIT license open source projects I created such as [Projeny](https://github.com/modesttree/Projeny) and [Unity3dAsyncAwaitUtil](https://github.com/modesttree/Unity3dAsyncAwaitUtil)
+I have been advised not to comment on details of the lawsuit right now - however you can read [their filing](https://drive.google.com/open?id=1pVVCuwsJfhQ-jj2cIe5oF6zNwHITCHbF) and [my defense](https://drive.google.com/open?id=1CYy2g46b2XiDoIsWb75SgLJoIGakGiyz) (both of which are public) for details if interested.  The lawsuit also relates to other MIT license open source projects I created such as [Projeny](https://github.com/modesttree/Projeny) and [Unity3dAsyncAwaitUtil](https://github.com/modesttree/Unity3dAsyncAwaitUtil)
 
 ## Support
 
