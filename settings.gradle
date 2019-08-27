@@ -1,0 +1,15 @@
+pluginManagement {
+  repositories {
+    mavenLocal()
+    gradlePluginPortal()
+    maven {
+      url aveMavenUrl
+      credentials {
+        username aveMavenUser
+        password aveMavenPassword
+      }
+    }
+  }
+}
+
+rootProject.name = 'extenject'
