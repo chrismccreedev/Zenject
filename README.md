@@ -3294,6 +3294,7 @@ It is possible to remove or replace bindings that were added in a previous bind 
     * [Spinball Carnival](https://play.google.com/store/apps/details?id=com.nerdcorps.pinballcritters&hl=en) (Android)
     * [Slugterra: Guardian Force](https://play.google.com/store/apps/details?id=com.nerdcorps.slugthree&hl=en) (Android)
     * [Submarine](https://github.com/shiwano/submarine) (iOS and Android)
+    * [Space Shooter Alpha](https://misfitlabs.itch.io/space-shooter) (Android) (Extenject)
     * [NOVA Black Holes](https://itunes.apple.com/us/app/nova-black-holes/id1114574985?mt=8) (iOS)
     * [Farm Away!](http://www.farmawaygame.com/) (iOS and Android)
     * [Build Away!](http://www.buildawaygame.com/) (iOS and Android)
