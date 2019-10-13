@@ -1,5 +1,0 @@
-
-plugins {
-  id "ave-versioning" version '1.0.0'
-}
-
