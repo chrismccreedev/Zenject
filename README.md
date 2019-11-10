@@ -863,6 +863,16 @@ Where:
         }
         ```
 
+        Note that instead of passing in a prefab directly, you can also pass in a getter method.  For example:
+
+        ```csharp
+        Container.Bind<Foo>().FromSubContainerResolve().ByNewPrefabMethod(ChooseFooPrefab, InstallFoo);
+
+        UnityEngine.Object ChooseFooPrefab(InjectContext context) {
+            return FooPrefabs[Random.Range(0, FooPrefabs.Length)];
+        }
+        ```
+
     1. **ByNewPrefabInstaller** - Initialize subcontainer by instantiating a new prefab.  Same as ByNewPrefabMethod, except it initializes the dynamically created GameObjectContext with the given installer rather than a method.
 
         ```csharp
@@ -874,6 +884,16 @@ Where:
             {
                 Container.Bind<Foo>();
             }
+        }
+        ```
+
+        Note that instead of passing in a prefab directly, you can also pass in a getter method.  For example:
+
+        ```csharp
+        Container.Bind<Foo>().FromSubContainerResolve().ByNewPrefabInstaller<FooInstaller>(ChooseFooPrefab);
+
+        UnityEngine.Object ChooseFooPrefab(InjectContext context) {
+            return FooPrefabs[Random.Range(0, FooPrefabs.Length)];
         }
         ```
 
