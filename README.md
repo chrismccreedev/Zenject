@@ -9,7 +9,11 @@ This project is simply a fork of <a href="https://github.com/modesttree/zenject"
 
 ## Lawsuit
 
-Extenject has been removed from Asset Store because of a copyright claim by Modest Tree, so the only way to obtain it currently is through the [releases section on github](https://github.com/svermeulen/Extenject/releases).  Modest Tree has also blocked me from contributing to zenject github issues and removed me from the zenject gitter chat, so to get my help please report issues [to extenject](https://github.com/svermeulen/Extenject/issues/new), and discuss in the [extenject chat](https://gitter.im/Extenject/community) instead
+Extenject has been removed from Asset Store because of a copyright claim by Modest Tree, so the only way to obtain it currently is through the [releases section on github](https://github.com/svermeulen/Extenject/releases).    
+
+*Update: Extenject is available in the [Unity Asset Store](https://assetstore.unity.com/packages/tools/utilities/extenject-dependency-injection-framework-157735)*
+
+Modest Tree has also blocked me from contributing to zenject github issues and removed me from the zenject gitter chat, so to get my help please report issues [to extenject](https://github.com/svermeulen/Extenject/issues/new), and discuss in the [extenject chat](https://gitter.im/Extenject/community) instead
 
 They have also filed a lawsuit against me and Unity tells me that they will not re-enable Extenject in the Asset Store until the lawsuit is complete, which might not occur until 2020.
 
@@ -79,9 +83,9 @@ You can install Zenject using any of the following methods
     * **Zenject.vX.X.unitypackage** - Same as above except without the Sample projects.
     * **Zenject-NonUnity.vX.X.zip** - Use this if you want to <a href="#using-outside-unity">use Zenject outside of Unity</a> (eg. just as a normal C# project)
 
-1. From the [Asset Store Page](https://www.assetstore.unity3d.com/#!/content/144698)
+1. From the [Unity Asset Store](https://assetstore.unity.com/packages/tools/utilities/extenject-dependency-injection-framework-157735)
 
-    * Normally this should be the same as what you find in the [Releases section](https://github.com/svermeulen/Extenject/releases), but may also be slightly out of date since Asset Store can take a week or so to review submissions sometimes.
+    * Normally this should be the same as what you find in the [Releases section](https://github.com/svermeulen/Extenject/releases), but may also be slightly out of date since Unity Asset Store can take a week or so to review submissions sometimes.
 
 1. From Source
 
@@ -1496,7 +1500,7 @@ For bindings that create new game objects (eg. `FromComponentInNewPrefab`, `From
     Container.Bind<Foo>().FromNewComponentOnNewGameObject().WithGameObjectName("Foo1");
     ```
 
-* **UnderTransformGroup(string)** = The name of the transform group to place the new game object under.  This is especially useful for factories, which can be used to create many copies of a prefab, so it can be nice to have them automatically grouped together within the scene heirarchy.
+* **UnderTransformGroup(string)** = The name of the transform group to place the new game object under.  This is especially useful for factories, which can be used to create many copies of a prefab, so it can be nice to have them automatically grouped together within the scene hierarchy.
 
     ```csharp
     Container.BindFactory<Bullet, Bullet.Factory>()
@@ -2124,9 +2128,9 @@ Putting bindings inside ProjectContext is a fast and easy way to add common long
 
 As an example, let's pretend that we are working on a spaceship game, and we want to create one scene to serve as the environment (involving planets, asteroids, stars, etc.) and we want to create another scene to represent the ship that the player is in.  We also want all the classes in the ship scene to be able to reference bindings declared in the environment scene.  Also, we want to be able to define multiple different versions of both the ship scene and the environment scene.  To achieve all this, we will use a Zenject feature called 'Scene Contract Names'.
 
-We will start by using Unity's support for <a href="https://docs.unity3d.com/Manual/MultiSceneEditing.html">multi-scene editting</a>, and dragging both our environment scene and our ship scene into the Scene Heirarchy tab.  Then we will select the SceneContext in the environment scene and add a 'Contract Name'.  Let's call it 'Environment'.  Then all we have to do now is select the SceneContext inside the ship scene and set its 'Parent Contract Name' to the same value ('Environment').  Now if we press play, all the classes in the ship scene can access the declared bindings in the environment scene.
+We will start by using Unity's support for <a href="https://docs.unity3d.com/Manual/MultiSceneEditing.html">multi-scene editting</a>, and dragging both our environment scene and our ship scene into the Scene Hierarchy tab.  Then we will select the SceneContext in the environment scene and add a 'Contract Name'.  Let's call it 'Environment'.  Then all we have to do now is select the SceneContext inside the ship scene and set its 'Parent Contract Name' to the same value ('Environment').  Now if we press play, all the classes in the ship scene can access the declared bindings in the environment scene.
 
-The reason we use a name field here instead of explicitly using the scene name is to support swapping out the various environment scenes for different implementations.  In this example, we might define several different environments, all using the same Contract Name 'Environment', so that we can easily mix and match them with different ship scenes just by dragging the scenes we want into the scene heirarchy then hitting play.
+The reason we use a name field here instead of explicitly using the scene name is to support swapping out the various environment scenes for different implementations.  In this example, we might define several different environments, all using the same Contract Name 'Environment', so that we can easily mix and match them with different ship scenes just by dragging the scenes we want into the scene hierarchy then hitting play.
 
 It is called 'Contract Name' because all the environment scenes will be expected to follow a certain 'contract' by the ship scenes.  For example, the ship scenes might require that regardless of which environment scene was loaded, there is a binding for 'AsteroidManager' containing the list of asteroids that the ship must avoid.
 
@@ -2175,7 +2179,7 @@ Usually, when you want to customize different behaviour for a given scene depend
 For example, let's say we want to add some special keyboard shortcuts to your main production scene for testing purposes.  In order to do this using decorators, you would do the following:
 
 * Open the main production scene
-* Right click on the far right menu beside the scene name within the scene heirarchy and select Add New Scene
+* Right click on the far right menu beside the scene name within the scene hierarchy and select Add New Scene
 * Drag the scene so it's above the main scene
 * Right Click inside the new scene and select `Zenject -> Decorator Context`
 * Select the Decorator Context and set the 'Decorated Contract Name' field to 'Main'
@@ -2899,7 +2903,7 @@ When instantiating objects directly, you can either use DiContainer or you can u
 
     This method is simply a shortcut to calling `Container.InstantiatePrefab(Resources.Load("path/to/myprefab"));`
 
-1. **InstantiatePrefabForComponent&lt;T&gt;** - Instantiates the given prefab, injects on the prefab, and then returns the given component which is assumed to exist somewhere in the heirarchy of the prefab.
+1. **InstantiatePrefabForComponent&lt;T&gt;** - Instantiates the given prefab, injects on the prefab, and then returns the given component which is assumed to exist somewhere in the hierarchy of the prefab.
 
     ```csharp
     var foo = Container.InstantiatePrefabForComponent<Foo>(FooPrefab)
