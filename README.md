@@ -1720,7 +1720,7 @@ public class Bar
     Foo _foo;
 
     public Bar(
-        [Inject(Id = "foo")] 
+        [Inject(Id = "foo")]
         Foo foo)
     {
     }
@@ -1858,7 +1858,7 @@ public class MainInstaller : MonoInstaller
         // Resources/My/Custom/ResourcePath.prefab
         FooInstaller.InstallFromResource("My/Custom/ResourcePath", Container, "asdf")
 
-        // If a resource path is not provided then it is assumed to exist at resource path 
+        // If a resource path is not provided then it is assumed to exist at resource path
         // 'Resources/Installers/FooInstaller'
         // For example:
         // FooInstaller.InstallFromResource(Container, "asdf");
@@ -2929,7 +2929,7 @@ When instantiating objects directly, you can either use DiContainer or you can u
     var foo = Container.InstantiateComponent<Foo>(gameObject, new object[] { "asdf", 6.0f });
     ```
 
-    Note that this is equivalent to calling GameObject.AddComponent yourself then immediatly calling DiContainer.Inject on the new component instance.
+    Note that this is equivalent to calling GameObject.AddComponent yourself then immediately calling DiContainer.Inject on the new component instance.
 
 1. **InstantiateComponentOnNewGameObject&lt;T&gt;** - Create a new empty game object then instantiate a new component of the given type on it
 
@@ -3382,4 +3382,5 @@ See <a href="Documentation/ReleaseNotes.md">here</a>.
     LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     SOFTWARE.
-
+    
+    
