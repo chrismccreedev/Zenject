@@ -4,7 +4,7 @@
 
 The following is a set of guidelines for contributing to Extenject and its packages, which are hosted in [Extenject](https://github.com/svermeulen/Extenject) on GitHub. These are mostly guidelines, not rules. Use your best judgment, and feel free to propose changes to this document in a pull request.
 
-### Table of Contents
+## Table of Contents
 
 [I don't want to read this whole thing I just have a question](#i-dont-want-to-read-this-whole-thing-i-just-have-a-question)
 
@@ -20,10 +20,10 @@ The following is a set of guidelines for contributing to Extenject and its packa
 * [Creating Pull Requests](#repeat-creating-pull-requests)
   * [How Do I Submit A (Good) Pull Request?](#how-do-i-submit-a-good-pull-request)
  
-* [Coding Conventions](#whitecheckmark-coding-conventions)
+* [Coding Conventions](#white_check_mark-coding-conventions)
 
 
-### I don't want to read this whole thing I just have a question!!
+## I don't want to read this whole thing I just have a question!!
 
 > **Note:** Please don't file an issue to ask a question. You'll get faster results by using the resources below.
 
@@ -123,7 +123,7 @@ Submit your pull requests to the right branch:
   
 If your pull request breaks any test, it has no hope of being merged.
 
-## :white_check_mark: Coding conventions
+## :white_check_mark: Coding Conventions
 
 Start reading our code and you'll get the hang of it. We optimize for readability:
 
