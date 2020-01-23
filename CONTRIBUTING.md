@@ -1,22 +1,26 @@
 # Contributing to Extenject (Zenject extended).
 
-:+1::tada: First off, thank you for considering contributing to Extenject. :tada::+1:
+:+1::tada: **First off, thank you for considering contributing to Extenject.** :tada::+1:
 
 The following is a set of guidelines for contributing to Extenject and its packages, which are hosted in [Extenject](https://github.com/svermeulen/Extenject) on GitHub. These are mostly guidelines, not rules. Use your best judgment, and feel free to propose changes to this document in a pull request.
+
+### Table of Contents
 
 [I don't want to read this whole thing I just have a question](#i-dont-want-to-read-this-whole-thing-i-just-have-a-question)
 
 [How Can I Contribute?](#how-can-i-contribute)
-* [Testing](#testing-microscope)
+* [Testing](#microscope-testing)
 
-* [Reporting Bugs](#reporting-bugs-beetle)
+* [Reporting Bugs](#beetle-reporting-bugs)
   * [How Do I Submit A (Good) Bug Report?](#how-do-i-submit-a-good-bug-report)
   
-* [Suggesting Enhancements / Feature Requests](#suggesting-enhancements--feature-requests-muscle)
+* [Suggesting Enhancements / Feature Requests](#muscle-suggesting-enhancements--feature-requests)
   * [How Do I Submit A (Good) Enhancement Suggestion?](#how-do-i-submit-a-good-enhancement-suggestion)
   
-* [Creating Pull Requests](#creating-pull-requests-repeat)
+* [Creating Pull Requests](#repeat-creating-pull-requests)
   * [How Do I Submit A (Good) Pull Request?](#how-do-i-submit-a-good-pull-request)
+ 
+* [Coding Conventions](#whitecheckmark-coding-conventions)
 
 
 ### I don't want to read this whole thing I just have a question!!
@@ -33,12 +37,12 @@ The following is a set of guidelines for contributing to Extenject and its packa
 
 ## How Can I Contribute?
 
-### Testing :microscope:
+### :microscope: Testing
 
 We have a handful of unit tests, but most of our testbed consists of running it with existing projects. 
 Try our builds and pull requests in your own projects and communicate how it goes.
 
-### Reporting Bugs :beetle:
+### :beetle: Reporting Bugs
 
 Before creating bug reports, please check the existing bug reports as you might find out that you don't need to create one. When you are creating a bug report, please include as many details as possible.
 
@@ -68,7 +72,7 @@ Include details about your configuration and environment:
 * **What's the name and version of the OS you're using**?
 * **Any other information that could be useful about you environment**
 
-### Suggesting Enhancements / Feature Requests :muscle:
+### :muscle: Suggesting Enhancements / Feature Requests
 
 This section guides you through submitting an enhancement suggestion for this project, including completely new features and minor improvements to existing functionality. Following these guidelines helps maintainers and the community understand your suggestion and find related suggestions.
 
@@ -88,7 +92,7 @@ Before creating enhancement suggestions, please check the list of enhancements s
 * **Provide a specific use case** - Often we get requests for a feature not realizing there is already a way to fulfill their use case. In other words, don't just give us a solution, give us a problem.
 
 
-### Creating Pull Requests :repeat:
+### :repeat: Creating Pull Requests
 
 #### How Do I Submit A (Good) Pull Request?
 
@@ -119,7 +123,7 @@ Submit your pull requests to the right branch:
   
 If your pull request breaks any test, it has no hope of being merged.
 
-## Coding conventions
+## :white_check_mark: Coding conventions
 
 Start reading our code and you'll get the hang of it. We optimize for readability:
 
