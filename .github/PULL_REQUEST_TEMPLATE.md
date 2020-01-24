@@ -1,6 +1,6 @@
 [Extenject Contributing Guidelines](https://github.com/svermeulen/Extenject/blob/master/CONTRIBUTING.md)
 
-(Thanks for sending a pull request! Please make sure you click the link above to view the contribution guidelines, then fill out the blanks below.)
+Thank you for sending a pull request! Please make sure you the [contribution guidelines](https://github.com/svermeulen/Extenject/blob/master/CONTRIBUTING.md))
 
 ## Pull request checklist
 
