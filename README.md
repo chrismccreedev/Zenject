@@ -1,15 +1,15 @@
 
 # Extenject
 
-## Extensions and bug fixes to Zenject
+## Zenject extensions, bug fixes and releases
 
 [![Join the chat at https://gitter.im/Extenject/community](https://badges.gitter.im/Extenject/Lobby.svg)](https://gitter.im/Extenject/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-This project is simply a fork of <a href="https://github.com/modesttree/zenject">Zenject</a> with the goal of being actively maintained.  I am the primary author and was the primary maintainer until my access was removed after leaving my position at the company Modest Tree.  It is called Extenject to respect Modest Tree's <a href="https://github.com/modesttree/Zenject/commit/2cbbf11b344d083cc697d8b248acf41520d72da3">trademark claim</a> on the name Zenject.
+This project is simply a fork of [Zenject](https://github.com/modesttree/zenject) with the goal of being actively maintained.  I am the primary author and was the primary maintainer until my access was removed after leaving my position at the company Modest Tree.  It is called Extenject to respect Modest Tree's [trademark claim](https://github.com/modesttree/Zenject/commit/2cbbf11b344d083cc697d8b248acf41520d72da3) on the name Zenject.
 
 ## Lawsuit
 
-Extenject has been removed from Asset Store because of a copyright claim by Modest Tree, so the only way to obtain it currently is through the [releases section on github](https://github.com/svermeulen/Extenject/releases).    
+Extenject has been removed from Asset Store because of a copyright claim by Modest Tree, so the only way to obtain it currently is through the [releases section on github](https://github.com/svermeulen/Extenject/releases).
 
 *Update: Extenject is available in the [Unity Asset Store](https://assetstore.unity.com/packages/tools/utilities/extenject-dependency-injection-framework-157735)*
 
@@ -27,7 +27,7 @@ This project is supported via donations.  If you or your team have found it usef
 
 Note that if you are looking for the older documentation for Zenject you can find that here:  <a href="https://github.com/svermeulen/Extenject/tree/f0dd30ad451dcbc3eb17e636455a6c89b14ad537">Zenject 3.x</a>, <a href="https://github.com/svermeulen/Extenject/tree/0b4a15b1e6e680c94fd34a2d7420eb41e320b21b">Zenject 4.x</a>, <a href="https://github.com/svermeulen/Extenject/tree/dc019e31dbae09eb53c1638be00f7f002898956c">Zenject 5.x</a>
 
-Zenject is a lightweight highly performant dependency injection framework built specifically to target Unity 3D (however it can be used outside of Unity as well).  It can be used to turn your application into a collection of loosely-coupled parts with highly segmented responsibilities.  Zenject can then glue the parts together in many different configurations to allow you to easily write, re-use, refactor and test your code in a scalable and extremely flexible way.
+Zenject is a lightweight highly performant dependency injection framework built specifically to target Unity 3D (however it can be used outside of Unity as well).  It can be used to turn your application into a collection of loosely coupled parts with highly segmented responsibilities.  Zenject can then glue the parts together in many different configurations to allow you to easily write, re-use, refactor and test your code in a scalable and extremely flexible way.
 
 Tested in Unity 3D on the following platforms: 
 * PC/Mac/Linux
@@ -37,7 +37,7 @@ Tested in Unity 3D on the following platforms:
 * PS4 (with IL2CPP backend)
 * Windows Store (including 8.1, Phone 8.1, Universal 8.1 and Universal 10 - both .NET and IL2CPP backend)
 
-IL2CPP is supported, however there are some gotchas - see <a href="#aot-support">here</a> for details
+IL2CPP is supported, however there are some gotchas - see [here](#aot-support) for details
 
 This project is open source.
 
