@@ -9,12 +9,6 @@ Please check if your PR fulfills the following requirements:
 - [ ] Docs have been reviewed and added / updated if needed (for bug fixes / features)
 - [ ] No compiler errors or warnings
 
-> Note: Every pull request is tested on the Continuous Integration (CI) system to confirm that it works in Unity.
->
-> Ideally, the pull request will pass ("be green"). This means that all tests pass and there are no errors. However, it is not uncommon for the CI infrastructure itself to fail on specific platforms or for so-called "flaky" tests to fail ("be red").  Each CI failure must be manually inspected to determine the cause.
-
-CI starts automatically when you open a pull request, but only Releasers/Collaborators can restart a CI run. If you believe CI is giving a false negative, ask a Releaser to restart the tests.
-
 ## Pull request type
 
 <!-- Please try to limit your pull request to one type, submit multiple pull requests if needed. --> 
@@ -75,3 +69,9 @@ On which Unity version has this been tested?
 **Scripting backend:**
 - [ ] Mono
 - [ ] IL2CPP
+
+> Note: Every pull request is tested on the Continuous Integration (CI) system to confirm that it works in Unity.
+>
+> Ideally, the pull request will pass ("be green"). This means that all tests pass and there are no errors. However, it is not uncommon for the CI infrastructure itself to fail on specific platforms or for so-called "flaky" tests to fail ("be red").  Each CI failure must be manually inspected to determine the cause.
+>
+> CI starts automatically when you open a pull request, but only Releasers/Collaborators can restart a CI run. If you believe CI is giving a false negative, ask a Releaser to restart the tests.
