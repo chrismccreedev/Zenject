@@ -1,5 +1,3 @@
-[Extenject Contributing Guidelines](https://github.com/svermeulen/Extenject/blob/master/CONTRIBUTING.md)
-
 Thank you for sending a pull request! Please make sure you the [contribution guidelines](https://github.com/svermeulen/Extenject/blob/master/CONTRIBUTING.md))
 
 ## Pull request checklist
