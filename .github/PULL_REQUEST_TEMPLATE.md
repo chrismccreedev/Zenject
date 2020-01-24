@@ -1,15 +1,19 @@
-(Thanks for sending a pull request! Please make sure you click the link above to view the contribution guidelines, then fill out the blanks below.)
+[Extenject Contributing Guidelines](https://github.com/svermeulen/Extenject/blob/master/CONTRIBUTING.md)
 
-What does this implement/fix? Explain your changes.
----------------------------------------------------
-…
+(Thanks for sending a pull request! Please make sure you click the link above to view the contribution guidelines, then fill out the blanks below.)
 
 ## Pull request checklist
 
 Please check if your PR fulfills the following requirements:
 - [ ] Tests for the changes have been added (for bug fixes / features)
 - [ ] Docs have been reviewed and added / updated if needed (for bug fixes / features)
-- [ ] No single Zenject test breaks
+- [ ] No compiler errors or warnings
+
+> Note: Every pull request is tested on the Continuous Integration (CI) system to confirm that it works in Unity.
+>
+> Ideally, the pull request will pass ("be green"). This means that all tests pass and there are no errors. However, it is not uncommon for the CI infrastructure itself to fail on specific platforms or for so-called "flaky" tests to fail ("be red").  Each CI failure must be manually inspected to determine the cause.
+
+CI starts automatically when you open a pull request, but only Releasers/Collaborators can restart a CI run. If you believe CI is giving a false negative, ask a Releaser to restart the tests.
 
 ## Pull request type
 
