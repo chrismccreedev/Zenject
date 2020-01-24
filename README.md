@@ -45,7 +45,7 @@ For general troubleshooting / support, please post to [stack overflow](https://s
 
 Or, if you have found a bug, you are also welcome to create an issue on the [github page](https://github.com/svermeulen/Extenject), or a pull request if you have a fix / extension.  There is also a [gitter chat](https://gitter.im/Extenject/community) that you can join for real time discussion.  Finally, you can also email me directly at sfvermeulen@gmail.com or follow me on twitter at [@steve_verm](https://twitter.com/steve_verm)
 
-## <a id="features"></a>Features
+## Features
 
 * Injection
     * Supports both normal C# classes and MonoBehaviours
@@ -94,7 +94,7 @@ You can install Zenject using any of the following methods
 
 Note that when importing Zenject into your unity project, you can uncheck any folder underneath the OptionalExtras folder for cases where you don't want to include it, or if you just want the core zenject functionality, you can uncheck the entire OptionalExtras directory.
 
-## <a id="history"></a>History
+## History
 
 Unity is a fantastic game engine, however the approach that new developers are encouraged to take does not lend itself well to writing large, flexible, or scalable code bases.  In particular, the default way that Unity manages dependencies between different game components can often be awkward and error prone.
 
@@ -110,11 +110,11 @@ Another great starting point is to watch [this youtube series on zenject](https:
 
 You might also benefit from playing with the provided sample projects (which you can find by opening `Zenject/OptionalExtras/SampleGame1` or `Zenject/OptionalExtras/SampleGame2`).
 
-If you are a DI veteran, then it might be worth taking a look at the <a href="#cheatsheet">cheatsheet</a> at the bottom of this page, which should give you an idea of the syntax, which might be all you need to get started.
+If you are a DI veteran, then it might be worth taking a look at the [cheatsheet](#cheatsheet) at the bottom of this page, which should give you an idea of the syntax, which might be all you need to get started.
 
 The tests may also be helpful to show usage for each specific feature (which you can find at `Zenject/OptionalExtras/UnitTests` and `Zenject/OptionalExtras/IntegrationTests`)
 
-Also see <a href="#further-reading">further reading section</a> for some external zenject tutorials provided elsewhere.
+Also see [further reading section](#further-reading) for some external zenject tutorials provided elsewhere.
 
 ## Table Of Contents
 
