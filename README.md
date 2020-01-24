@@ -21,11 +21,11 @@ I have been advised not to comment on details of the lawsuit right now - however
 
 ## Support
 
-This project is supported via donations.  If you or your team have found it useful, please consider supporting further development through <a href="https://www.patreon.com/extenject">patreon</a> or <a href="https://paypal.me/stevevermeulen">paypal</a>
+This project is supported via donations.  If you or your team have found it useful, please consider supporting further development through [patreon](https://www.patreon.com/extenject) or [paypal](https://paypal.me/stevevermeulen)
 
-## <a id="introduction"></a>Introduction
+## Introduction
 
-Note that if you are looking for the older documentation for Zenject you can find that here:  <a href="https://github.com/svermeulen/Extenject/tree/f0dd30ad451dcbc3eb17e636455a6c89b14ad537">Zenject 3.x</a>, <a href="https://github.com/svermeulen/Extenject/tree/0b4a15b1e6e680c94fd34a2d7420eb41e320b21b">Zenject 4.x</a>, <a href="https://github.com/svermeulen/Extenject/tree/dc019e31dbae09eb53c1638be00f7f002898956c">Zenject 5.x</a>
+Note that if you are looking for the older documentation for Zenject you can find that here:  [Zenject 3.x](https://github.com/svermeulen/Extenject/tree/f0dd30ad451dcbc3eb17e636455a6c89b14ad537), [Zenject 4.x](https://github.com/svermeulen/Extenject/tree/0b4a15b1e6e680c94fd34a2d7420eb41e320b21b) and [Zenject 5.x](https://github.com/svermeulen/Extenject/tree/dc019e31dbae09eb53c1638be00f7f002898956c)
 
 Zenject is a lightweight highly performant dependency injection framework built specifically to target Unity 3D (however it can be used outside of Unity as well).  It can be used to turn your application into a collection of loosely coupled parts with highly segmented responsibilities.  Zenject can then glue the parts together in many different configurations to allow you to easily write, re-use, refactor and test your code in a scalable and extremely flexible way.
 
@@ -73,21 +73,21 @@ Or, if you have found a bug, you are also welcome to create an issue on the [git
 * Support for 'reflection baking' to eliminate costly reflection operations completely by directly modifying the generated assemblies
 * Automatic injection of game objects using ZenAutoInjecter component
 
-## <a id="installation"></a>Installation
+## Installation
 
 You can install Zenject using any of the following methods
 
-1. From [Releases Page](https://github.com/svermeulen/Extenject/releases). Here you can choose between the following:
+1.  From [Releases Page](https://github.com/svermeulen/Extenject/releases).  Here you can choose between the following:
 
     * **Zenject-WithAsteroidsDemo.vX.X.unitypackage** - This is equivalent to what you find in the Asset Store and contains both sample games "Asteroids" and "SpaceFighter" as part of the package.  All the source code for Zenject is included here.
     * **Zenject.vX.X.unitypackage** - Same as above except without the Sample projects.
-    * **Zenject-NonUnity.vX.X.zip** - Use this if you want to <a href="#using-outside-unity">use Zenject outside of Unity</a> (eg. just as a normal C# project)
+    * **Zenject-NonUnity.vX.X.zip** - Use this if you want to [use Zenject outside of Unity](#using-outside-unity) (eg. just as a normal C# project)
 
-1. From the [Unity Asset Store](https://assetstore.unity.com/packages/tools/utilities/extenject-dependency-injection-framework-157735)
+1.  From the [Unity Asset Store](https://assetstore.unity.com/packages/tools/utilities/extenject-dependency-injection-framework-157735)
 
     * Normally this should be the same as what you find in the [Releases section](https://github.com/svermeulen/Extenject/releases), but may also be slightly out of date since Unity Asset Store can take a week or so to review submissions sometimes.
 
-1. From Source
+1.  From Source
 
     * After syncing the git repo, note that you will have to build the `Zenject-Usage.dll` by building the solution at `AssemblyBuild\Zenject-usage\Zenject-usage.sln`.  Or, if you prefer you can get `Zenject-Usage.dll` from Releases section instead
     * Then you can copy the `UnityProject/Assets/Plugins/Zenject` directory to your own Unity3D project.
@@ -98,7 +98,7 @@ Note that when importing Zenject into your unity project, you can uncheck any fo
 
 Unity is a fantastic game engine, however the approach that new developers are encouraged to take does not lend itself well to writing large, flexible, or scalable code bases.  In particular, the default way that Unity manages dependencies between different game components can often be awkward and error prone.
 
-This project was started because at the time there wasn't any DI frameworks for Unity, and having used DI frameworks outside of Unity (eg. Ninject) and seeing the benefits, I felt it was important to remedy that.
+This project was started because at the time there wasn't any DI frameworks for Unity, and having used DI frameworks outside of Unity (eg.  Ninject) and seeing the benefits, I felt it was important to remedy that.
 
 Finally, I will just say that if you don't have experience with DI frameworks, and are writing object oriented code, then trust me, you will thank me later!  Once you learn how to write properly loosely coupled code using DI, there is simply no going back.
 
