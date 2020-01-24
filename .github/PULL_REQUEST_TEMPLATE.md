@@ -1,4 +1,4 @@
-Thank you for sending a pull request! Please make sure you the [contribution guidelines](https://github.com/svermeulen/Extenject/blob/master/CONTRIBUTING.md))
+Thank you for sending a pull request! Please make sure you read the [contribution guidelines](https://github.com/svermeulen/Extenject/blob/master/CONTRIBUTING.md)
 
 ## Pull request checklist
 
@@ -20,23 +20,21 @@ Please check the type of change your PR introduces:
 - [ ] Documentation content changes
 - [ ] Other (please describe): 
 
+## Issue Number
+
+<!-- Referencing an issue makes the creation of CHANGELOGS for new releases much easier -->
+Issue Number: N/A
+
+*Create or search an issue here: [Extenject/Issues](https://github.com/svermeulen/Extenject/issues)*
+
 ## What is the current behavior?
 <!-- Please describe the current behavior that you are modifying, or link to a relevant issue. -->
 
 -
--
--
-
-Issue Number: N/A
-
-*Look up: [Extenject/Issues](https://github.com/svermeulen/Extenject/issues)*
-
 
 ## What is the new behavior?
 <!-- Please describe the behavior or changes that are being added by this PR. -->
 
--
--
 -
 
 ## Does this introduce a breaking change?
@@ -46,11 +44,9 @@ Issue Number: N/A
 
 <!-- If this introduces a breaking change, please describe the impact and migration path for existing applications below. -->
 
-
 ## Other information
 
 <!-- Any other information that is important to this PR such as screenshots of how the component looks before and after the change. -->
-
 
 On which Unity version has this been tested?
 --------------------------------------------
