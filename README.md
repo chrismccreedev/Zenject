@@ -1,12 +1,9 @@
-
 # Extenject 
 [![Join the chat at https://gitter.im/Extenject/community](https://badges.gitter.im/Extenject/Lobby.svg)](https://gitter.im/Extenject/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 ![CI](https://github.com/svermeulen/Extenject/workflows/CI/badge.svg)
+[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://paypal.me/stevevermeulen)
 
-## Zenject extensions, bug fixes and releases
-
-[![Join the chat at https://gitter.im/Extenject/community](https://badges.gitter.im/Extenject/Lobby.svg)](https://gitter.im/Extenject/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
+## Extensions, bug fixes and releases for and to Zenject
 
 This project is simply a fork of [Zenject](https://github.com/modesttree/zenject) with the goal of being actively maintained.  I am the primary author and was the primary maintainer until my access was removed after leaving my position at the company Modest Tree.  It is called Extenject to respect Modest Tree's [trademark claim](https://github.com/modesttree/Zenject/commit/2cbbf11b344d083cc697d8b248acf41520d72da3) on the name Zenject.
 
