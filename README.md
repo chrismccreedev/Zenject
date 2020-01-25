@@ -8,7 +8,7 @@
 ![GitHub last commit](https://img.shields.io/github/last-commit/svermeulen/Extenject)
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://paypal.me/stevevermeulen)
 
-## Extensions, bug fixes and releases for and to Zenject
+## Extensions, bug fixes and releases for Zenject
 
 This project is simply a fork of [Zenject](https://github.com/modesttree/zenject) with the goal of being actively maintained.  I am the primary author and was the primary maintainer until my access was removed after leaving my position at the company Modest Tree.  It is called Extenject to respect Modest Tree's [trademark claim](https://github.com/modesttree/Zenject/commit/2cbbf11b344d083cc697d8b248acf41520d72da3) on the name Zenject.
 
