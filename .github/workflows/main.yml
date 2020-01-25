@@ -18,6 +18,7 @@ jobs:
 
       - name: Request manual activation file
         uses: MirrorNG/unity-runner@master
+        id: getManualLicenseFile
         with:
             entrypoint: /request_activation.sh
 
