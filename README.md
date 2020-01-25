@@ -1,7 +1,11 @@
 # Extenject 
 [![Join the chat at https://gitter.im/Extenject/community](https://badges.gitter.im/Extenject/Lobby.svg)](https://gitter.im/Extenject/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/svermeulen/Extenject?color=green)](https://github.com/svermeulen/Extenject/releases)
+![GitHub Release Date](https://img.shields.io/github/release-date/svermeulen/Extenject)
 ![CI](https://github.com/svermeulen/Extenject/workflows/CI/badge.svg)
+![GitHub contributors](https://img.shields.io/github/contributors/svermeulen/Extenject)
+![GitHub](https://img.shields.io/github/license/svermeulen/Extenject)
+![GitHub last commit](https://img.shields.io/github/last-commit/svermeulen/Extenject)
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://paypal.me/stevevermeulen)
 
 ## Extensions, bug fixes and releases for and to Zenject
