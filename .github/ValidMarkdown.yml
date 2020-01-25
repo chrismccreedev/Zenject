@@ -1,0 +1,12 @@
+name: MarkdownValidator
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: markdown-link-check
+  uses: gaurav-nelson/github-action-markdown-link-check@0.4.0
