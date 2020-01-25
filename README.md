@@ -7,7 +7,6 @@
 ![CI](https://github.com/svermeulen/Extenject/workflows/CI/badge.svg)
 ![GitHub](https://img.shields.io/github/license/svermeulen/Extenject)
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://paypal.me/stevevermeulen)
-[![Download Extenjext from the Unity Asset Store](https://img.shields.io/badge/Unity%20Asset%20Store-Download-green)](https://assetstore.unity.com/packages/tools/utilities/extenject-dependency-injection-ioc-157735)
 
 ## Extensions, bug fixes and releases for Zenject
 
@@ -90,6 +89,7 @@ You can install Zenject using any of the following methods
     * **Zenject-NonUnity.vX.X.zip** - Use this if you want to [use Zenject outside of Unity](#using-outside-unity) (eg. just as a normal C# project)
 
 1.  From the [Unity Asset Store](https://assetstore.unity.com/packages/tools/utilities/extenject-dependency-injection-framework-157735)
+[![Download Extenjext from the Unity Asset Store](https://img.shields.io/badge/Unity%20Asset%20Store-Download-green)](https://assetstore.unity.com/packages/tools/utilities/extenject-dependency-injection-ioc-157735)
 
     * Normally this should be the same as what you find in the [Releases section](https://github.com/svermeulen/Extenject/releases), but may also be slightly out of date since Unity Asset Store can take a week or so to review submissions sometimes.
 
