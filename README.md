@@ -7,6 +7,7 @@
 ![CI](https://github.com/svermeulen/Extenject/workflows/CI/badge.svg)
 ![GitHub](https://img.shields.io/github/license/svermeulen/Extenject)
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://paypal.me/stevevermeulen)
+[![Download Extenjext from the Unity Asset Store](https://img.shields.io/badge/Unity%20Asset%20Store-Download-green)](https://assetstore.unity.com/packages/tools/utilities/extenject-dependency-injection-ioc-157735)
 
 ## Extensions, bug fixes and releases for Zenject
 
