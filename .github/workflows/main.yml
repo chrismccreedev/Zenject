@@ -11,7 +11,7 @@ jobs:
   #enable this job to request a manual unity license
   Request-License:
     runs-on: ubuntu-latest
-    if: false
+    if: true
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
