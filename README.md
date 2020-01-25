@@ -1,3 +1,4 @@
+![Extenject Header Image](/images/ExtenjectMainHeader.png)
 # Extenject 
 [![Join the chat at https://gitter.im/Extenject/community](https://badges.gitter.im/Extenject/Lobby.svg)](https://gitter.im/Extenject/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/svermeulen/Extenject?color=green)](https://github.com/svermeulen/Extenject/releases)
@@ -82,7 +83,7 @@ Or, if you have found a bug, you are also welcome to create an issue on the [git
 
 You can install Zenject using any of the following methods
 
-1.  From [Releases Page](https://github.com/svermeulen/Extenject/releases).  Here you can choose between the following:
+1.  [![GitHub release (latest by date)](https://img.shields.io/github/v/release/svermeulen/Extenject?color=green)](https://github.com/svermeulen/Extenject/releases)From [Releases Page](https://github.com/svermeulen/Extenject/releases).  Here you can choose between the following:
 
     * **Zenject-WithAsteroidsDemo.vX.X.unitypackage** - This is equivalent to what you find in the Asset Store and contains both sample games "Asteroids" and "SpaceFighter" as part of the package.  All the source code for Zenject is included here.
     * **Zenject.vX.X.unitypackage** - Same as above except without the Sample projects.
