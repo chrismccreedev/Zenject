@@ -1,7 +1,6 @@
 # Extenject 
 [![Join the chat at https://gitter.im/Extenject/community](https://badges.gitter.im/Extenject/Lobby.svg)](https://gitter.im/Extenject/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[!](/github/v/tag/:user/:repo?sort=semver)
-![GitHub tag (latest SemVer)](https://img.shields.io/github/v/tag/test/test?color=green&sort=9.1.0)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/svermeulen/Extenject?color=green)
 ![CI](https://github.com/svermeulen/Extenject/workflows/CI/badge.svg)
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://paypal.me/stevevermeulen)
 
