@@ -216,7 +216,7 @@ public class Foo
     public void DoSomething()
     {
         _service.PerformTask();
-        ...
+       … 
     }
 }
 ```
