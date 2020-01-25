@@ -120,7 +120,7 @@ Also see [further reading section](#further-reading) for some external zenject t
 
 * Introduction
     * What is Dependency Injection?
-        * [Theory]#theory)
+        * [Theory](#theory)
         * [Misconceptions](#misconceptions)
     * Zenject API
         * [Hello World Example](#hello-world-example)
