@@ -4,6 +4,8 @@ on: [push]
 
 jobs:
   build:
+    # Job name is Greeting
+    name: MarkdownValidator
 
     runs-on: ubuntu-latest
 
