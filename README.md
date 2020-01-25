@@ -1,5 +1,7 @@
 
-# Extenject
+# Extenject 
+[![Join the chat at https://gitter.im/Extenject/community](https://badges.gitter.im/Extenject/Lobby.svg)](https://gitter.im/Extenject/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+![CI](https://github.com/svermeulen/Extenject/workflows/CI/badge.svg)
 
 ## Zenject extensions, bug fixes and releases
 
