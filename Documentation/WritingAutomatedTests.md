@@ -297,7 +297,7 @@ public class SpaceShipTests : ZenjectIntegrationTestFixture
 
 After `PostInstall()` is called, our integration test is injected, so we can define `[Inject]` fields on it like above if we don't want to call `Container.Resolve` for every test.
 
-Note that we can yield our coroutine to test behaviour across time.  If you are unfamiliar with how Unity's test runner works (and in particular how 'playmode test' work) please see the [unity documentation]()https://docs.unity3d.com/Manual/testing-editortestsrunner.html.
+Note that we can yield our coroutine to test behaviour across time.  If you are unfamiliar with how Unity's test runner works (and in particular how 'playmode test' work) please see the [unity documentation](https://docs.unity3d.com/Packages/com.unity.test-framework@1.1/manual/index.html).
 
 Every zenject integration test is broken up into three phases:
 
