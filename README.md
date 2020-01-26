@@ -1,5 +1,4 @@
 ![Extenject Header Image](Documentation/Images/ExtenjectMainHeader.png)
-
 [![Join the chat at https://gitter.im/Extenject/community](https://badges.gitter.im/Extenject/Lobby.svg)](https://gitter.im/Extenject/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/svermeulen/Extenject?color=green)](https://github.com/svermeulen/Extenject/releases)
 ![GitHub Release Date](https://img.shields.io/github/release-date/svermeulen/Extenject)
@@ -140,7 +139,7 @@ Also see [further reading section](#further-reading) for some external zenject t
             * [ITickable](#itickable)
             * [IInitializable](#iinitializable)
             * [IDisposable](#idisposable)
-            * [BindInterfacesTo and BindInterfacesAndSelfTo](#all-interfaces-shortcuts)
+            * [BindInterfacesTo and BindInterfacesAndSelfTo](#bindinterfacesto-and-bindinterfacesandselfto)
             * [Using the Unity Inspector To Configure Settings](#using-the-unity-inspector-to-configure-settings)
         * [Object Graph Validation](#object-graph-validation)
         * [Scene Bindings](#scene-bindings)
