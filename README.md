@@ -5,7 +5,7 @@
 ![GitHub Release Date](https://img.shields.io/github/release-date/svermeulen/Extenject)
 ![GitHub contributors](https://img.shields.io/github/contributors/svermeulen/Extenject)
 ![GitHub last commit](https://img.shields.io/github/last-commit/svermeulen/Extenject)
-![CI](https://github.com/svermeulen/Extenject/workflows/CI/badge.svg)
+![CI](https://github.com/Mathijs-Bakker/Extenject/workflows/CI/badge.svg)
 ![GitHub](https://img.shields.io/github/license/svermeulen/Extenject)
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://paypal.me/stevevermeulen)
 
