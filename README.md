@@ -137,8 +137,8 @@ Also see [further reading section](#further-reading) for some external zenject t
         * [Installers](#installers)
         * Using Non-MonoBehaviour Classes
             * [ITickable](#itickable)
-            * [IInitializable](#iinitializable-and-postinject)
-            * [IDisposable](#implementing-idisposable)
+            * [IInitializable](#iinitializable)
+            * [IDisposable](#idisposable)
             * [BindInterfacesTo and BindInterfacesAndSelfTo](#all-interfaces-shortcuts)
             * [Using the Unity Inspector To Configure Settings](#using-the-unity-inspector-to-configure-settings)
         * [Object Graph Validation](#object-graph-validation)
