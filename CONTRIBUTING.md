@@ -33,7 +33,7 @@ The following is a set of guidelines for contributing to Extenject and its packa
 
 :snail: **Websites/forums:**
 * [StackOverflow](https://stackoverflow.com/questions/tagged/zenject)
-* [Unity Forums](https://forum.unity.com/threads/zenject-dependency-injection-framework-for-unity.201184/)
+* [Unity Forums](https://forum.unity.com)
 
 ## How Can I Contribute?
 
@@ -96,7 +96,7 @@ Before creating enhancement suggestions, please check the list of enhancements s
 
 ### How Do I Submit A (Good) Pull Request?
 
-Please send a [GitHub Pull Request](https://github.com/svermeulen/Extenject/compare) with a clear list of what you've done (read more about [pull requests](http://help.github.com/pull-requests/)). 
+Please send a [GitHub Pull Request](https://github.com/svermeulen/Extenject/compare) with a clear list of what you've done (read more about [pull requests](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/about-pull-requests)). 
 When you send a pull request, we will love you forever if you include unit tests. 
 We can always use more test coverage. 
 
