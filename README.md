@@ -164,7 +164,7 @@ Also see [further reading section](#further-reading) for some external zenject t
     * [Injecting data across scenes](#injecting-data-across-scenes)
     * [Scene Parenting Using Contract Names](#scene-parenting-using-contract-names)
     * [Just-In-Time Resolving Using LazyInject&lt;&gt;](#just-in-time-resolving-using-lazyinject)
-    * [Scene Decorators](#scenes-decorators)
+    * [Scene Decorators](#scene-decorators)
     * [ZenAutoInjecter](#zenautoinjector)
     * [Sub-Containers And Facades](#sub-containers-and-facades)
     * [Writing Automated Unit Tests / Integration Tests](#writing-tests)
