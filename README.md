@@ -138,9 +138,9 @@ Also see [further reading section](#further-reading) for some external zenject t
         * [Installers](#installers)
         * Using Non-MonoBehaviour Classes
             * [ITickable](#itickable)
-            * [IInitializable](#iinitializable-and-postinject)
-            * [IDisposable](#implementing-idisposable)
-            * [BindInterfacesTo and BindInterfacesAndSelfTo](#all-interfaces-shortcuts)
+            * [IInitializable](#iinitializable)
+            * [IDisposable](#idisposable)
+            * [BindInterfacesTo and BindInterfacesAndSelfTo](#bindinterfacesto-and-bindinterfacesandselfto)
             * [Using the Unity Inspector To Configure Settings](#using-the-unity-inspector-to-configure-settings)
         * [Object Graph Validation](#object-graph-validation)
         * [Scene Bindings](#scene-bindings)
@@ -152,20 +152,20 @@ Also see [further reading section](#further-reading) for some external zenject t
         * [Optional Binding](#optional-binding)
         * [Conditional Bindings](#conditional-bindings)
         * [List Bindings](#list-bindings)
-        * [Global Bindings Using Project Context](#global-bindings)
+        * [Global Bindings Using Project Context](#global-bindings-using-project-context)
         * [Identifiers](#identifiers)
         * [Non Generic bindings](#non-generic-bindings)
-        * [Convention Based Binding](#convention-based-bindings)
-    * [Scriptable Object Installer](#scriptableobject-installer)
+        * [Convention Based Binding](#convention-based-binding)
+    * [Scriptable Object Installer](#scriptable-object-installer)
     * [Runtime Parameters For Installers](#runtime-parameters-for-installers)
     * [Creating Objects Dynamically Using Factories](#creating-objects-dynamically)
     * [Memory Pools](#memory-pools)
     * [Update / Initialization Order](#update--initialization-order)
     * [Zenject Order Of Operations](#zenject-order-of-operations)
     * [Injecting data across scenes](#injecting-data-across-scenes)
-    * [Scene Parenting Using Contract Names](#scene-parenting)
-    * [Just-In-Time Resolving Using LazyInject&lt;&gt;](#just-in-time-resolve)
-    * [Scene Decorators](#scenes-decorator)
+    * [Scene Parenting Using Contract Names](#scene-parenting-using-contract-names)
+    * [Just-In-Time Resolving Using LazyInject&lt;&gt;](#just-in-time-resolving-using-lazyinject)
+    * [Scene Decorators](#scene-decorators)
     * [ZenAutoInjecter](#zenautoinjector)
     * [Sub-Containers And Facades](#sub-containers-and-facades)
     * [Writing Automated Unit Tests / Integration Tests](#writing-tests)
@@ -984,7 +984,7 @@ Where:
         Container.Bind<Foo>().FromSubContainerResolve().ByInstaller<FooFacadeInstaller>().WithKernel();
         ```
 
-    1. **ByNewContextPrefab** - Initialize subcontainer by instantiating a new prefab.  Note that the prefab must contain a `GameObjectContext` component attached to the root game object.  For details on `GameObjectContext` see [this section](href="#sub-containers-and-facades").
+    1. **ByNewContextPrefab** - Initialize subcontainer by instantiating a new prefab.  Note that the prefab must contain a `GameObjectContext` component attached to the root game object.  For details on `GameObjectContext` see [this section](#sub-containers-and-facades).
 
         ```csharp
         Container.Bind<Foo>().FromSubContainerResolve().ByNewContextPrefab(MyPrefab);
@@ -1688,9 +1688,9 @@ Then, when you start any scene that contains a `SceneContext`, your `ProjectCont
 
 Note also that this only occurs once.  If you load another scene from the first scene, your `ProjectContext` will not be called again and the bindings that it added previously will persist into the new scene.  You can declare `ITickable` / `IInitializable` / `IDisposable` objects in your project context installers in the same way you do for your scene installers with the result being that `IInitializable.Initialize` is called only once across each play session and `IDisposable.Dispose` is only called once the application is fully stopped.
 
-The reason that all the bindings you add to a global installer are available for any classes within each individual scene, is because the Container in each scene uses the `ProjectContext` Container as it's "parent".  For more information on nested containers see [here](href="#sub-containers-and-facades").
+The reason that all the bindings you add to a global installer are available for any classes within each individual scene, is because the Container in each scene uses the `ProjectContext` Container as it's "parent".  For more information on nested containers see [here](#sub-containers-and-facades).
 
-`ProjectContext` is a very convenient place to put objects that you want to persist across scenes.  However, the fact that it's completely global to every scene can lead to some unintended behaviour.  For example, this means that even if you write a simple test scene that uses Zenject, it will load the `ProjectContext,` which may not be what you want.  To address these problems it is often better to use Scene Parenting instead, since that approach allows you to be selective in terms of which scenes inherit the same common bindings.  See [here](href="#scene-parenting") for more details on that approach.
+`ProjectContext` is a very convenient place to put objects that you want to persist across scenes.  However, the fact that it's completely global to every scene can lead to some unintended behaviour.  For example, this means that even if you write a simple test scene that uses Zenject, it will load the `ProjectContext,` which may not be what you want.  To address these problems it is often better to use Scene Parenting instead, since that approach allows you to be selective in terms of which scenes inherit the same common bindings.  See [here](#scene-parenting) for more details on that approach.
 
 Note also that by default, any game objects that are instantiated inside ProjectContext will be parented underneath it by default.  If you'd prefer that each newly instantiated object is instead placed at the root of the scene hierarchy (but still marked DontDestroyOnLoad) then you can change this by unchecking the flag 'Parent New Objects Under Context' in the inspector of ProjectContext.
 
@@ -1909,11 +1909,11 @@ There are also settings for the signals system which are documented [here](#sett
 
 See [here](href="Documentation/Signals.md").
 
-## <a id="creating-objects-dynamically"></a>Creating Objects Dynamically Using Factories
+## Creating Objects Dynamically Using Factories
 
 See [here](href="Documentation/Factories.md").
 
-## <a id="memory-pools"></a>Memory Pools
+## Memory Pools
 
 See [here](href="Documentation/MemoryPools.md").
 
@@ -3322,7 +3322,6 @@ It is possible to remove or replace bindings that were added in a previous bind 
     * Pokemon Go (both [iOS](https://itunes.apple.com/us/app/pokemon-go/id1094591345?mt=8) and [Android](https://play.google.com/store/apps/details?id=com.nianticlabs.pokemongo&hl=en))
     * [Zenject Hero](https://github.com/Mathijs-Bakker/Zenject-Hero) - Remake of the classic Atari game H.E.R.O.   Includes complete source.
     * [Viveport VR](https://www.youtube.com/watch?v=PfBQGtdHH7c)
-    * [Spinball Carnival](https://play.google.com/store/apps/details?id=com.nerdcorps.pinballcritters&hl=en) (Android)
     * [Slugterra: Guardian Force](https://play.google.com/store/apps/details?id=com.nerdcorps.slugthree&hl=en) (Android)
     * [Submarine](https://github.com/shiwano/submarine) (iOS and Android)
     * [Space Shooter Alpha](https://misfitlabs.itch.io/space-shooter) (Android) (Extenject)
@@ -3330,10 +3329,8 @@ It is possible to remove or replace bindings that were added in a previous bind 
     * [Farm Away!](http://www.farmawaygame.com/) (iOS and Android)
     * [Build Away!](http://www.buildawaygame.com/) (iOS and Android)
     * Stick Soccer 2 ([iOS](https://itunes.apple.com/gb/app/stick-soccer-2/id1104214157?mt=8) and [Android](https://play.google.com/store/apps/details?id=com.sticksports.soccer2&hl=en_GB))
-    * [Untethered](https://play.google.com/store/apps/details?id=com.numinousgames.Untethered&hl=en) (Google VR)
     * [Toy Clash](https://toyclash.com/) - ([GearVR](https://www.oculus.com/experiences/gear-vr/1407846952568081/))
     * [Bedtime Math App](http://bedtimemath.org/apps) - ([iOS](https://itunes.apple.com/us/app/bedtimemath/id637910701) and [Android](https://play.google.com/store/apps/details?id=com.twofours.bedtimemath))
-    * [4 Pics 1 Word: John Einstein](https://play.google.com/store/apps/details?id=com.qantanstudio.impossiblequiz) (Android) - Puzzle game
     * [EcsRx Roguelike 2D](https://github.com/grofit/ecsrx.roguelike2d) - An example of a Roguelike 2d game using EcsRx and Zenject
     * [Golfriends](https://www.airconsole.com/#!play=com.octopusgames.golfriends) (WebGL) - Mini golf game using a combination of WebGL and mobile
     * Word Winner ([iOS](https://itunes.apple.com/us/app/id1404769349) and [Android](https://play.google.com/store/apps/details?id=com.SmoreGames.WordWinner)) - A Word Brain Game
@@ -3345,16 +3342,11 @@ It is possible to remove or replace bindings that were added in a previous bind 
     * [View Controller](http://blog.jamjardavies.co.uk/index.php/2016/04/12/view-controller-with-zenject/) - A view controller system
     * [Alensia](https://github.com/mysticfall/Alensia) - High level framework to build RPG style games using Unity
 
-    Tools
-
-    * [Modest 3D](http://www.modest3d.com/editor) (WebGL, WebPlayer, PC) - An IDE to allow users to quickly and easily create procedural training content
-    * [Modest 3D Explorer](http://www.modest3d.com/explorer) (WebGL, WebPlayer, iOS, Android, PC, Windows Store) - A simple editor to quickly create a 3D presentation with some number of slides
-
 * **<a id="circular-dependency-error"></a>I keep getting errors complaining about circular reference!  How to address this?**
 
 If two classes are injected into each other and both classes use contructor injection, then obviously it is not possible for zenject to create both of these classes.  However, what you can do instead is switch to use method injection or field/property injection instead.  Or, alternatively, you could use the [LazyInject<>](#just-in-time-resolve) construct.
 
-## <a id="cheatsheet"></a>Cheat Sheet
+## Cheat Sheet
 
 See [here](href="Documentation/CheatSheet.md").
 
