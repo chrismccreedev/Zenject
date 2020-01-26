@@ -1,4 +1,5 @@
-# Extenject 
+![Extenject Header Image](Documentation/Images/ExtenjectMainHeader.png)
+
 [![Join the chat at https://gitter.im/Extenject/community](https://badges.gitter.im/Extenject/Lobby.svg)](https://gitter.im/Extenject/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/svermeulen/Extenject?color=green)](https://github.com/svermeulen/Extenject/releases)
 ![GitHub Release Date](https://img.shields.io/github/release-date/svermeulen/Extenject)
@@ -8,7 +9,7 @@
 ![GitHub](https://img.shields.io/github/license/svermeulen/Extenject)
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://paypal.me/stevevermeulen)
 
-## Extensions, bug fixes and releases for Zenject
+# Extensions, bug fixes and updates for Zenject 
 
 This project is simply a fork of [Zenject](https://github.com/modesttree/zenject) with the goal of being actively maintained.  I am the primary author and was the primary maintainer until my access was removed after leaving my position at the company Modest Tree.  It is called Extenject to respect Modest Tree's [trademark claim](https://github.com/modesttree/Zenject/commit/2cbbf11b344d083cc697d8b248acf41520d72da3) on the name Zenject.
 
@@ -82,13 +83,14 @@ Or, if you have found a bug, you are also welcome to create an issue on the [git
 
 You can install Zenject using any of the following methods
 
-1.  From [Releases Page](https://github.com/svermeulen/Extenject/releases).  Here you can choose between the following:
+1.  [![GitHub release (latest by date)](https://img.shields.io/github/v/release/svermeulen/Extenject?color=green)](https://github.com/svermeulen/Extenject/releases)From [Releases Page](https://github.com/svermeulen/Extenject/releases).  Here you can choose between the following:
 
     * **Zenject-WithAsteroidsDemo.vX.X.unitypackage** - This is equivalent to what you find in the Asset Store and contains both sample games "Asteroids" and "SpaceFighter" as part of the package.  All the source code for Zenject is included here.
     * **Zenject.vX.X.unitypackage** - Same as above except without the Sample projects.
     * **Zenject-NonUnity.vX.X.zip** - Use this if you want to [use Zenject outside of Unity](#using-outside-unity) (eg. just as a normal C# project)
 
-1.  From the [Unity Asset Store](https://assetstore.unity.com/packages/tools/utilities/extenject-dependency-injection-framework-157735)
+1.  [![Download Extenjext from the Unity Asset Store](https://img.shields.io/badge/Unity%20Asset%20Store-Download-green)](https://assetstore.unity.com/packages/tools/utilities/extenject-dependency-injection-ioc-157735)
+From the [Unity Asset Store](https://assetstore.unity.com/packages/tools/utilities/extenject-dependency-injection-framework-157735)
 
     * Normally this should be the same as what you find in the [Releases section](https://github.com/svermeulen/Extenject/releases), but may also be slightly out of date since Unity Asset Store can take a week or so to review submissions sometimes.
 
@@ -859,7 +861,7 @@ Where:
 
 1. **FromResolveAllGetter&lt;ObjectType&gt;** - Same as FromResolveGetter except will match multiple values or zero values.
 
-1. **FromSubContainerResolve** - Get **ResultType** by doing a lookup on a subcontainer.  Note that for this to work, the sub-container must have a binding for **ResultType**.  This approach can be very powerful, because it allows you to group related dependencies together inside a mini-container, and then expose only certain classes (aka <a href="https://en.wikipedia.org/wiki/Facade_pattern">"Facades"</a>) to operate on this group of dependencies at a higher level.  For more details on using sub-containers, see [this section](#sub-containers-and-facades).  There are several ways to define the subcontainer:
+1. **FromSubContainerResolve** - Get **ResultType** by doing a lookup on a subcontainer.  Note that for this to work, the sub-container must have a binding for **ResultType**.  This approach can be very powerful, because it allows you to group related dependencies together inside a mini-container, and then expose only certain classes (aka ["Facades"](href="https://en.wikipedia.org/wiki/Facade_pattern")) to operate on this group of dependencies at a higher level.  For more details on using sub-containers, see [this section](#sub-containers-and-facades).  There are several ways to define the subcontainer:
 
     1. **ByNewPrefabMethod** - Initialize subcontainer by instantiating a new prefab.  Note that unlike `ByNewContextPrefab`, this bind method does not require that there be a GameObjectContext attached to the prefab.  In this case the GameObjectContext is added dynamically and then run with the given installer method.
 
@@ -982,7 +984,7 @@ Where:
         Container.Bind<Foo>().FromSubContainerResolve().ByInstaller<FooFacadeInstaller>().WithKernel();
         ```
 
-    1. **ByNewContextPrefab** - Initialize subcontainer by instantiating a new prefab.  Note that the prefab must contain a `GameObjectContext` component attached to the root game object.  For details on `GameObjectContext` see <a href="#sub-containers-and-facades">this section</a>.
+    1. **ByNewContextPrefab** - Initialize subcontainer by instantiating a new prefab.  Note that the prefab must contain a `GameObjectContext` component attached to the root game object.  For details on `GameObjectContext` see [this section](href="#sub-containers-and-facades").
 
         ```csharp
         Container.Bind<Foo>().FromSubContainerResolve().ByNewContextPrefab(MyPrefab);
@@ -1370,7 +1372,7 @@ public class GameInstaller : MonoInstaller
 }
 ```
 
-Now, whenever a dependency of type Foo is required, zenject will search the entire scene for any MonoBehaviours of type Foo.  This will function very similarly to use Unity's <a href="https://docs.unity3d.com/ScriptReference/Object.FindObjectsOfType.html">FindObjectsOfType</a> method every time you want to look up a certain dependency.  Note that because this method can be a very heavy operation, you probably want to mark it AsCached or AsSingle like this instead:
+Now, whenever a dependency of type Foo is required, zenject will search the entire scene for any MonoBehaviours of type Foo.  This will function very similarly to use Unity's [FindObjectsOfType](href="https://docs.unity3d.com/ScriptReference/Object.FindObjectsOfType.html") method every time you want to look up a certain dependency.  Note that because this method can be a very heavy operation, you probably want to mark it AsCached or AsSingle like this instead:
 
 ```csharp
 public class GameInstaller : MonoInstaller
@@ -1459,7 +1461,7 @@ The `ZenjectBinding` component has the following properties:
 
 * **Use Scene Context** - This is optional but useful in cases where you want to bind a dependency that is inside a GameObjectContext to the SceneContext.  You could also drag the SceneContext to the Context properly but this flag is a bit easier.
 
-* **Context** - This is completely optional and in most cases should be left unset.  This will determine which `Context` to apply the binding to.  If left unset, it will use whatever context the GameObject is in.  In most cases this will be `SceneContext,` but if it's inside a `GameObjectContext` it will be bound into the `GameObjectContext` container instead.  One important use case for this field is to allow dragging the `SceneContext` into this field, for cases where the component is inside a `GameObjectContext.`  This allows you to treat this MonoBehaviour as a <a href="https://en.wikipedia.org/wiki/Facade_pattern">Facade</a> for the entire sub-container given by the `GameObjectContext.`
+* **Context** - This is completely optional and in most cases should be left unset.  This will determine which `Context` to apply the binding to.  If left unset, it will use whatever context the GameObject is in.  In most cases this will be `SceneContext,` but if it's inside a `GameObjectContext` it will be bound into the `GameObjectContext` container instead.  One important use case for this field is to allow dragging the `SceneContext` into this field, for cases where the component is inside a `GameObjectContext.`  This allows you to treat this MonoBehaviour as a [Facade](href="https://en.wikipedia.org/wiki/Facade_pattern") for the entire sub-container given by the `GameObjectContext.`
 
 ## <a id="di-guidelines--recommendations"></a>General Guidelines / Recommendations / Gotchas / Tips and Tricks
 
@@ -1682,13 +1684,13 @@ To do this, first you need to create a prefab for the `ProjectContext,` and then
 
 If you click on this it will appear nearly identically to the inspector for `SceneContext`.  The easiest way to configure this prefab is to temporarily add it to your scene, add Installers to it, then click "Apply" to save it back to the prefab before deleting it from your scene.  In addition to installers, you can also add your own custom MonoBehaviour classes to the ProjectContext object directly.
 
-Then, when you start any scene that contains a `SceneContext`, your `ProjectContext` object will always be initialized first.  All the installers you add here will be executed and the bindings that you add within them will be available for use in all scenes within your project.  The `ProjectContext` game object is set as <a href="https://docs.unity3d.com/ScriptReference/Object.DontDestroyOnLoad.html">DontDestroyOnLoad</a> so it will not be destroyed when changing scenes.
+Then, when you start any scene that contains a `SceneContext`, your `ProjectContext` object will always be initialized first.  All the installers you add here will be executed and the bindings that you add within them will be available for use in all scenes within your project.  The `ProjectContext` game object is set as [DontDestroyOnLoad](href="https://docs.unity3d.com/ScriptReference/Object.DontDestroyOnLoad.html") so it will not be destroyed when changing scenes.
 
 Note also that this only occurs once.  If you load another scene from the first scene, your `ProjectContext` will not be called again and the bindings that it added previously will persist into the new scene.  You can declare `ITickable` / `IInitializable` / `IDisposable` objects in your project context installers in the same way you do for your scene installers with the result being that `IInitializable.Initialize` is called only once across each play session and `IDisposable.Dispose` is only called once the application is fully stopped.
 
-The reason that all the bindings you add to a global installer are available for any classes within each individual scene, is because the Container in each scene uses the `ProjectContext` Container as it's "parent".  For more information on nested containers see <a href="#sub-containers-and-facades">here</a>.
+The reason that all the bindings you add to a global installer are available for any classes within each individual scene, is because the Container in each scene uses the `ProjectContext` Container as it's "parent".  For more information on nested containers see [here](href="#sub-containers-and-facades").
 
-`ProjectContext` is a very convenient place to put objects that you want to persist across scenes.  However, the fact that it's completely global to every scene can lead to some unintended behaviour.  For example, this means that even if you write a simple test scene that uses Zenject, it will load the `ProjectContext,` which may not be what you want.  To address these problems it is often better to use Scene Parenting instead, since that approach allows you to be selective in terms of which scenes inherit the same common bindings.  See <a href="#scene-parenting">here</a> for more details on that approach.
+`ProjectContext` is a very convenient place to put objects that you want to persist across scenes.  However, the fact that it's completely global to every scene can lead to some unintended behaviour.  For example, this means that even if you write a simple test scene that uses Zenject, it will load the `ProjectContext,` which may not be what you want.  To address these problems it is often better to use Scene Parenting instead, since that approach allows you to be selective in terms of which scenes inherit the same common bindings.  See [here](href="#scene-parenting") for more details on that approach.
 
 Note also that by default, any game objects that are instantiated inside ProjectContext will be parented underneath it by default.  If you'd prefer that each newly instantiated object is instead placed at the root of the scene hierarchy (but still marked DontDestroyOnLoad) then you can change this by unchecking the flag 'Parent New Objects Under Context' in the inspector of ProjectContext.
 
@@ -1905,15 +1907,15 @@ There are also settings for the signals system which are documented [here](#sett
 
 ## Signals
 
-See <a href="Documentation/Signals.md">here</a>.
+See [here](href="Documentation/Signals.md").
 
 ## <a id="creating-objects-dynamically"></a>Creating Objects Dynamically Using Factories
 
-See <a href="Documentation/Factories.md">here</a>.
+See [here](href="Documentation/Factories.md").
 
 ## <a id="memory-pools"></a>Memory Pools
 
-See <a href="Documentation/MemoryPools.md">here</a>.
+See [here](href="Documentation/MemoryPools.md").
 
 ## Update / Initialization Order
 
@@ -2133,7 +2135,7 @@ Putting bindings inside ProjectContext is a fast and easy way to add common long
 
 As an example, let's pretend that we are working on a spaceship game, and we want to create one scene to serve as the environment (involving planets, asteroids, stars, etc.) and we want to create another scene to represent the ship that the player is in.  We also want all the classes in the ship scene to be able to reference bindings declared in the environment scene.  Also, we want to be able to define multiple different versions of both the ship scene and the environment scene.  To achieve all this, we will use a Zenject feature called 'Scene Contract Names'.
 
-We will start by using Unity's support for <a href="https://docs.unity3d.com/Manual/MultiSceneEditing.html">multi-scene editting</a>, and dragging both our environment scene and our ship scene into the Scene Hierarchy tab.  Then we will select the SceneContext in the environment scene and add a 'Contract Name'.  Let's call it 'Environment'.  Then all we have to do now is select the SceneContext inside the ship scene and set its 'Parent Contract Name' to the same value ('Environment').  Now if we press play, all the classes in the ship scene can access the declared bindings in the environment scene.
+We will start by using Unity's support for [multi-scene editting](href="https://docs.unity3d.com/Manual/MultiSceneEditing.html"), and dragging both our environment scene and our ship scene into the Scene Hierarchy tab.  Then we will select the SceneContext in the environment scene and add a 'Contract Name'.  Let's call it 'Environment'.  Then all we have to do now is select the SceneContext inside the ship scene and set its 'Parent Contract Name' to the same value ('Environment').  Now if we press play, all the classes in the ship scene can access the declared bindings in the environment scene.
 
 The reason we use a name field here instead of explicitly using the scene name is to support swapping out the various environment scenes for different implementations.  In this example, we might define several different environments, all using the same Contract Name 'Environment', so that we can easily mix and match them with different ship scenes just by dragging the scenes we want into the scene hierarchy then hitting play.
 
@@ -2141,9 +2143,9 @@ It is called 'Contract Name' because all the environment scenes will be expected
 
 Note that you do not need to load the environment scene and the ship scene at the same time for this to work.  For example, you might want to have a menu embedded inside the environment to allow the user to choose their ship before starting.  So you could create a menu scene and load that after the environment scene.   Then once the user chooses their ship, you could load the associated ship scene by calling the unity method `SceneManager.LoadScene` (making sure to use `LoadSceneMode.Additive`).
 
-Also note that the Validate command can be used to quickly verify the different multi-scene setups.  If you find that scenes are unloaded when you do this see <a href="https://github.com/modesttree/Zenject/issues/168">here</a>.
+Also note that the Validate command can be used to quickly verify the different multi-scene setups.  If you find that scenes are unloaded when you do this see [here](href="https://github.com/modesttree/Zenject/issues/168").
 
-Also, I should mention that Unity currently doesn't have a built-in way to save and restore multi-scene setups.  We use a simple editor script for this that you can find <a href="https://gist.github.com/svermeulen/8927b29b2bfab4e84c950b6788b0c677">here</a> if interested.
+Also, I should mention that Unity currently doesn't have a built-in way to save and restore multi-scene setups.  We use a simple editor script for this that you can find [here](href="https://gist.github.com/svermeulen/8927b29b2bfab4e84c950b6788b0c677") if interested.
 
 ## Default Scene Parents
 
@@ -2216,21 +2218,21 @@ Note the following:
 
 - If you run your scene it should now behave exactly like the main scene except with the added functionality in your decorator installer.  Also note that while not shown here, both scenes can access each other's bindings as if everything was in the same scene.
 
-- The Validate command (`CTRL+ALT+V`) can be used to quickly verify the different multi-scene setups.  If you find that scenes are unloaded when you do this see <a href="https://github.com/modesttree/Zenject/issues/168">here</a>.
+- The Validate command (`CTRL+ALT+V`) can be used to quickly verify the different multi-scene setups.  If you find that scenes are unloaded when you do this see [here](href="https://github.com/modesttree/Zenject/issues/168").
 
 - Decorator scenes must be loaded before the scenes that they are decorating.
 
-- Unity currently doesn't have a built-in way to save and restore multi-scene setups.  We use a simple editor script for this that you can find <a href="https://gist.github.com/svermeulen/8927b29b2bfab4e84c950b6788b0c677">here</a> if interested.
+- Unity currently doesn't have a built-in way to save and restore multi-scene setups.  We use a simple editor script for this that you can find [here](href="https://gist.github.com/svermeulen/8927b29b2bfab4e84c950b6788b0c677") if interested.
 
 - Finally, if you want to save yourself some time you could add a [default scene](#default-scene-parents) for the contract name that you are using above
 
 ## Sub-Containers And Facades
 
-See <a href="Documentation/SubContainers.md">here</a>.
+See [here](href="Documentation/SubContainers.md").
 
 ## Writing Automated Unit Tests / Integration Tests
 
-See <a href="Documentation/WritingAutomatedTests.md">here</a>.
+See [here](href="Documentation/WritingAutomatedTests.md").
 
 ## Philosophy Of Zenject
 
@@ -2471,7 +2473,7 @@ Note that you can chain together any combination of the below conditionals in th
 
 ## Decorator Bindings
 
-See <a href="Documentation/DecoratorBindings.md">here</a>.
+See [here](href="Documentation/DecoratorBindings.md").
 
 ## Open Generic Types
 
@@ -2555,11 +2557,11 @@ Unfortunately, Unity does not guarantee a deterministic destruction order in thi
 
 If the scene destruction order is important to you, then you might consider also changing the ZenjectSetting `Ensure Deterministic Destruction Order On Application Quit` to true.  When this is set to true, this will cause all scenes to be forcefully destroyed during the OnApplicationQuit event, using a more sensible order than what unity does by default.  It will first destroy all scenes in the reverse order that they were loaded in (so that earlier loaded scenes are destroyed later) and will finish by destroying the DontDestroyOnLoad objects which include project context.
 
-The reason this setting is not set to true by default is because it can cause crashes on Android as discussed <a href="https://github.com/modesttree/Zenject/issues/301">here</a>.
+The reason this setting is not set to true by default is because it can cause crashes on Android as discussed [here](href="https://github.com/modesttree/Zenject/issues/301").
 
 ## UniRx Integration
 
-<a href="https://github.com/neuecc/UniRx">UniRx</a> is a library that brings Reactive Extensions to Unity.  It can greatly simplify your code by thinking of some kinds of communication between classes as 'streams' of data.  For more details see the <a href="https://github.com/neuecc/UniRx">UniRx docs</a>.
+[UniRx](href="https://github.com/neuecc/UniRx") is a library that brings Reactive Extensions to Unity.  It can greatly simplify your code by thinking of some kinds of communication between classes as 'streams' of data.  For more details see the [UniRx docs](href="https://github.com/neuecc/UniRx").
 
 Zenject integration with UniRx is disabled by default.  To enable, you must add the define `ZEN_SIGNALS_ADD_UNIRX` to your project, which you can do by selecting Edit -> Project Settings -> Player and then adding `ZEN_SIGNALS_ADD_UNIRX` in the "Scripting Define Symbols" section
 
@@ -2574,7 +2576,7 @@ With zenject version 7.0.0, you'll also have to change the Zenject.asmdef file t
 }
 ```
 
-With `ZEN_SIGNALS_ADD_UNIRX` enabled, you can observe zenject signals via UniRx streams as explained in the <a href="Documentation/Signals.md">signals docs</a>, and you can also observe zenject events such as Tick, LateTick, and FixedTick etc. on the `TickableManager` class.  One example usage is to ensure that certain events are only handled a maximum of once per frame:
+With `ZEN_SIGNALS_ADD_UNIRX` enabled, you can observe zenject signals via UniRx streams as explained in the [signals docs](href="Documentation/Signals.md"), and you can also observe zenject events such as Tick, LateTick, and FixedTick etc. on the `TickableManager` class.  One example usage is to ensure that certain events are only handled a maximum of once per frame:
 
 ```csharp
 public class User
@@ -2640,7 +2642,7 @@ In this case we have some costly operation that we want to run every time some d
 
 ## Auto-Mocking using Moq
 
-See <a href="Documentation/AutoMocking.md">here</a>.
+See [here](href="Documentation/AutoMocking.md").
 
 ## <a id="editor-windows"></a>Creating Unity EditorWindow's with Zenject
 
@@ -2792,7 +2794,7 @@ There are two settings on ProjectContext related to reflection baking that can b
 
 ## <a id="upgrading-from-zenject5"></a>Upgrade Guide for Zenject 6
 
-The biggest backwards-incompatible change in Zenject 6 is that the signals system was re-written from scratch and works quite differently now.  However - if you want to continue using the previous signals implementation you can get a zenject-6-compatible version of that <a href="https://github.com/svermeulen/ZenjectSignalsOld">here</a>. So to use that, just import zenject 6 and make sure to uncheck the `OptionalExtras/Signals` folder, and then add the ZenjectSignalsOld folder to your project from that link.
+The biggest backwards-incompatible change in Zenject 6 is that the signals system was re-written from scratch and works quite differently now.  However - if you want to continue using the previous signals implementation you can get a zenject-6-compatible version of that [here](href="https://github.com/svermeulen/ZenjectSignalsOld"). So to use that, just import zenject 6 and make sure to uncheck the `OptionalExtras/Signals` folder, and then add the ZenjectSignalsOld folder to your project from that link.
 
 Another backwards-incompatible change in zenject 6 is that AsSingle can no longer be used across multiple bind statements when mapping to the same instance.  In Zenject 5.x and earlier, you could do the following:
 
@@ -2859,7 +2861,7 @@ There were also a few things that were renamed:
 
 In addition to the bind methods documented above, there are also some other methods you might want to occasionally use on DiContainer.  For example, if you are writing a custom factory, you might want to directly call one of the `DiContainer.Instantiate` methods.  Or you might have a situation where another library is creating instances of your classes (for example, a networking library) and you need to manually call DiContainer.Inject.
 
-DiContainer is always added to itself, so you can always get it injected into any class.  However, note that injecting the DiContainer is usually a sign of bad practice, since there is almost always a better way to design your code such that you don't need to reference DiContainer directly (the exception being custom factories, but even in that case it's often better to <a href="Documentation/Factories.md#custom-factories">inject a factory into your custom factory</a>).  Once again, best practice with dependency injection is to only reference the DiContainer in the "composition root layer" which includes any custom factories you might have as well as the installers.  However there are exceptions to this rule.
+DiContainer is always added to itself, so you can always get it injected into any class.  However, note that injecting the DiContainer is usually a sign of bad practice, since there is almost always a better way to design your code such that you don't need to reference DiContainer directly (the exception being custom factories, but even in that case it's often better to [inject a factory into your custom factory](href="Documentation/Factories.md#custom-factories")).  Once again, best practice with dependency injection is to only reference the DiContainer in the "composition root layer" which includes any custom factories you might have as well as the installers.  However there are exceptions to this rule.
 
 ### <a id="dicontainer-methods-instantiate"></a>DiContainer.Instantiate
 
@@ -3194,7 +3196,7 @@ It is possible to remove or replace bindings that were added in a previous bind 
 
 * **<a id="ecs-integration">Is there a way to integrate with the upcoming Unity ECS?</a>**
 
-    Currently there does not appear to be an official way to do custom injections into Unity ECS systems, however, there are <a href="https://forum.unity.com/threads/request-for-world-addmanager.539271/#post-3558224">some workarounds</a> until Unity hopefully addresses this.
+    Currently there does not appear to be an official way to do custom injections into Unity ECS systems, however, there are [some workarounds](href="https://forum.unity.com/threads/request-for-world-addmanager.539271/#post-3558224") until Unity hopefully addresses this.
 
 * **<a id="aot-support"></a>Does this work on AOT platforms such as iOS and WebGL?**
 
@@ -3238,7 +3240,7 @@ It is possible to remove or replace bindings that were added in a previous bind 
         }
     ```
 
-    Normally, in a case like above where a constructor is being stripped out, we can force-include it by adding the `[Inject]` attribute on the Foo constructor, however this does not work for classes with generic types that include a value type.  Therefore, the recommended workarounds here are to either explicitly reference the constructor similar to what you see in the _AotWorkaround, or avoid using value type generic arguments.  One easy way to avoid using value types is to wrap it in a reference type (for example, by using something like <a href="https://gist.github.com/svermeulen/a6929e6e26f2de2cc697d24f108c5f85">this</a>)
+    Normally, in a case like above where a constructor is being stripped out, we can force-include it by adding the `[Inject]` attribute on the Foo constructor, however this does not work for classes with generic types that include a value type.  Therefore, the recommended workarounds here are to either explicitly reference the constructor similar to what you see in the _AotWorkaround, or avoid using value type generic arguments.  One easy way to avoid using value types is to wrap it in a reference type (for example, by using something like [this](href="https://gist.github.com/svermeulen/a6929e6e26f2de2cc697d24f108c5f85"))
 
 * **<a id="faq-performance"></a>How is performance?**
 
@@ -3354,7 +3356,7 @@ If two classes are injected into each other and both classes use contructor inje
 
 ## <a id="cheatsheet"></a>Cheat Sheet
 
-See <a href="Documentation/CheatSheet.md">here</a>.
+See [here](href="Documentation/CheatSheet.md").
 
 ## Further Help
 
@@ -3362,7 +3364,7 @@ For general troubleshooting / support, please use the [zenject subreddit](http:/
 
 ## Release Notes
 
-See <a href="Documentation/ReleaseNotes.md">here</a>.
+See [here](href="Documentation/ReleaseNotes.md").
 
 ## License
 
