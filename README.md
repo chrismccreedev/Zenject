@@ -83,14 +83,13 @@ Or, if you have found a bug, you are also welcome to create an issue on the [git
 
 You can install Zenject using any of the following methods
 
-1.  [![GitHub release (latest by date)](https://img.shields.io/github/v/release/svermeulen/Extenject?color=green)](https://github.com/svermeulen/Extenject/releases)From [Releases Page](https://github.com/svermeulen/Extenject/releases).  Here you can choose between the following:
+1.  From [Releases Page](https://github.com/svermeulen/Extenject/releases).  Here you can choose between the following:
 
     * **Zenject-WithAsteroidsDemo.vX.X.unitypackage** - This is equivalent to what you find in the Asset Store and contains both sample games "Asteroids" and "SpaceFighter" as part of the package.  All the source code for Zenject is included here.
     * **Zenject.vX.X.unitypackage** - Same as above except without the Sample projects.
     * **Zenject-NonUnity.vX.X.zip** - Use this if you want to [use Zenject outside of Unity](#using-outside-unity) (eg. just as a normal C# project)
 
-1.  [![Download Extenjext from the Unity Asset Store](https://img.shields.io/badge/Unity%20Asset%20Store-Download-green)](https://assetstore.unity.com/packages/tools/utilities/extenject-dependency-injection-ioc-157735)
-From the [Unity Asset Store](https://assetstore.unity.com/packages/tools/utilities/extenject-dependency-injection-framework-157735)
+1.  From the [Unity Asset Store](https://assetstore.unity.com/packages/tools/utilities/extenject-dependency-injection-framework-157735)
 
     * Normally this should be the same as what you find in the [Releases section](https://github.com/svermeulen/Extenject/releases), but may also be slightly out of date since Unity Asset Store can take a week or so to review submissions sometimes.
 
