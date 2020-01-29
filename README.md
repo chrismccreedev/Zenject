@@ -7,7 +7,6 @@
 ![GitHub last commit](https://img.shields.io/github/last-commit/svermeulen/Extenject)
 ![CI](https://github.com/Mathijs-Bakker/Extenject/workflows/CI/badge.svg)
 ![GitHub](https://img.shields.io/github/license/svermeulen/Extenject)
-[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://paypal.me/stevevermeulen)
 
 # Extensions, bug fixes and updates for Zenject 
 
