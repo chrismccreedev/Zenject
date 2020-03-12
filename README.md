@@ -142,7 +142,7 @@ Another great starting point is to watch [this youtube series on zenject](https:
 
 You might also benefit from playing with the provided sample projects (which you can find by opening `Zenject/OptionalExtras/SampleGame1` or `Zenject/OptionalExtras/SampleGame2`).
 
-If you are a DI veteran, then it might be worth taking a look at the [cheatsheet](#cheatsheet) at the bottom of this page, which should give you an idea of the syntax, which might be all you need to get started.
+If you are a DI veteran, then it might be worth taking a look at the [cheatsheet](#cheat-sheet) at the bottom of this page, which should give you an idea of the syntax, which might be all you need to get started.
 
 The tests may also be helpful to show usage for each specific feature (which you can find at `Zenject/OptionalExtras/UnitTests` and `Zenject/OptionalExtras/IntegrationTests`)
 
@@ -224,7 +224,7 @@ Also see [further reading section](#further-reading) for some external zenject t
     * [Are there any more sample projects with source to look at?](#more-samples)
     * [What games/tools/libraries are using Zenject](#what-games-are-using-zenject)
     * [I keep getting errors complaining about circular reference!  How to address this?](#circular-dependency-error)
-* [Cheat Sheet](#cheatsheet)
+* [Cheat Sheet](#cheat-sheet)
 * [Further Help](#further-help)
 * [Release Notes](#release-notes)
 * [License](#license)
