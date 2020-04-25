@@ -101,11 +101,11 @@ jobs:
 #         args: -projectPath UnityProject -runTests -testPlatform editmode -testResults Tests/editmode-results.xml -enableCodeCoverage -coverageResultsPath Tests
         
       # Upload artifacts
-      - name: Publish test results
-        uses: actions/upload-artifact@v1
-        with:
-          name: Test results (editor mode)
-          path: UnityProject/Tests/editmode-results.xml
+#      - name: Publish test results
+#        uses: actions/upload-artifact@v1
+#        with:
+#          name: Test results (editor mode)
+#          path: UnityProject/Tests/editmode-results.xml
 
 #      - name: Generate Solution
 #        uses: MirrorNG/unity-runner@master
