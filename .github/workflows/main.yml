@@ -21,8 +21,8 @@ jobs:
       matrix:
         projectPath:
           - test-project
-        unityVersion:
-          - 2019.1.0f2
+#        unityVersion:
+#          - 2019.1.0f2
         targetPlatform:
           - StandaloneOSX # Build a macOS standalone (Intel 64-bit).
           - StandaloneWindows64 # Build a Windows 64-bit standalone.
