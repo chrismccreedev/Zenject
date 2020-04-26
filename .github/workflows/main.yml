@@ -1,26 +1,91 @@
-name: CI
+name: Continuous Integration
 
 on: 
+  pull_request: {}
   push:
+    branches: 
+      - master   
     paths-ignore:
       - 'Documentation/**'
       - '*.md'
-  
+
+env:
+  UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          
 jobs:
+  buildAndTestForSupportedPlatforms:
+    name: Build for ${{ matrix.targetPlatform }} on version ${{ matrix.unityVersion }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        projectPath:
+          - test-project
+        unityVersion:
+          - 2019.1.0f2
+        targetPlatform:
+          - StandaloneOSX # Build a macOS standalone (Intel 64-bit).
+          - StandaloneWindows64 # Build a Windows 64-bit standalone.
+          - StandaloneLinux64 # Build a Linux 64-bit standalone.
+          - iOS # Build an iOS player.
+          - WebGL # WebGL.
+          # Not yet supported GitHub actions:
+          # - Android # Build a Android standalone.
+          # - PS4 # Build a Playstation 4 standalone.
+          # - Windows Store # Build a standalone for Windows Store devices.
+          
+    steps:
+
+      #Checkout
+      - uses: actions/checkout@v2
+        with:
+          lfs: true
+      
+      # Cache
+      - uses: actions/cache@v1.1.0
+        with:
+          path: ${{ matrix.projectPath }}/Library
+          key: Library-${{ matrix.projectPath }}-${{ matrix.targetPlatform }}
+          restore-keys: |
+            Library-${{ matrix.projectPath }}-
+            Library-
+            
+      # Run Tests
+      - uses: webbertakken/unity-test-runner@v1.3
+        id: testRunner
+        with:
+          projectPath: ${{ matrix.projectPath }}
+          unityVersion: ${{ matrix.unityVersion }}
+      - uses: actions/upload-artifact@v1
+        with:
+          name: Test results (all modes)
+          path: ${{ steps.testRunner.outputs.artifactsPath }}
+          
+      # Build
+      - uses: webbertakken/unity-builder@v0.10
+        with:
+          projectPath: ${{ matrix.projectPath }}
+          unityVersion: ${{ matrix.unityVersion }}
+          targetPlatform: ${{ matrix.targetPlatform }}
+          customParameters: "-myParameter myValue -myBoolean -ThirdParameter andItsValue"
+      - uses: actions/upload-artifact@v1
+        with:
+          name: Build
+          path: build
    
   #enable this job to request a manual unity license
-  Request-License:
-    runs-on: ubuntu-latest
-    if: false
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-
-      - name: Request manual activation file
-        uses: MirrorNG/unity-runner@master
-        id: getManualLicenseFile
-        with:
-            entrypoint: /request_activation.sh
+  #Request-License:
+   # runs-on: ubuntu-latest
+    #if: false
+    #steps:
+    #  - name: Checkout repository
+    #    uses: actions/checkout@v2
+#
+#      - name: Request manual activation file
+#       uses: MirrorNG/unity-runner@master
+#      id: getManualLicenseFile
+#     with:
+#        entrypoint: /request_activation.sh
 
       # This will produce a Unity_xxx.alf file
       # download it in your computer and upload it to
@@ -29,11 +94,11 @@ jobs:
       # add the contents of Unity_xxx.ulf file to your repository's secrets
       # as UNITY_LICENSE
       # then disable this job
-      - name: Expose as artifact
-        uses: actions/upload-artifact@v1
-        with:
-            name: Manual Activation File
-            path: ${{ steps.getManualLicenseFile.outputs.filePath }}
+#    - name: Expose as artifact
+#      uses: actions/upload-artifact@v1
+#     with:
+#        name: Manual Activation File
+#       path: ${{ steps.getManualLicenseFile.outputs.filePath }}
   
         
   Zenject-usage:
@@ -89,18 +154,18 @@ jobs:
 #      - name: Install filter-repo
 #        run: pip3 install git-filter-repo
 
-      - name: Activate license
-        uses: MirrorNG/unity-runner@master
-        with:
-          entrypoint: /activate.sh
+#     - name: Activate license
+#      uses: MirrorNG/unity-runner@master
+#     with:
+#      entrypoint: /activate.sh
           
-      # Configure test runner
+# Configure test runner
 #      - name: Run editor Tests
 #        uses: MirrorNG/unity-runner@master
 #       with:
 #         args: -projectPath UnityProject -runTests -testPlatform editmode -testResults Tests/editmode-results.xml -enableCodeCoverage -coverageResultsPath Tests
         
-      # Upload artifacts
+# Upload artifacts
 #      - name: Publish test results
 #        uses: actions/upload-artifact@v1
 #        with:
@@ -126,13 +191,13 @@ jobs:
 #          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 #          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Release
-        uses: cycjimmy/semantic-release-action@v2
-        with:
-          extra_plugins: |
-            @semantic-release/exec
-            @semantic-release/changelog
-            @semantic-release/git
-          branch: master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#      - name: Release
+#        uses: cycjimmy/semantic-release-action@v2
+#        with:
+#          extra_plugins: |
+#            @semantic-release/exec
+#            @semantic-release/changelog
+#            @semantic-release/git
+#          branch: master
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
