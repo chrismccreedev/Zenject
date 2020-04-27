@@ -5,7 +5,7 @@
 ![GitHub Release Date](https://img.shields.io/github/release-date/svermeulen/Extenject)
 ![GitHub contributors](https://img.shields.io/github/contributors/svermeulen/Extenject)
 ![GitHub last commit](https://img.shields.io/github/last-commit/svermeulen/Extenject)
-![CI](https://github.com/svermeulen/Extenject/workflows/Continuous%20Integration/badge.svg)
+![Continuous Integration](https://github.com/svermeulen/Extenject/workflows/Continuous%20Integration/badge.svg?branch=master)
 ![GitHub](https://img.shields.io/github/license/svermeulen/Extenject)
 
 # Extensions, bug fixes and updates for Zenject 
