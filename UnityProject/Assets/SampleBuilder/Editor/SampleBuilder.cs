@@ -5,10 +5,7 @@ using System.Linq;
 using ModestTree;
 using UnityEditor;
 using UnityEngine;
-
-#if UNITY_2018_1_OR_NEWER
 using UnityEditor.Build.Reporting;
-#endif
 
 namespace Zenject.Internal
 {
@@ -26,26 +23,11 @@ namespace Zenject.Internal
             BuildInternal(true);
         }
 
-        //[MenuItem("ZenjectSamples/Enable Net 46")]
-        static void EnableNet46()
-        {
-            PlayerSettings.scriptingRuntimeVersion = ScriptingRuntimeVersion.Latest;
-            PlayerSettings.SetApiCompatibilityLevel(EditorUserBuildSettings.selectedBuildTargetGroup, ApiCompatibilityLevel.NET_4_6);
-            EditorApplication.Exit(0);
-        }
-
-        //[MenuItem("ZenjectSamples/Enable Net 35")]
-        static void EnableNet35()
-        {
-            PlayerSettings.scriptingRuntimeVersion = ScriptingRuntimeVersion.Legacy;
-            PlayerSettings.SetApiCompatibilityLevel(EditorUserBuildSettings.selectedBuildTargetGroup, ApiCompatibilityLevel.NET_2_0_Subset);
-            EditorApplication.Exit(0);
-        }
-
         static void EnableBackendIl2cpp()
         {
             PlayerSettings.SetScriptingBackend(EditorUserBuildSettings.selectedBuildTargetGroup, ScriptingImplementation.IL2CPP);
             EditorApplication.Exit(0);
+
         }
 
         static void EnableBackendNet()
@@ -64,19 +46,19 @@ namespace Zenject.Internal
                 case BuildTarget.StandaloneOSX: 
                 {
                     BuildGeneric(
-                        "OsX/{0}/ZenjectSamples".Fmt(GetScriptingRuntimeString()), scenePaths, isRelease);
+                        "OsX/{0}/ZenjectSamples".Fmt(GetScriptingBackendString()), scenePaths, isRelease);
                     break;
                 }
                 case BuildTarget.StandaloneWindows64:
                 case BuildTarget.StandaloneWindows:
                 {
                     BuildGeneric(
-                        "Windows/{0}/ZenjectSamples.exe".Fmt(GetScriptingRuntimeString()), scenePaths, isRelease);
+                        "Windows/{0}/ZenjectSamples.exe".Fmt(GetScriptingBackendString()), scenePaths, isRelease);
                     break;
                 }
                 case BuildTarget.WebGL:
                 {
-                    BuildGeneric("WebGl/{0}".Fmt(GetScriptingRuntimeString()), scenePaths, isRelease);
+                    BuildGeneric("WebGl/{0}".Fmt(GetScriptingBackendString()), scenePaths, isRelease);
                     break;
                 }
                 case BuildTarget.Android:
@@ -91,7 +73,7 @@ namespace Zenject.Internal
                 }
                 case BuildTarget.WSAPlayer:
                 {
-                    BuildGeneric("WSA/{0}/{1}".Fmt(GetScriptingRuntimeString(), GetScriptingBackendString()), scenePaths, isRelease);
+                    BuildGeneric("WSA/{0}".Fmt(GetScriptingBackendString()), scenePaths, isRelease);
                     break;
                 }
                 default:
@@ -106,23 +88,11 @@ namespace Zenject.Internal
         {
             var scriptingBackend = PlayerSettings.GetScriptingBackend(EditorUserBuildSettings.selectedBuildTargetGroup);
 
-            if (scriptingBackend == ScriptingImplementation.IL2CPP)
-            {
-                return "Il2cpp";
-            }
+            if (scriptingBackend == ScriptingImplementation.IL2CPP) return "Il2cpp";
+            if (scriptingBackend == ScriptingImplementation.Mono2x) return "Mono";
 
             Assert.IsEqual(scriptingBackend, ScriptingImplementation.WinRTDotNET);
             return ".NET";
-        }
-
-        static string GetScriptingRuntimeString()
-        {
-            if (PlayerSettings.scriptingRuntimeVersion == ScriptingRuntimeVersion.Latest)
-            {
-                return "Net46";
-            }
-
-            return "Net35";
         }
 
         static bool BuildGeneric(
@@ -143,11 +113,7 @@ namespace Zenject.Internal
 
             var buildResult = BuildPipeline.BuildPlayer(scenePaths.ToArray(), path, EditorUserBuildSettings.activeBuildTarget, options);
 
-#if UNITY_2018_1_OR_NEWER
             bool succeeded = (buildResult.summary.result == BuildResult.Succeeded);
-#else
-            bool succeeded = (buildResult.Length == 0);
-#endif
 
             if (succeeded)
             {
