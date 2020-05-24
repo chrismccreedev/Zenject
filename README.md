@@ -1323,7 +1323,7 @@ This works ok for small projects, but as the complexity of your project grows it
 
 You can do this in Zenject out-of-the-box by executing the menu item `Edit -> Zenject -> Validate Current Scene` or simply hitting `SHIFT+ALT+V` with the scenes open that you want to validate.  This will execute all installers for the current scene, with the result being a fully bound container.   It will then iterate through the object graphs and verify that all bindings can be found (without actually instantiating any of them).  In other words, it executes a 'dry run' of the normal startup procedure.  Under the hood, this works by storing dummy objects in the container in place of actually instantiating your classes.
 
-Alternatively, you can execute the menu item `Edit -> Zenject -> Validate Then Run` or simply hitting `CTRL+SHIFT+R`.  This will validate the scenes you have open and then if validation succeeds, it will start play mode.  Validation is usually pretty fast so this can be a good alternative to always just hitting play, especially if your game has a costly startup time.
+Alternatively, you can execute the menu item `Edit -> Zenject -> Validate Then Run` or simply hitting `CTRL+ALT+R`.  This will validate the scenes you have open and then if validation succeeds, it will start play mode.  Validation is usually pretty fast so this can be a good alternative to always just hitting play, especially if your game has a costly startup time.
 
 Note that this will also include factories and memory pools, which is especially helpful because those errors might not be caught until sometime after startup.
 
