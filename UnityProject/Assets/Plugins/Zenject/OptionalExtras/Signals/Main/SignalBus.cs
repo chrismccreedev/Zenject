@@ -412,7 +412,7 @@ namespace Zenject
 
             if (missingHandlerResponse.HasValue)
             {
-                bindInfo.Identifier = missingHandlerResponse.Value;
+                bindInfo.MissingHandlerResponse = missingHandlerResponse.Value;
             }
 
             if (forceAsync.HasValue)
