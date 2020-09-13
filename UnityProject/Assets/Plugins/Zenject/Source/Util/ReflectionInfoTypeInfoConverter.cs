@@ -77,6 +77,11 @@ namespace Zenject.Internal
             {
                 if (constructor == null)
                 {
+                    if (ReflectionTypeAnalyzer.ConstructorChoiceStrategy == ConstructorChoiceStrategy.InjectAttribute)
+                    {
+                        return null;
+                    }
+                    
                     // No choice in this case except to use the slow Activator.CreateInstance
                     // as far as I know
                     // This should be rare though and only seems to occur when instantiating
