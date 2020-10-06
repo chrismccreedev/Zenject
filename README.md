@@ -3344,8 +3344,9 @@ It is possible to remove or replace bindings that were added in a previous bind 
 
     If you know of other projects that are using Zenject, please add a comment [here](https://github.com/svermeulen/Extenject/issues/179) so that I can add it to this list.
 
-    Games
+    Games:
 
+    * [Beat Saber - VR Rythm Game](https://beatsaber.com) (Windows) ([Steam](https://store.steampowered.com/app/620980/Beat_Saber/), [Oculus](https://www.oculus.com/experiences/rift/1304877726278670/) and [Playstation](https://store.playstation.com/en-cz/product/EP5067-CUSA14143_00-BEATSABERFULL000))
     * Pokemon Go (both [iOS](https://apps.apple.com/us/app/pokemon-go/id1094591345) and [Android](https://play.google.com/store/apps/details?id=com.nianticlabs.pokemongo&hl=en))
     * Ingress (both [iOS](https://apps.apple.com/us/app/ingress-prime/id576505181) and [Android](https://play.google.com/store/apps/details?id=com.nianticproject.ingress&hl=en_US))
     * [Zenject Hero](https://github.com/Mathijs-Bakker/Zenject-Hero) - Remake of the classic Atari game H.E.R.O.   Includes complete source.
