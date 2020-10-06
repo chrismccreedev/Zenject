@@ -3342,7 +3342,7 @@ It is possible to remove or replace bindings that were added in a previous bind 
 
 * **<a id="what-games-are-using-zenject"></a>What games/tools/libraries are using Zenject?**
 
-    If you know of other projects that are using Zenject, please add a comment [here](https://github.com/modesttree/Zenject/issues/153) so that I can add it to this list.
+    If you know of other projects that are using Zenject, please add a comment [here](https://github.com/svermeulen/Extenject/issues/179) so that I can add it to this list.
 
     Games
 
