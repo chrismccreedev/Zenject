@@ -1,3 +1,18 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+<details>
+<summary>Details</summary>
+
+- [CompositeInstaller](#compositeinstaller)
+- [Table Of Contents](#table-of-contents)
+- [Introduction](#introduction)
+  - [CompositeMonoInstaller](#compositemonoinstaller)
+  - [CompositeScriptableObjectInstaller](#compositescriptableobjectinstaller)
+  - [FYI](#fyi)
+
+</details>
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 ## CompositeInstaller
 
 ## Table Of Contents
