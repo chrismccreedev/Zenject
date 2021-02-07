@@ -135,6 +135,14 @@ namespace Zenject.Internal
                 + "\n}");
         }
 
+        [MenuItem("Assets/Create/Zenject/Composite Scriptable Object Installer", false, 4)]
+        public static void CreateCompositeScriptableObjectInstaller()
+        {
+            ProjectWindowUtil.CreateAsset(
+                asset: ScriptableObject.CreateInstance<CompositeScriptableObjectInstaller>(),
+                pathName: "CompositeScriptableObjectInstaller.asset");
+        }
+
         [MenuItem("Assets/Create/Zenject/Editor Window", false, 20)]
         public static void CreateEditorWindow()
         {
