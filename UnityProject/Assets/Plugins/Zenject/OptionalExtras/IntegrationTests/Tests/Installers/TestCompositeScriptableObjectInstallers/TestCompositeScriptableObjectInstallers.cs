@@ -7,13 +7,13 @@ using Zenject.Tests.Installers.CompositeScriptableObjectInstallers;
 
 namespace Zenject.Tests.Installers
 {
-    public class TestCompositeScriptableObjectInstaller : ZenjectIntegrationTestFixture
+    public class TestCompositeScriptableObjectInstallers : ZenjectIntegrationTestFixture
     {
         [UnityTest]
         public IEnumerator TestZeroParameters()
         {
             PreInstall();
-            CompositeScriptableObjectInstaller.InstallFromResource("TestCompositeScriptableObjectInstaller/FooInstaller/TestCompositeScriptableObjectFooInstaller", Container);
+            CompositeScriptableObjectInstaller.InstallFromResource("TestCompositeScriptableObjectInstallers/FooInstaller/TestCompositeScriptableObjectFooInstaller", Container);
             PostInstall();
 
             FixtureUtil.AssertResolveCount<Foo>(Container, 1);
@@ -24,7 +24,7 @@ namespace Zenject.Tests.Installers
         public IEnumerator TestZeroParametersDeep()
         {
             PreInstall();
-            CompositeScriptableObjectInstaller.InstallFromResource("TestCompositeScriptableObjectInstaller/FooInstaller/TestCompositeScriptableObjectDeepFooInstaller1", Container);
+            CompositeScriptableObjectInstaller.InstallFromResource("TestCompositeScriptableObjectInstallers/FooInstaller/TestCompositeScriptableObjectDeepFooInstaller1", Container);
             PostInstall();
 
             FixtureUtil.AssertResolveCount<Foo>(Container, 1);
@@ -35,7 +35,7 @@ namespace Zenject.Tests.Installers
         public IEnumerator TestOneParameter()
         {
             PreInstall();
-            CompositeScriptableObjectInstaller.InstallFromResource("TestCompositeScriptableObjectInstaller/BarInstaller/TestCompositeScriptableObjectBarInstaller", Container);
+            CompositeScriptableObjectInstaller.InstallFromResource("TestCompositeScriptableObjectInstallers/BarInstaller/TestCompositeScriptableObjectBarInstaller", Container);
             PostInstall();
 
             Assert.IsEqual(Container.Resolve<string>(), "composite scriptable object installer blurg");
@@ -46,7 +46,7 @@ namespace Zenject.Tests.Installers
         public IEnumerator TestOneParameterDeep()
         {
             PreInstall();
-            CompositeScriptableObjectInstaller.InstallFromResource("TestCompositeScriptableObjectInstaller/BarInstaller/TestCompositeScriptableObjectDeepBarInstaller1", Container);
+            CompositeScriptableObjectInstaller.InstallFromResource("TestCompositeScriptableObjectInstallers/BarInstaller/TestCompositeScriptableObjectDeepBarInstaller1", Container);
             PostInstall();
 
             Assert.IsEqual(Container.Resolve<string>(), "composite scriptable object installer blurg");
@@ -57,7 +57,7 @@ namespace Zenject.Tests.Installers
         public IEnumerator TestThreeParameters()
         {
             PreInstall();
-            CompositeScriptableObjectInstaller.InstallFromResource("TestCompositeScriptableObjectInstaller/QuxInstaller/TestCompositeScriptableObjectQuxInstaller", Container);
+            CompositeScriptableObjectInstaller.InstallFromResource("TestCompositeScriptableObjectInstallers/QuxInstaller/TestCompositeScriptableObjectQuxInstaller", Container);
             PostInstall();
 
             Assert.IsEqual(Container.Resolve<string>(), "composite scriptable object installer string");
@@ -70,7 +70,7 @@ namespace Zenject.Tests.Installers
         public IEnumerator TestThreeParametersDeep()
         {
             PreInstall();
-            CompositeScriptableObjectInstaller.InstallFromResource("TestCompositeScriptableObjectInstaller/QuxInstaller/TestCompositeScriptableObjectDeepQuxInstaller1", Container);
+            CompositeScriptableObjectInstaller.InstallFromResource("TestCompositeScriptableObjectInstallers/QuxInstaller/TestCompositeScriptableObjectDeepQuxInstaller1", Container);
             PostInstall();
 
             Assert.IsEqual(Container.Resolve<string>(), "composite scriptable object installer string");
@@ -83,8 +83,8 @@ namespace Zenject.Tests.Installers
         public IEnumerator TestMultipleInstallers()
         {
             PreInstall();
-            FooInjecteeInstaller.InstallFromResource("TestCompositeScriptableObjectInstaller/FooInjecteeInstaller/FooInjecteeInstaller", Container);
-            CompositeScriptableObjectInstaller.InstallFromResource("TestCompositeScriptableObjectInstaller/FooInstaller/TestCompositeScriptableObjectFooInstaller", Container);
+            FooInjecteeInstaller.InstallFromResource("TestCompositeScriptableObjectInstallers/FooInjecteeInstaller/FooInjecteeInstaller", Container);
+            CompositeScriptableObjectInstaller.InstallFromResource("TestCompositeScriptableObjectInstallers/FooInstaller/TestCompositeScriptableObjectFooInstaller", Container);
             PostInstall();
 
             FixtureUtil.AssertResolveCount<Foo>(Container, 1);
@@ -96,8 +96,8 @@ namespace Zenject.Tests.Installers
         public IEnumerator TestMultipleInstallersDeep()
         {
             PreInstall();
-            CompositeScriptableObjectInstaller.InstallFromResource("TestCompositeScriptableObjectInstaller/FooInjecteeInstaller/TestCompositeSOFooInjecteeInstaller", Container);
-            CompositeScriptableObjectInstaller.InstallFromResource("TestCompositeScriptableObjectInstaller/FooInstaller/TestCompositeScriptableObjectFooInstaller", Container);
+            CompositeScriptableObjectInstaller.InstallFromResource("TestCompositeScriptableObjectInstallers/FooInjecteeInstaller/TestCompositeSOFooInjecteeInstaller", Container);
+            CompositeScriptableObjectInstaller.InstallFromResource("TestCompositeScriptableObjectInstallers/FooInstaller/TestCompositeScriptableObjectFooInstaller", Container);
             PostInstall();
 
             FixtureUtil.AssertResolveCount<Foo>(Container, 1);
@@ -109,10 +109,10 @@ namespace Zenject.Tests.Installers
         public IEnumerator TestDuplicateInstallers()
         {
             PreInstall();
-            CompositeScriptableObjectInstaller.InstallFromResource("TestCompositeScriptableObjectInstaller/FooInstaller/TestCompositeScriptableObjectDeepFooInstaller1", Container);
+            CompositeScriptableObjectInstaller.InstallFromResource("TestCompositeScriptableObjectInstallers/FooInstaller/TestCompositeScriptableObjectDeepFooInstaller1", Container);
             Assert.Throws<ZenjectException>(() =>
             {
-                CompositeScriptableObjectInstaller.InstallFromResource("TestCompositeScriptableObjectInstaller/FooInstaller/TestCompositeScriptableObjectDeepFooInstaller2", Container);
+                CompositeScriptableObjectInstaller.InstallFromResource("TestCompositeScriptableObjectInstallers/FooInstaller/TestCompositeScriptableObjectDeepFooInstaller2", Container);
             });
             PostInstall();
 

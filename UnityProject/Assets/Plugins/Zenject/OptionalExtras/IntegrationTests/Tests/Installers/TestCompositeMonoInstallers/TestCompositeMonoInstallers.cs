@@ -8,13 +8,13 @@ using Zenject.Tests.Installers.CompositeMonoInstallers;
 
 namespace Zenject.Tests.Installers
 {
-    public class TestCompositeMonoInstaller : ZenjectIntegrationTestFixture
+    public class TestCompositeMonoInstallers : ZenjectIntegrationTestFixture
     {
         [UnityTest]
         public IEnumerator TestZeroParameters()
         {
             PreInstall();
-            InstallCompositeMonoInstallerFromResource("TestCompositeMonoInstaller/FooInstaller/TestCompositeMonoFooInstaller", Container);
+            InstallCompositeMonoInstallerFromResource("TestCompositeMonoInstallers/FooInstaller/TestCompositeMonoFooInstaller", Container);
             PostInstall();
 
             FixtureUtil.AssertResolveCount<Foo>(Container, 1);
@@ -25,7 +25,7 @@ namespace Zenject.Tests.Installers
         public IEnumerator TestZeroParametersDeep()
         {
             PreInstall();
-            InstallCompositeMonoInstallerFromResource("TestCompositeMonoInstaller/FooInstaller/TestCompositeMonoDeepFooInstaller1", Container);
+            InstallCompositeMonoInstallerFromResource("TestCompositeMonoInstallers/FooInstaller/TestCompositeMonoDeepFooInstaller1", Container);
             PostInstall();
 
             FixtureUtil.AssertResolveCount<Foo>(Container, 1);
@@ -36,7 +36,7 @@ namespace Zenject.Tests.Installers
         public IEnumerator TestOneParameter()
         {
             PreInstall();
-            InstallCompositeMonoInstallerFromResource("TestCompositeMonoInstaller/BarInstaller/TestCompositeMonoBarInstaller", Container);
+            InstallCompositeMonoInstallerFromResource("TestCompositeMonoInstallers/BarInstaller/TestCompositeMonoBarInstaller", Container);
             PostInstall();
 
             Assert.IsEqual(Container.Resolve<string>(), "composite mono installer blurg");
@@ -47,7 +47,7 @@ namespace Zenject.Tests.Installers
         public IEnumerator TestOneParameterDeep()
         {
             PreInstall();
-            InstallCompositeMonoInstallerFromResource("TestCompositeMonoInstaller/BarInstaller/TestCompositeMonoDeepBarInstaller1", Container);
+            InstallCompositeMonoInstallerFromResource("TestCompositeMonoInstallers/BarInstaller/TestCompositeMonoDeepBarInstaller1", Container);
             PostInstall();
 
             Assert.IsEqual(Container.Resolve<string>(), "composite mono installer blurg");
@@ -58,7 +58,7 @@ namespace Zenject.Tests.Installers
         public IEnumerator TestThreeParameters()
         {
             PreInstall();
-            InstallCompositeMonoInstallerFromResource("TestCompositeMonoInstaller/QuxInstaller/TestCompositeMonoQuxInstaller", Container);
+            InstallCompositeMonoInstallerFromResource("TestCompositeMonoInstallers/QuxInstaller/TestCompositeMonoQuxInstaller", Container);
             PostInstall();
 
             Assert.IsEqual(Container.Resolve<string>(), "composite mono installer string");
@@ -71,7 +71,7 @@ namespace Zenject.Tests.Installers
         public IEnumerator TestThreeParametersDeep()
         {
             PreInstall();
-            InstallCompositeMonoInstallerFromResource("TestCompositeMonoInstaller/QuxInstaller/TestCompositeMonoDeepQuxInstaller1", Container);
+            InstallCompositeMonoInstallerFromResource("TestCompositeMonoInstallers/QuxInstaller/TestCompositeMonoDeepQuxInstaller1", Container);
             PostInstall();
 
             Assert.IsEqual(Container.Resolve<string>(), "composite mono installer string");
@@ -84,8 +84,8 @@ namespace Zenject.Tests.Installers
         public IEnumerator TestMultipleInstallers()
         {
             PreInstall();
-            FooInjecteeInstaller.InstallFromResource("TestCompositeMonoInstaller/FooInjecteeInstaller/FooInjecteeInstaller", Container);
-            InstallCompositeMonoInstallerFromResource("TestCompositeMonoInstaller/FooInstaller/TestCompositeMonoFooInstaller", Container);
+            FooInjecteeInstaller.InstallFromResource("TestCompositeMonoInstallers/FooInjecteeInstaller/FooInjecteeInstaller", Container);
+            InstallCompositeMonoInstallerFromResource("TestCompositeMonoInstallers/FooInstaller/TestCompositeMonoFooInstaller", Container);
             PostInstall();
 
             FixtureUtil.AssertResolveCount<Foo>(Container, 1);
@@ -97,8 +97,8 @@ namespace Zenject.Tests.Installers
         public IEnumerator TestMultipleInstallersDeep()
         {
             PreInstall();
-            InstallCompositeMonoInstallerFromResource("TestCompositeMonoInstaller/FooInjecteeInstaller/TestCompositeMonoFooInjecteeInstaller", Container);
-            InstallCompositeMonoInstallerFromResource("TestCompositeMonoInstaller/FooInstaller/TestCompositeMonoFooInstaller", Container);
+            InstallCompositeMonoInstallerFromResource("TestCompositeMonoInstallers/FooInjecteeInstaller/TestCompositeMonoFooInjecteeInstaller", Container);
+            InstallCompositeMonoInstallerFromResource("TestCompositeMonoInstallers/FooInstaller/TestCompositeMonoFooInstaller", Container);
             PostInstall();
 
             FixtureUtil.AssertResolveCount<Foo>(Container, 1);
@@ -110,10 +110,10 @@ namespace Zenject.Tests.Installers
         public IEnumerator TestDuplicateInstallers()
         {
             PreInstall();
-            InstallCompositeMonoInstallerFromResource("TestCompositeMonoInstaller/FooInstaller/TestCompositeMonoFooInstaller", Container);
+            InstallCompositeMonoInstallerFromResource("TestCompositeMonoInstallers/FooInstaller/TestCompositeMonoFooInstaller", Container);
             Assert.Throws<ZenjectException>(() =>
             {
-                InstallCompositeMonoInstallerFromResource("TestCompositeMonoInstaller/FooInstaller/TestCompositeMonoDeepFooInstaller1", Container);
+                InstallCompositeMonoInstallerFromResource("TestCompositeMonoInstallers/FooInstaller/TestCompositeMonoDeepFooInstaller1", Container);
             });
             PostInstall();
 
