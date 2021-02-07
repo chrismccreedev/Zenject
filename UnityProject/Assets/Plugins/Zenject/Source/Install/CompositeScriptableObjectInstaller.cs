@@ -4,7 +4,7 @@ using Zenject;
 
 namespace Zenject
 {
-    [CreateAssetMenu(fileName = "CompositeScriptableObjectInstaller", menuName = "Installers/CompositeScriptableObjectInstaller")]
+    // Use `Create -> Zenject -> Composite Scriptable Object Installer`
     public class CompositeScriptableObjectInstaller : ScriptableObjectInstaller<CompositeScriptableObjectInstaller>, ICompositeInstaller<ScriptableObjectInstallerBase>
     {
         [SerializeField]
