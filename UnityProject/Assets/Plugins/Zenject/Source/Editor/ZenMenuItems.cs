@@ -89,15 +89,14 @@ namespace Zenject.Internal
                 Path.Combine(folderPath, DefaultSceneContractConfig.ResourcePath + ".asset"), config);
         }
 
-        [MenuItem("Assets/Create/Zenject/Scriptable Object Installer", false, 1)]
-        public static void CreateScriptableObjectInstaller()
+        [MenuItem("Assets/Create/Zenject/Installer", false, 1)]
+        public static void CreateInstaller()
         {
-            AddCSharpClassTemplate("Scriptable Object Installer", "UntitledInstaller",
+            AddCSharpClassTemplate("Installer", "UntitledInstaller",
                   "using UnityEngine;"
                 + "\nusing Zenject;"
                 + "\n"
-                + "\n[CreateAssetMenu(fileName = \"CLASS_NAME\", menuName = \"Installers/CLASS_NAME\")]"
-                + "\npublic class CLASS_NAME : ScriptableObjectInstaller<CLASS_NAME>"
+                + "\npublic class CLASS_NAME : Installer<CLASS_NAME>"
                 + "\n{"
                 + "\n    public override void InstallBindings()"
                 + "\n    {"
@@ -105,7 +104,7 @@ namespace Zenject.Internal
                 + "\n}");
         }
 
-        [MenuItem("Assets/Create/Zenject/Mono Installer", false, 1)]
+        [MenuItem("Assets/Create/Zenject/Mono Installer", false, 2)]
         public static void CreateMonoInstaller()
         {
             AddCSharpClassTemplate("Mono Installer", "UntitledInstaller",
@@ -120,14 +119,15 @@ namespace Zenject.Internal
                 + "\n}");
         }
 
-        [MenuItem("Assets/Create/Zenject/Installer", false, 1)]
-        public static void CreateInstaller()
+        [MenuItem("Assets/Create/Zenject/Scriptable Object Installer", false, 3)]
+        public static void CreateScriptableObjectInstaller()
         {
-            AddCSharpClassTemplate("Installer", "UntitledInstaller",
+            AddCSharpClassTemplate("Scriptable Object Installer", "UntitledInstaller",
                   "using UnityEngine;"
                 + "\nusing Zenject;"
                 + "\n"
-                + "\npublic class CLASS_NAME : Installer<CLASS_NAME>"
+                + "\n[CreateAssetMenu(fileName = \"CLASS_NAME\", menuName = \"Installers/CLASS_NAME\")]"
+                + "\npublic class CLASS_NAME : ScriptableObjectInstaller<CLASS_NAME>"
                 + "\n{"
                 + "\n    public override void InstallBindings()"
                 + "\n    {"
