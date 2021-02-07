@@ -1,10 +1,12 @@
+# CompositeInstaller
+
+## Table Of Contents
+
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 <details>
 <summary>Details</summary>
 
-- [CompositeInstaller](#compositeinstaller)
-- [Table Of Contents](#table-of-contents)
 - [Introduction](#introduction)
   - [CompositeMonoInstaller](#compositemonoinstaller)
   - [CompositeScriptableObjectInstaller](#compositescriptableobjectinstaller)
@@ -12,13 +14,6 @@
 
 </details>
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
-## CompositeInstaller
-
-## Table Of Contents
-- [CompositeMonoInstaller](#compositemonoinstaller)
-- [CompositeScriptableObjectInstaller](#compositescriptableobjectinstaller)
-
 
 ## Introduction
 CompositeInstaller is the composite pattern of Zenject installers.  
