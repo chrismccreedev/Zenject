@@ -34,7 +34,7 @@ If the developer add some installers to the CompositeScriptableObjectInstaller a
 ![](./Images/CompositeInstaller/CompositeMonoInstallerInspector.jpg)
 
 ### CompositeScriptableObjectInstaller
-- Create "CompositeScriptableObjectInstaller" in the same way as other "ScriptableObjectInstaller"s
+- Select `Create -> Zenject -> Composite Scriptable Object Installer` to create the asset
 
 ![](./Images/CompositeInstaller/CompositeScriptableObjectInstallerCreateAsset.jpg)
 
