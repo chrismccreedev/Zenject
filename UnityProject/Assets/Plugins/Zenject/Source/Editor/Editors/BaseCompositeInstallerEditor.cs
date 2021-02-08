@@ -12,8 +12,6 @@ namespace Zenject
     {
         List<ReorderableList> _installersLists;
 
-        const string ErrorTooltip = "WARNING: This composite installer has some circular references and will cause \"StackOverflowException\"";
-
         protected virtual void OnEnable()
         {
             _installersLists = new List<ReorderableList>
@@ -53,7 +51,7 @@ namespace Zenject
                 rect.width -= 40;
                 rect.x += 20;
                 EditorGUI.PropertyField(rect, installerProperty, new GUIContent("", closedDesc), true);
-                if (!isValid) { EditorGUI.LabelField(rect, new GUIContent("", ErrorTooltip)); }
+                if (!isValid) { EditorGUI.LabelField(rect, new GUIContent("", CompositeInstallerEditorDescriptions.ErrorTooltip)); }
 
                 GUI.color = Color.white;
             };
