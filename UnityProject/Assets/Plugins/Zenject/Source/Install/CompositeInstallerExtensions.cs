@@ -30,7 +30,46 @@ namespace Zenject
 
             bool result = compositeInstaller
                 .LeafInstallers
-                .All(installer => installer.ValidateLeafInstaller(childParentInstallers));
+                .All(installer => installer.ValidateLeafInstallerSavedAlloc(childParentInstallers));
+            return result;
+        }
+
+        public static bool ValidateLeafInstallerSavedAlloc<T>(
+            this T leafInstaller,
+            List<ICompositeInstaller<T>> reusableParentInstallers)
+            where T : IInstaller
+        {
+            var compositeInstaller = leafInstaller as ICompositeInstaller<T>;
+            if (compositeInstaller == null)
+            {
+                return true;
+            }
+
+            if (reusableParentInstallers.Contains(compositeInstaller))
+            {
+                // Found a circular reference
+                return false;
+            }
+
+            bool result = true;
+
+            int compositeInstallerIndex = reusableParentInstallers.Count;
+            reusableParentInstallers.Add(compositeInstaller);
+
+            var leafInstallers = compositeInstaller.LeafInstallers;
+            for (int i = 0; i < leafInstallers.Count; ++i)
+            {
+                var installer = leafInstallers[i];
+                result &= installer.ValidateLeafInstallerSavedAlloc(reusableParentInstallers);
+
+                if (!result)
+                {
+                    break;
+                }
+            }
+
+            reusableParentInstallers.RemoveAt(compositeInstallerIndex);
+
             return result;
         }
     }

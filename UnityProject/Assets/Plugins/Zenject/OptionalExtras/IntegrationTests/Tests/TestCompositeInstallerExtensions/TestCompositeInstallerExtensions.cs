@@ -84,6 +84,20 @@ namespace Zenject.Tests.Installers
         }
 
         [Test]
+        public void TestValidateLeafInstallerWithCompositeInstallerAndParentAsSelf()
+        {
+            var installer = new TestCompositeInstaller();
+            _parentInstallers = new List<TestCompositeInstaller>
+            {
+                installer,
+            };
+
+            bool actual = installer.ValidateLeafInstaller(_parentInstallers);
+
+            Assert.False(actual);
+        }
+
+        [Test]
         public void TestValidateLeafInstallerWithCompositeInstallerAndSelfCircularRef()
         {
             var installer = new TestCompositeInstaller();
