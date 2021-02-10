@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
-using Zenject;
+using ModestTree;
 
 namespace Zenject
 {
@@ -12,6 +12,8 @@ namespace Zenject
 
         public override void InstallBindings()
         {
+            Assert.That(this.ValidateLeafInstallers(), "Found some circular references in {0}".Fmt(name));
+
             foreach (var installer in _leafInstallers)
             {
                 Container.Inject(installer);

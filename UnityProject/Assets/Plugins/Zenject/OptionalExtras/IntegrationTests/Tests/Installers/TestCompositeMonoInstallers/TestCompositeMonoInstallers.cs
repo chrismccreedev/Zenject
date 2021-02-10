@@ -120,6 +120,21 @@ namespace Zenject.Tests.Installers
             yield break;
         }
 
+        [UnityTest]
+        public IEnumerator TestAssertWithCircularReference()
+        {
+            PreInstall();
+
+            Assert.Throws<ZenjectException>(() =>
+            {
+                InstallCompositeMonoInstallerFromResource("TestCompositeMonoInstallers/CircularReferenceCompositeInstaller/CircularReferenceCompositeMonoInstaller", Container);
+            });
+
+            PostInstall();
+
+            yield break;
+        }
+
         // An installation method for "CompositeMonoInstaller".
         // MonoInstaller.InstallFromResource uses "GetComponentsInChildren", so it can't be used for "CompositeMonoInstaller" if the prefab has multiple "CompositeMonoInstaller".
         public static void InstallCompositeMonoInstallerFromResource(string resourcePath, DiContainer container)
