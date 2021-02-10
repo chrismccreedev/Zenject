@@ -118,5 +118,20 @@ namespace Zenject.Tests.Installers
 
             yield break;
         }
+
+        [UnityTest]
+        public IEnumerator TestAssertWithCircularReference()
+        {
+            PreInstall();
+
+            Assert.Throws<ZenjectException>(() =>
+            {
+                CompositeScriptableObjectInstaller.InstallFromResource("TestCompositeScriptableObjectInstallers/CircularReferenceCompositeInstaller/CircularReferenceCompositeScriptableObjectInstaller", Container);
+            });
+
+            PostInstall();
+
+            yield break;
+        }
     }
 }
