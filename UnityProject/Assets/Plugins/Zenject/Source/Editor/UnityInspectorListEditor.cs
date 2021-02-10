@@ -61,7 +61,7 @@ namespace Zenject
                     var installerProperty = installersProperty.GetArrayElementAtIndex(index);
                     var leafInstaller = installerProperty.objectReferenceValue as IInstaller;
 
-                    bool isValid = leafInstaller.ValidateAsCompositeSavedAlloc(new List<ICompositeInstaller<IInstaller>>());
+                    bool isValid = leafInstaller.ValidateAsComposite();
 
                     if (!isValid) { GUI.color = Color.red; }
 

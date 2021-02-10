@@ -29,10 +29,7 @@ namespace Zenject
             var closedName = PropertyInfo.displayName;
             var closedDesc = PropertyInfo.description;
 
-            var parentInstallers = new List<T>
-            {
-                this.target as T,
-            };
+            var parentInstaller = this.target as T;
 
             installersList.drawHeaderCallback += rect =>
             {
@@ -44,7 +41,7 @@ namespace Zenject
                 var installerProperty = installersProperty.GetArrayElementAtIndex(index);
                 var leafInstaller = installerProperty.objectReferenceValue as TLeaf;
 
-                bool isValid = leafInstaller.ValidateAsComposite(parentInstallers);
+                bool isValid = leafInstaller.ValidateAsComposite(parentInstaller);
 
                 if (!isValid) { GUI.color = Color.red; }
 
