@@ -34,30 +34,30 @@ namespace Zenject.Tests.Installers
         }
 
         [Test]
-        public void TestValidateLeafInstallerWithInstaller()
+        public void TestValidateAsCompositeWithInstaller()
         {
             var installer = new TestInstaller();
 
-            bool actual = installer.ValidateLeafInstaller(_parentInstallers);
+            bool actual = installer.ValidateAsComposite(_parentInstallers);
 
             Assert.True(actual);
         }
 
         [Test]
-        public void TestValidateLeafInstallerWithCompositeInstallerWithoutCircularRef()
+        public void TestValidateAsCompositeWithCompositeInstallerWithoutCircularRef()
         {
             var installer = new TestCompositeInstaller
             {
                 _leafInstallers = new List<TestInstaller>(),
             };
 
-            bool actual = installer.ValidateLeafInstaller(_parentInstallers);
+            bool actual = installer.ValidateAsComposite(_parentInstallers);
 
             Assert.True(actual);
         }
 
         [Test]
-        public void TestValidateLeafInstallerWithCompositeInstallerWithoutCircularRefDeep()
+        public void TestValidateAsCompositeWithCompositeInstallerWithoutCircularRefDeep()
         {
             var installer1 = new TestCompositeInstaller();
             var installer2 = new TestCompositeInstaller();
@@ -78,13 +78,13 @@ namespace Zenject.Tests.Installers
                 _dummyInstaller3,
             };
 
-            bool actual = installer1.ValidateLeafInstaller(_parentInstallers);
+            bool actual = installer1.ValidateAsComposite(_parentInstallers);
 
             Assert.True(actual);
         }
 
         [Test]
-        public void TestValidateLeafInstallerWithCompositeInstallerAndParentAsSelf()
+        public void TestValidateAsCompositeWithCompositeInstallerAndParentAsSelf()
         {
             var installer = new TestCompositeInstaller();
             _parentInstallers = new List<TestCompositeInstaller>
@@ -92,13 +92,13 @@ namespace Zenject.Tests.Installers
                 installer,
             };
 
-            bool actual = installer.ValidateLeafInstaller(_parentInstallers);
+            bool actual = installer.ValidateAsComposite(_parentInstallers);
 
             Assert.False(actual);
         }
 
         [Test]
-        public void TestValidateLeafInstallerWithCompositeInstallerAndSelfCircularRef()
+        public void TestValidateAsCompositeWithCompositeInstallerAndSelfCircularRef()
         {
             var installer = new TestCompositeInstaller();
 
@@ -107,13 +107,13 @@ namespace Zenject.Tests.Installers
                 installer,
             };
 
-            bool actual = installer.ValidateLeafInstaller(_parentInstallers);
+            bool actual = installer.ValidateAsComposite(_parentInstallers);
 
             Assert.False(actual);
         }
 
         [Test]
-        public void TestValidateLeafInstallerWithCompositeInstallerAndSelfCircularRefDeep()
+        public void TestValidateAsCompositeWithCompositeInstallerAndSelfCircularRefDeep()
         {
             var installer1 = new TestCompositeInstaller();
             var installer2 = new TestCompositeInstaller();
@@ -135,13 +135,13 @@ namespace Zenject.Tests.Installers
                 _dummyInstaller3,
             };
 
-            bool actual = installer1.ValidateLeafInstaller(_parentInstallers);
+            bool actual = installer1.ValidateAsComposite(_parentInstallers);
 
             Assert.False(actual);
         }
 
         [Test]
-        public void TestValidateLeafInstallerWithCompositeInstallerAndParentCircularRef()
+        public void TestValidateAsCompositeWithCompositeInstallerAndParentCircularRef()
         {
             var installer = new TestCompositeInstaller();
 
@@ -150,13 +150,13 @@ namespace Zenject.Tests.Installers
                 _parentInstaller1,
             };
 
-            bool actual = installer.ValidateLeafInstaller(_parentInstallers);
+            bool actual = installer.ValidateAsComposite(_parentInstallers);
 
             Assert.False(actual);
         }
 
         [Test]
-        public void TestValidateLeafInstallerWithCompositeInstallerAndParentCircularRefDeep()
+        public void TestValidateAsCompositeWithCompositeInstallerAndParentCircularRefDeep()
         {
             var installer1 = new TestCompositeInstaller();
             var installer2 = new TestCompositeInstaller();
@@ -178,13 +178,13 @@ namespace Zenject.Tests.Installers
                 _dummyInstaller3,
             };
 
-            bool actual = installer1.ValidateLeafInstaller(_parentInstallers);
+            bool actual = installer1.ValidateAsComposite(_parentInstallers);
 
             Assert.False(actual);
         }
 
         [Test]
-        public void TestValidateLeafInstallerWithCompositeInstallerAndAnotherCircularRef()
+        public void TestValidateAsCompositeWithCompositeInstallerAndAnotherCircularRef()
         {
             var installer1 = new TestCompositeInstaller();
             var installer2 = new TestCompositeInstaller();
@@ -206,13 +206,13 @@ namespace Zenject.Tests.Installers
                 _dummyInstaller3,
             };
 
-            bool actual = installer1.ValidateLeafInstaller(_parentInstallers);
+            bool actual = installer1.ValidateAsComposite(_parentInstallers);
 
             Assert.False(actual);
         }
 
         [Test]
-        public void TestValidateLeafInstallerWithCompositeInstallerAndAnotherCircularRefDeep()
+        public void TestValidateAsCompositeWithCompositeInstallerAndAnotherCircularRefDeep()
         {
             var installer1 = new TestCompositeInstaller();
             var installer2 = new TestCompositeInstaller();
@@ -244,7 +244,7 @@ namespace Zenject.Tests.Installers
                 installer3,  // a circular reference
             };
 
-            bool actual = installer1.ValidateLeafInstaller(_parentInstallers);
+            bool actual = installer1.ValidateAsComposite(_parentInstallers);
 
             Assert.False(actual);
         }

@@ -6,7 +6,7 @@ namespace Zenject
 {
     public static class CompositeInstallerExtensions
     {
-        public static bool ValidateLeafInstaller<T>(
+        public static bool ValidateAsComposite<T>(
             this T leafInstaller,
             IReadOnlyList<ICompositeInstaller<T>> parentInstallers)
             where T : IInstaller
@@ -30,11 +30,11 @@ namespace Zenject
 
             bool result = compositeInstaller
                 .LeafInstallers
-                .All(installer => installer.ValidateLeafInstallerSavedAlloc(childParentInstallers));
+                .All(installer => installer.ValidateAsCompositeSavedAlloc(childParentInstallers));
             return result;
         }
 
-        public static bool ValidateLeafInstallerSavedAlloc<T>(
+        public static bool ValidateAsCompositeSavedAlloc<T>(
             this T leafInstaller,
             List<ICompositeInstaller<T>> reusableParentInstallers)
             where T : IInstaller
@@ -60,7 +60,7 @@ namespace Zenject
             for (int i = 0; i < leafInstallers.Count; ++i)
             {
                 var installer = leafInstallers[i];
-                result &= installer.ValidateLeafInstallerSavedAlloc(reusableParentInstallers);
+                result &= installer.ValidateAsCompositeSavedAlloc(reusableParentInstallers);
 
                 if (!result)
                 {
