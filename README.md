@@ -58,6 +58,7 @@ This project is simply a fork of [Zenject](https://github.com/modesttree/zenject
     - [Decorator Bindings](#decorator-bindings)
   - [Scriptable Object Installer](#scriptable-object-installer)
   - [Runtime Parameters For Installers](#runtime-parameters-for-installers)
+  - [Composite Installers](#composite-installers)
   - [Using Zenject Outside Unity Or For DLLs](#using-zenject-outside-unity-or-for-dlls)
   - [Zenject Settings](#zenject-settings)
   - [Signals](#signals)
