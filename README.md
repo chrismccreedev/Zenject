@@ -1,11 +1,11 @@
 <img src="Documentation/Images/ZenjectLogo.png?raw=true" alt="Zenject" width="600px" height="134px"/>
 
 [![Gitter](https://img.shields.io/static/v1?label=Gitter&labelColor=ED1965&message=Support&color=grey&logo=Gitter&logoColor=White&url=https://gitter.im/Extenject/community)](https://gitter.im/Extenject/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![GitHub release (latest by date)](https://img.shields.io/github/v/release/svermeulen/Extenject?color=green)](https://github.com/svermeulen/Extenject/releases)
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/svermeulen/Extenject?color=green)](https://github.com/modesttree/Zenject/releases)
 ![GitHub Release Date](https://img.shields.io/github/release-date/svermeulen/Extenject)
 ![GitHub contributors](https://img.shields.io/github/contributors/svermeulen/Extenject)
 ![GitHub last commit](https://img.shields.io/github/last-commit/svermeulen/Extenject)
-![Continuous Integration](https://github.com/svermeulen/Extenject/workflows/Continuous%20Integration/badge.svg?branch=master)
+![Continuous Integration](https://github.com/modesttree/Zenject/workflows/Continuous%20Integration/badge.svg?branch=master)
 ![GitHub](https://img.shields.io/github/license/svermeulen/Extenject)
 
 
@@ -109,7 +109,7 @@
 
 ## Introduction
 
-Note that if you are looking for the older documentation for Zenject you can find that here:  [Zenject 3.x](https://github.com/svermeulen/Extenject/tree/f0dd30ad451dcbc3eb17e636455a6c89b14ad537), [Zenject 4.x](https://github.com/svermeulen/Extenject/tree/0b4a15b1e6e680c94fd34a2d7420eb41e320b21b) and [Zenject 5.x](https://github.com/svermeulen/Extenject/tree/dc019e31dbae09eb53c1638be00f7f002898956c)
+Note that if you are looking for the older documentation for Zenject you can find that here:  [Zenject 3.x](https://github.com/modesttree/Zenject/tree/f0dd30ad451dcbc3eb17e636455a6c89b14ad537), [Zenject 4.x](https://github.com/modesttree/Zenject/tree/0b4a15b1e6e680c94fd34a2d7420eb41e320b21b) and [Zenject 5.x](https://github.com/modesttree/Zenject/tree/dc019e31dbae09eb53c1638be00f7f002898956c)
 
 Zenject is a lightweight highly performant dependency injection framework built specifically to target Unity 3D (however it can be used outside of Unity as well).  It can be used to turn your application into a collection of loosely coupled parts with highly segmented responsibilities.  Zenject can then glue the parts together in many different configurations to allow you to easily write, re-use, refactor and test your code in a scalable and extremely flexible way.
 
@@ -127,7 +127,7 @@ This project is open source.
 
 For general troubleshooting / support, please post to [stack overflow](https://stackoverflow.com/questions/ask) using the tag 'zenject', or post in the [zenject google group](https://groups.google.com/forum/#!forum/zenject/)
 
-Or, if you have found a bug, you are also welcome to create an issue on the [github page](https://github.com/svermeulen/Extenject), or a pull request if you have a fix / extension.  There is also a [gitter chat](https://gitter.im/Extenject/community) that you can join for real time discussion.  Finally, you can also email me directly at sfvermeulen@gmail.com or follow me on twitter at [@steve_verm](https://twitter.com/steve_verm)
+Or, if you have found a bug, you are also welcome to create an issue on the [github page]https://github.com/modesttree/Zenject), or a pull request if you have a fix / extension.  There is also a [gitter chat](https://gitter.im/Zenject/community) that you can join for real time discussion.  Finally, you can also email me directly at sfvermeulen@gmail.com or follow me on twitter at [@steve_verm](https://twitter.com/steve_verm)
 
 ## Features
 
@@ -159,13 +159,13 @@ Or, if you have found a bug, you are also welcome to create an issue on the [git
 
 ## Installation ![GitHub release (latest by date)](https://img.shields.io/github/v/release/svermeulen/Extenject?color=green)
 
-[![GitHub releases](https://img.shields.io/static/v1?style=for-the-badge&label=GitHub%20Releases&labelColor=181717&message=Downloads&color=green&logo=GitHub&logoColor=white)](https://github.com/svermeulen/Extenject/releases)
+[![GitHub releases](https://img.shields.io/static/v1?style=for-the-badge&label=GitHub%20Releases&labelColor=181717&message=Downloads&color=green&logo=GitHub&logoColor=white)](https://github.com/modesttree/Zenject/releases)
 [![Unity](https://img.shields.io/static/v1?style=for-the-badge&label=Unity%20Asset%20Store&labelColor=181717&message=Download&color=green&logo=Unity&logoColor=white)](https://assetstore.unity.com/packages/tools/utilities/extenject-dependency-injection-ioc-157735)
-[![Unity Package](https://img.shields.io/static/v1?style=for-the-badge&label=Unity%20Package&labelColor=181717&message=UPM&color=green&logo=Unity&logoColor=white)](https://github.com/svermeulen/Extenject/issues/2)
+[![Unity Package](https://img.shields.io/static/v1?style=for-the-badge&label=Unity%20Package&labelColor=181717&message=UPM&color=green&logo=Unity&logoColor=white)](https://github.com/modesttree/Zenject/issues/2)
 
 You can install Zenject using any of the following methods
 
-1.  __From [Releases Page](https://github.com/svermeulen/Extenject/releases)__
+1.  __From [Releases Page](https://github.com/modesttree/Zenject/releases)__
     Here you can choose between the following:
 
     * **Zenject-WithAsteroidsDemo.vX.X.unitypackage** - This is equivalent to what you find in the Asset Store and contains both sample games "Asteroids" and "SpaceFighter" as part of the package.  All the source code for Zenject is included here.
@@ -175,12 +175,12 @@ You can install Zenject using any of the following methods
 
 1.  __From the [Unity Asset Store](https://assetstore.unity.com/packages/tools/utilities/extenject-dependency-injection-framework-157735)__
 
-    * Normally this should be the same as what you find in the [Releases section](https://github.com/svermeulen/Extenject/releases), but may also be slightly out of date since Unity Asset Store can take a week or so to review submissions sometimes.
+    * Normally this should be the same as what you find in the [Releases section](https://github.com/modesttree/Zenject/releases), but may also be slightly out of date since Unity Asset Store can take a week or so to review submissions sometimes.
 
 1.  __UPM Branch__
 
-    * This option is a [feature request](https://github.com/svermeulen/Extenject/issues/24). The package will be released when Unity is ready. Unity is not giving any insights on the development status. But the expectation is in the first or second release of 2020.
-    * If you can not wait. There is an alternative. But you will need the Unity extension found [here](https://github.com/mob-sakai/UpmGitExtension). And the package found [here](https://github.com/starikcetin/Extenject/tree/upm).
+    * This option is a [feature request](https://github.com/modesttree/Zenject/issues/24). The package will be released when Unity is ready. Unity is not giving any insights on the development status. But the expectation is in the first or second release of 2020.
+    * If you can not wait. There is an alternative. But you will need the Unity extension found [here](https://github.com/mob-sakai/UpmGitExtension). And the package found [here](https://github.com/modesttree/Zenject/tree/upm).
 
 1.  __From Source__
 
@@ -3397,17 +3397,16 @@ See [here](Documentation/CheatSheet.md).
 
 ## Further Help
 
-For general troubleshooting / support, please use the [zenject subreddit](http://www.reddit.com/r/zenject) or the [zenject google group](https://groups.google.com/forum/#!forum/zenject/).  If you have found a bug, you are also welcome to create an issue on the [github page](https://github.com/svermeulen/Extenject), or a pull request if you have a fix / extension.  Finally, you can also email me directly at sfvermeulen@gmail.com or follow me on twitter at [@steve_verm](https://twitter.com/steve_verm)
-
+For general troubleshooting / support, please use the [zenject subreddit](http://www.reddit.com/r/zenject) or the [zenject google group](https://groups.google.com/forum/#!forum/zenject/).  If you have found a bug, you are also welcome to create an issue on the [github page](https://github.com/modesttree/Zenject), or a pull request if you have a fix / extension. 
 ## Release Notes
 
 See [here](Documentation/ReleaseNotes.md).
 
 ## License
-
     The MIT License (MIT)
 
-    Copyright (c) 2010-2015 Modest Tree Media  http://www.modesttree.com
+    Copyright (c) 2010-2019 Modest Tree Media Inc. ZENJECT and EXTENJECT are a trademark of Modest Tree Media Inc.  http://www.modesttree.com
+   
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
