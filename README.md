@@ -16,8 +16,6 @@
 <details>
 <summary>Details</summary>
 
- 
-  - [Support](#support)
   - [Introduction](#introduction)
   - [Features](#features)
   - [Installation *](#installation-)
